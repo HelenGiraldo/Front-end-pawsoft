@@ -1,0 +1,145 @@
+.login-content {
+  /* Verde más opaco (mezclado con blanco) */
+  --background: linear-gradient(
+      135deg,
+      rgb(47, 60, 54),
+      rgb(47, 57, 53)
+  );
+}
+
+/* Centrado real */
+.center-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+}
+
+/* Limita ancho en web */
+.login-wrapper {
+  width: 100%;
+  max-width: 420px;
+}
+
+/* ---------- Logo ---------- */
+
+.logo-section {
+  text-align: center;
+  margin-bottom: 30px;
+
+  h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: white;
+  }
+
+  h1 span {
+    color: var(--ochre);
+  }
+
+  p {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.85);
+    margin-top: 6px;
+  }
+}
+
+/* ---------- Card blanca semi transparente ---------- */
+/* ---------- Card blanca refinada ---------- */
+
+.login-card {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+
+  padding: 32px 28px;
+  border-radius: 20px;
+
+  border: 1px solid rgba(0, 0, 0, 0.08);
+
+  box-shadow:
+    0 15px 35px rgba(0, 0, 0, 0.25);
+}
+
+.login-card h2 {
+  text-align: center;
+  margin-bottom: 24px;
+  color: #1f2d27; /* más oscuro */
+  font-weight: 700;
+}
+
+/* ---------- Inputs más oscuros ---------- */
+
+.input-item {
+  --background: rgba(74, 99, 88, 0.08);
+  border-radius: 12px;
+  margin-bottom: 16px;
+  padding: 6px 10px;
+}
+
+ion-label {
+  color: #2e4038; /* más oscuro */
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+ion-input {
+  color: #1c2722;
+}
+
+/* ---------- Button más profundo ---------- */
+
+.login-btn {
+  margin-top: 18px;
+  --background: #355c4f; /* verde más oscuro */
+  --border-radius: 12px;
+  font-weight: 600;
+}
+
+.login-btn:hover {
+  --background: #2a4a3f;
+}
+
+/* ---------- Links más sobrios ---------- */
+
+.forgot {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 0.8rem;
+  color: rgb(49, 83, 72);
+  letter-spacing: 0.3px;
+}
+
+.register-link {
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.register-link:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+.register {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 0.85rem;
+  color: rgb(49, 83, 72);
+}
+
+.register span {
+  color: #f4b860; /* ochre suavizado */
+  font-weight: 600;
+}
+
+.forgot,
+.register {
+  cursor: pointer; /* hace que se vea clickable */
+}
+
+.forgot:hover,
+.register:hover {
+  /* opcional, si quieres solo un efecto mínimo */
+  opacity: 0.9;
+}

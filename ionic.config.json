@@ -1,0 +1,7 @@
+{
+  "name": "pawsoft",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}

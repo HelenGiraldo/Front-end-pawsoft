@@ -1,0 +1,92 @@
+<ion-content class="register-content" [fullscreen]="true">
+
+  <div class="center-container">
+    <div class="register-wrapper">
+
+      <!-- Logo -->
+      <div class="logo-section">
+        <h1>Paw<span>Soft</span></h1>
+        <p>Sistema de Gestión Veterinaria</p>
+      </div>
+
+      <!-- Card -->
+      <div class="register-card">
+
+        <h2>Crear cuenta</h2>
+        <p class="card-desc">Completa los datos para registrarte en PawSoft.</p>
+
+        <!-- Nombre completo -->
+        <ion-item lines="none" class="input-item">
+          <ion-label position="stacked">Nombre completo</ion-label>
+          <ion-input
+            type="text"
+            placeholder="Ej: Juan Pérez"
+            [(ngModel)]="nombre">
+          </ion-input>
+        </ion-item>
+
+        <!-- Email -->
+        <ion-item lines="none" class="input-item">
+          <ion-label position="stacked">Correo electrónico</ion-label>
+          <ion-input
+            type="email"
+            placeholder="ejemplo@correo.com"
+            [(ngModel)]="correo">
+          </ion-input>
+        </ion-item>
+
+        <!-- Contraseña -->
+        <ion-item lines="none" class="input-item">
+          <ion-label position="stacked">Contraseña</ion-label>
+          <ion-input
+            [type]="mostrarPass ? 'text' : 'password'"
+            placeholder="••••••••"
+            [(ngModel)]="contrasena">
+          </ion-input>
+          <ion-icon
+            slot="end"
+            class="eye-icon"
+            [name]="mostrarPass ? 'eye-off-outline' : 'eye-outline'"
+            (click)="mostrarPass = !mostrarPass">
+          </ion-icon>
+        </ion-item>
+
+        <!-- Indicador de fuerza -->
+        <div class="strength-bar" *ngIf="contrasena.length > 0">
+          <div class="strength-track">
+            <div class="strength-fill" [style.width]="fuerzaPct" [class]="fuerzaClase"></div>
+          </div>
+          <span class="strength-label" [class]="fuerzaClase">{{ fuerzaTexto }}</span>
+        </div>
+
+        <!-- Error -->
+        <div class="error-msg" [class.visible]="mostrarError">
+          <ion-icon name="alert-circle-outline"></ion-icon>
+          {{ mensajeError }}
+        </div>
+
+        <!-- Botón registrar -->
+        <ion-button expand="block" class="register-btn" (click)="registrar()">
+          Crear cuenta
+        </ion-button>
+
+        <!-- Link login -->
+        <div class="login-link" (click)="irLogin()">
+          ¿Ya tienes cuenta? <span>Inicia sesión</span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- OTP Modal reutilizado -->
+  <app-otp-modal
+    [isVisible]="mostrarOtp"
+    [email]="correo"
+    (validate)="handleOtpValidado($event)"
+    (successRedirect)="handleSuccessRedirect()"
+    (closed)="mostrarOtp = false"
+    (resend)="handleReenvio()">
+  </app-otp-modal>
+
+</ion-content>

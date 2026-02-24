@@ -1,0 +1,273 @@
+/* ---- Overlay ---- */
+.otp-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+
+  background: rgba(10, 20, 16, 0);
+  backdrop-filter: blur(0px);
+  -webkit-backdrop-filter: blur(0px);
+
+  pointer-events: none;
+  transition:
+    background 0.3s ease,
+    backdrop-filter 0.3s ease;
+
+  &.visible {
+    background: rgba(10, 20, 16, 0.65);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    pointer-events: all;
+
+    .otp-modal {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+}
+
+/* ---- Modal Card ---- */
+.otp-modal {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  border-radius: 24px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.4) inset;
+
+  padding: 36px 32px 28px;
+
+  opacity: 0;
+  transform: translateY(20px) scale(0.97);
+  transition:
+    opacity 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ---- Header ---- */
+.otp-header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.otp-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(53, 92, 79, 0.12);
+  margin-bottom: 16px;
+
+  ion-icon {
+    font-size: 28px;
+    color: #355c4f;
+  }
+}
+
+.otp-header h2 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #1f2d27;
+  margin: 0 0 8px;
+}
+
+.otp-subtitle {
+  font-size: 0.85rem;
+  color: #4a6358;
+  line-height: 1.5;
+  margin: 0;
+
+  .email-hint {
+    font-weight: 600;
+    color: #355c4f;
+  }
+}
+
+/* ---- OTP Digit Inputs ---- */
+.otp-inputs {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.otp-digit {
+  width: 48px;
+  height: 56px;
+  border-radius: 12px;
+  border: 2px solid rgba(74, 99, 88, 0.25);
+  background: rgba(74, 99, 88, 0.06);
+
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1f2d27;
+  text-align: center;
+
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+
+  &:focus {
+    border-color: #355c4f;
+    background: rgba(53, 92, 79, 0.1);
+    box-shadow: 0 0 0 3px rgba(53, 92, 79, 0.15);
+  }
+
+  &.filled {
+    border-color: #355c4f;
+    background: rgba(53, 92, 79, 0.08);
+  }
+
+  &.error {
+    border-color: #c0392b;
+    background: rgba(192, 57, 43, 0.06);
+    animation: shake 0.4s ease;
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%       { transform: translateX(-6px); }
+  40%       { transform: translateX(6px); }
+  60%       { transform: translateX(-4px); }
+  80%       { transform: translateX(4px); }
+}
+
+/* ---- Error message ---- */
+.error-msg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: #c0392b;
+  min-height: 20px;
+  margin-bottom: 8px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+
+  &.visible {
+    opacity: 1;
+  }
+
+  ion-icon {
+    font-size: 1rem;
+  }
+}
+
+/* ---- Validate Button ---- */
+.validate-btn {
+  margin-top: 8px;
+  --background: #355c4f;
+  --background-activated: #2a4a3f;
+  --border-radius: 12px;
+  --box-shadow: 0 4px 14px rgba(53, 92, 79, 0.35);
+  font-weight: 600;
+  font-size: 0.95rem;
+
+  &[disabled] {
+    --background: rgba(74, 99, 88, 0.3);
+    --box-shadow: none;
+  }
+}
+
+/* ---- Resend ---- */
+.resend-section {
+  text-align: center;
+  margin-top: 18px;
+  font-size: 0.82rem;
+}
+
+.countdown {
+  color: #7a9b8e;
+}
+
+.resend-link {
+  color: #4a6358;
+  cursor: pointer;
+  transition: color 0.2s;
+
+  strong {
+    color: #f4b860;
+    font-weight: 600;
+  }
+
+  &:hover {
+    color: #355c4f;
+  }
+}
+
+/* ---- Close button ---- */
+.close-btn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(74, 99, 88, 0.1);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+
+  ion-icon {
+    font-size: 18px;
+    color: #355c4f;
+  }
+
+  &:hover {
+    background: rgba(74, 99, 88, 0.2);
+  }
+}
+
+/* =============================================
+   ESTADO DE ÉXITO
+   ============================================= */
+
+.otp-header.success-state {
+  transition: all 0.4s ease;
+}
+
+.otp-icon.success-icon {
+  background: rgba(53, 92, 79, 0.15);
+  animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  ion-icon {
+    color: #355c4f;
+    font-size: 32px;
+  }
+}
+
+@keyframes popIn {
+  0%   { transform: scale(0.5); opacity: 0; }
+  100% { transform: scale(1);   opacity: 1; }
+}
+
+.success-msg-text {
+  color: #355c4f !important;
+  font-weight: 500;
+  animation: fadeIn 0.4s ease 0.2s both;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

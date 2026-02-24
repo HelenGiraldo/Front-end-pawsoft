@@ -1,0 +1,68 @@
+<ion-content class="login-content" [fullscreen]="true">
+
+  <div class="center-container">
+
+    <div class="login-wrapper">
+
+      <!-- Logo -->
+      <div class="logo-section">
+        <h1>Paw<span>Soft</span></h1>
+        <p>Sistema de Gestión Veterinaria</p>
+      </div>
+
+      <!-- Card Login -->
+      <div class="login-card">
+
+        <h2>Iniciar Sesión</h2>
+
+        <!-- Email -->
+        <ion-item lines="none" class="input-item">
+          <ion-label position="stacked">Correo electrónico</ion-label>
+          <ion-input
+            type="email"
+            placeholder="ejemplo@correo.com">
+          </ion-input>
+        </ion-item>
+
+        <!-- Password -->
+        <ion-item lines="none" class="input-item">
+          <ion-label position="stacked">Contraseña</ion-label>
+          <ion-input
+            type="password"
+            placeholder="••••••••">
+          </ion-input>
+        </ion-item>
+
+        <!-- Button -->
+        <ion-button expand="block" class="login-btn" (click)="login()">
+          Ingresar
+        </ion-button>
+
+        <!-- Forgot -->
+        <div class="forgot" (click)="recuperarContrasena()">
+          ¿Olvidaste tu contraseña?
+        </div>
+
+        <!-- Register -->
+        <div class="register" (click)="irRegistro()">
+          ¿No tienes cuenta?
+          <span>Regístrate</span>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- OTP Modal -->
+  <app-otp-modal
+    [isVisible]="mostrarOtp"
+    [email]="correoUsuario"
+    (validate)="handleOtpValidado($event)"
+    (successRedirect)="handleSuccessRedirect()"
+    (closed)="handleOtpCerrado()"
+    (resend)="handleReenvio()">
+  </app-otp-modal>
+
+</ion-content>

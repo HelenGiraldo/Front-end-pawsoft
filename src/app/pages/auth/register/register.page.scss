@@ -1,0 +1,185 @@
+.register-content {
+  --background: linear-gradient(
+      135deg,
+      rgb(47, 60, 54),
+      rgb(47, 57, 53)
+  );
+}
+
+.center-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+}
+
+.register-wrapper {
+  width: 100%;
+  max-width: 420px;
+}
+
+/* ---------- Logo ---------- */
+.logo-section {
+  text-align: center;
+  margin-bottom: 30px;
+
+  h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: white;
+  }
+
+  h1 span {
+    color: #f4b860;
+  }
+
+  p {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.85);
+    margin-top: 6px;
+  }
+}
+
+/* ---------- Card ---------- */
+.register-card {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 32px 28px;
+  border-radius: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+}
+
+.register-card h2 {
+  text-align: center;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #1f2d27;
+  margin-bottom: 6px;
+}
+
+.card-desc {
+  text-align: center;
+  font-size: 0.83rem;
+  color: #4a6358;
+  margin-bottom: 22px;
+}
+
+/* ---------- Inputs ---------- */
+.input-item {
+  --background: rgba(74, 99, 88, 0.08);
+  border-radius: 12px;
+  margin-bottom: 14px;
+  padding: 6px 10px;
+}
+
+ion-label {
+  color: #2e4038;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+ion-input {
+  color: #1c2722;
+}
+
+.eye-icon {
+  color: #4a6358;
+  font-size: 1.2rem;
+  cursor: pointer;
+  margin-top: 18px;
+  transition: color 0.2s;
+
+  &:hover {
+    color: #355c4f;
+  }
+}
+
+/* ---------- Barra de fuerza ---------- */
+.strength-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  padding: 0 2px;
+}
+
+.strength-track {
+  flex: 1;
+  height: 5px;
+  border-radius: 99px;
+  background: rgba(74, 99, 88, 0.15);
+  overflow: hidden;
+}
+
+.strength-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.4s ease, background 0.3s ease;
+
+  &.debil  { background: #e74c3c; }
+  &.media  { background: #f4b860; }
+  &.buena  { background: #27ae60; }
+  &.fuerte { background: #1e8449; }
+}
+
+.strength-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  min-width: 130px;
+  text-align: right;
+
+  &.debil  { color: #e74c3c; }
+  &.media  { color: #c07000; }
+  &.buena  { color: #27ae60; }
+  &.fuerte { color: #1e8449; }
+}
+
+/* ---------- Error ---------- */
+.error-msg {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: #c0392b;
+  min-height: 20px;
+  margin-bottom: 8px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+
+  &.visible { opacity: 1; }
+
+  ion-icon {
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+}
+
+/* ---------- Botón ---------- */
+.register-btn {
+  margin-top: 8px;
+  --background: #355c4f;
+  --border-radius: 12px;
+  --box-shadow: 0 4px 14px rgba(53, 92, 79, 0.35);
+  font-weight: 600;
+}
+
+/* ---------- Link login ---------- */
+.login-link {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 0.85rem;
+  color: rgb(49, 83, 72);
+  cursor: pointer;
+
+  span {
+    color: #f4b860;
+    font-weight: 600;
+  }
+
+  &:hover {
+    opacity: 0.9;
+  }
+}
