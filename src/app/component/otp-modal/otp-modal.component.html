@@ -1,7 +1,7 @@
 <div class="otp-overlay" [class.visible]="isVisible" (click)="onOverlayClick($event)">
   <div class="otp-modal" #modalRef>
 
-    <!-- Header: cambia según el estado -->
+    <!-- Header -->
     <div class="otp-header" [class.success-state]="isSuccess">
 
       <div class="otp-icon" [class.success-icon]="isSuccess">
@@ -25,6 +25,12 @@
     <!-- Contenido oculto cuando hay éxito -->
     <ng-container *ngIf="!isSuccess">
 
+      <!-- Mensaje de bloqueo -->
+      <div class="locked-msg" *ngIf="isLocked">
+        <ion-icon name="alert-circle-outline"></ion-icon>
+        Cuenta bloqueada. Espera {{ lockSeconds }}s para intentar de nuevo.
+      </div>
+
       <!-- OTP Inputs -->
       <div class="otp-inputs">
         <input
@@ -36,41 +42,42 @@
           class="otp-digit"
           [class.filled]="otpValues[i]"
           [class.error]="hasError"
+          [disabled]="isLocked"
           (input)="onDigitInput($event, i)"
           (keydown)="onKeyDown($event, i)"
           (paste)="onPaste($event)"
         />
       </div>
 
-      <!-- Error message -->
+      <!-- Mensaje de error — muestra intentos restantes si los hay -->
       <div class="error-msg" [class.visible]="hasError">
         <ion-icon name="alert-circle-outline"></ion-icon>
-        Código incorrecto. Intenta de nuevo.
+        {{ errorMessage }}
       </div>
 
-      <!-- Validate Button -->
+      <!-- Botón validar -->
       <ion-button
         expand="block"
         class="validate-btn"
-        [disabled]="!isComplete || isLoading"
+        [disabled]="!isComplete || isLoading || isLocked"
         (click)="validar()">
         <ion-spinner *ngIf="isLoading" name="crescent" slot="start"></ion-spinner>
         {{ isLoading ? 'Validando...' : 'Validar' }}
       </ion-button>
 
-      <!-- Resend -->
+      <!-- Reenviar -->
       <div class="resend-section">
         <span *ngIf="countdown > 0" class="countdown">
           Reenviar código en {{ countdown }}s
         </span>
-        <span *ngIf="countdown === 0" class="resend-link" (click)="reenviarCodigo()">
+        <span *ngIf="countdown === 0 && !isLocked" class="resend-link" (click)="reenviarCodigo()">
           ¿No recibiste el código? <strong>Reenviar</strong>
         </span>
       </div>
 
     </ng-container>
 
-    <!-- Close (oculto durante éxito para no interrumpir la redirección) -->
+    <!-- Botón cerrar -->
     <button class="close-btn" *ngIf="!isSuccess" (click)="cerrar()">
       <ion-icon name="close-outline"></ion-icon>
     </button>

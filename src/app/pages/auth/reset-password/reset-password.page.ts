@@ -1,7 +1,7 @@
-import {Component, inject} from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import {
   IonContent,
   IonItem,
@@ -18,6 +18,7 @@ import {
   alertCircleOutline,
   checkmarkCircleOutline,
 } from 'ionicons/icons';
+import { AuthService } from 'src/app/services/auth';
 
 @Component({
   selector: 'app-reset-password',
@@ -35,33 +36,51 @@ import {
     IonIcon,
   ],
 })
-export class ResetPasswordPage {
-
+export class ResetPasswordPage implements OnInit {
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private authService = inject(AuthService);
 
-  nuevaPass     = '';
+  nuevaPass = '';
   confirmarPass = '';
-  mostrarPass1  = false;
-  mostrarPass2  = false;
-  mostrarError  = false;
-  mensajeError  = '';
-  cambiado      = false;
+  mostrarPass1 = false;
+  mostrarPass2 = false;
+  mostrarError = false;
+  mensajeError = '';
+  cambiado = false;
+  token: string | null = null;
 
   constructor() {
-    addIcons({ keyOutline, eyeOutline, eyeOffOutline, alertCircleOutline, checkmarkCircleOutline });
+    addIcons({
+      keyOutline,
+      eyeOutline,
+      eyeOffOutline,
+      alertCircleOutline,
+      checkmarkCircleOutline,
+    });
   }
 
-  // ─── Indicador de fuerza ─────────────────────────────────────
+  ngOnInit() {
+    this.route.queryParams.subscribe((params) => {
+      this.token = params['token'] || null;
+
+      if (!this.token) {
+        this.setError('Token inválido o expirado.');
+      }
+    });
+  }
 
   get fuerzaPct(): string {
     const len = this.nuevaPass.length;
     if (len === 0) return '0%';
-    if (len < 6)   return '25%';
-    if (len < 8)   return '50%';
-    const hasUpper   = /[A-Z]/.test(this.nuevaPass);
-    const hasNumber  = /[0-9]/.test(this.nuevaPass);
+    if (len < 6) return '25%';
+    if (len < 8) return '50%';
+
+    const hasUpper = /[A-Z]/.test(this.nuevaPass);
+    const hasNumber = /[0-9]/.test(this.nuevaPass);
     const hasSpecial = /[^A-Za-z0-9]/.test(this.nuevaPass);
     const score = [hasUpper, hasNumber, hasSpecial].filter(Boolean).length;
+
     if (score === 3) return '100%';
     if (score === 2) return '75%';
     return '50%';
@@ -70,40 +89,46 @@ export class ResetPasswordPage {
   get fuerzaClase(): string {
     const pct = this.fuerzaPct;
     if (pct === '100%') return 'fuerte';
-    if (pct === '75%')  return 'buena';
-    if (pct === '50%')  return 'media';
+    if (pct === '75%') return 'buena';
+    if (pct === '50%') return 'media';
     return 'debil';
   }
 
   get fuerzaTexto(): string {
     const map: Record<string, string> = {
       fuerte: 'Contraseña fuerte',
-      buena:  'Contraseña buena',
-      media:  'Contraseña media',
-      debil:  'Contraseña débil',
+      buena: 'Contraseña buena',
+      media: 'Contraseña media',
+      debil: 'Contraseña débil',
     };
     return map[this.fuerzaClase];
   }
-
-  // ─── Acción principal ────────────────────────────────────────
 
   cambiarContrasena() {
     if (this.nuevaPass.length < 8) {
       this.setError('La contraseña debe tener al menos 8 caracteres.');
       return;
     }
+
     if (this.nuevaPass !== this.confirmarPass) {
       this.setError('Las contraseñas no coinciden.');
       return;
     }
 
-    // ── SIMULACIÓN TEMPORAL (borrar cuando conectes el backend) ──
-    // const token = this.route.snapshot.queryParams['token'];
-    // this.authService.resetPassword(token, this.nuevaPass).subscribe(() => {
-    //   this.cambiado = true;
-    // });
-    this.cambiado = true;
-    // ─────────────────────────────────────────────────────────────
+    if (!this.token) {
+      this.setError('Token inválido o expirado.');
+      return;
+    }
+
+    this.authService.resetPassword(this.token, this.nuevaPass).subscribe({
+      next: () => {
+        this.cambiado = true;
+      },
+      error: (err) => {
+        console.error('Error reset password:', err);
+        this.setError('No se pudo cambiar la contraseña.');
+      },
+    });
   }
 
   irLogin() {

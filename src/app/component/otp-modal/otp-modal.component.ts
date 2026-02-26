@@ -1,30 +1,36 @@
-import {Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, QueryList, ViewChildren,
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  QueryList,
+  ViewChildren
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {IonButton, IonIcon, IonSpinner,} from '@ionic/angular/standalone';
+import { IonButton, IonIcon, IonSpinner } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { mailOutline, alertCircleOutline, closeOutline, checkmarkCircleOutline } from 'ionicons/icons';
+import {
+  mailOutline,
+  alertCircleOutline,
+  closeOutline,
+  checkmarkCircleOutline
+} from 'ionicons/icons';
 
 /**
- * OTP Modal — Módulo general reutilizable para Login y Registro.
+ * Componente modal reutilizable para verificación OTP (2FA).
  *
- * USO EN LOGIN:
- *   <app-otp-modal
- *     [isVisible]="mostrarOtp"
- *     [email]="correoUsuario"
- *     (validate)="handleOtpValidado($event)"
- *     (closed)="mostrarOtp = false"
- *     (resend)="reenviarCodigoOtp()">
- *   </app-otp-modal>
- *
- * FLUJO ESPERADO:
- *  1. El padre valida credenciales con el backend.
- *  2. Si son correctas → [isVisible]="true" para mostrar el modal.
- *  3. El usuario ingresa el código de 6 dígitos.
- *  4. Al presionar "Validar" → emite (validate) con el código.
- *  5. El padre llama al backend:
- *     - Correcto   → llama this.otpModal.showSuccess() → redirige automáticamente
- *     - Incorrecto → llama this.otpModal.showError()
+ * Flujo esperado:
+ * 1. El padre muestra el modal con [isVisible]="true".
+ * 2. El usuario ingresa el código de 6 dígitos.
+ * 3. Al presionar Validar, emite (validate) con el código.
+ * 4. El padre llama al backend y según la respuesta:
+ *    - Correcto            → llama showSuccess()
+ *    - Incorrecto con N intentos restantes → llama showErrorConIntentos(N)
+ *    - Incorrecto sin info → llama showError()
+ *    - Bloqueado           → llama showLocked(segundos)
  */
 @Component({
   selector: 'app-otp-modal',
@@ -38,10 +44,10 @@ export class OtpModalComponent implements OnInit, OnDestroy {
   /** Controla la visibilidad del modal */
   @Input() isVisible = false;
 
-  /** Correo del usuario (se enmascara para mostrar en pantalla) */
+  /** Correo del usuario — se enmascara en pantalla */
   @Input() email = '';
 
-  /** Emite el código OTP completo cuando el usuario presiona "Validar" */
+  /** Emite el código OTP completo al presionar Validar */
   @Output() validate = new EventEmitter<string>();
 
   /** Emite cuando el usuario cierra el modal */
@@ -50,7 +56,7 @@ export class OtpModalComponent implements OnInit, OnDestroy {
   /** Emite cuando el usuario solicita reenviar el código */
   @Output() resend = new EventEmitter<void>();
 
-  /** Emite cuando el modal termina de mostrar el éxito y hay que navegar */
+  /** Emite cuando termina la animación de éxito y hay que navegar */
   @Output() successRedirect = new EventEmitter<void>();
 
   @ViewChildren('otpInputs') otpInputs!: QueryList<ElementRef<HTMLInputElement>>;
@@ -59,9 +65,16 @@ export class OtpModalComponent implements OnInit, OnDestroy {
   hasError  = false;
   isLoading = false;
   isSuccess = false;
-  countdown = 60;
+  isLocked  = false;
+
+  /** Mensaje de error dinámico — muestra intentos restantes si el backend los envía */
+  errorMessage = 'Código incorrecto. Intenta de nuevo.';
+
+  countdown   = 60;
+  lockSeconds = 0;
 
   private countdownInterval: ReturnType<typeof setInterval> | null = null;
+  private lockInterval:      ReturnType<typeof setInterval> | null = null;
 
   constructor() {
     addIcons({ mailOutline, alertCircleOutline, closeOutline, checkmarkCircleOutline });
@@ -73,18 +86,16 @@ export class OtpModalComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.clearCountdown();
+    this.clearLock();
   }
 
-  // ─────────────────────────────────────────────
-  //  Computed
-  // ─────────────────────────────────────────────
+  // ─── Computed ───────────────────────────────────────────
 
   /** Enmascara el correo: ejem****@correo.com */
   get maskedEmail(): string {
     if (!this.email) return '';
     const [local, domain] = this.email.split('@');
-    const visible = local.slice(0, 4);
-    return `${visible}****@${domain}`;
+    return `${local.slice(0, 4)}****@${domain}`;
   }
 
   /** Verdadero cuando los 6 dígitos están completos */
@@ -92,17 +103,15 @@ export class OtpModalComponent implements OnInit, OnDestroy {
     return this.otpValues.every(v => v !== '');
   }
 
-  // ─────────────────────────────────────────────
-  //  Interacción con inputs
-  // ─────────────────────────────────────────────
+  // ─── Interacción con inputs ──────────────────────────────
 
   onDigitInput(event: Event, index: number): void {
+    if (this.isLocked) return;
+
     const input = event.target as HTMLInputElement;
     const value = input.value.replace(/\D/g, '');
 
-    if (value.length > 1) {
-      input.value = value[0];
-    }
+    if (value.length > 1) input.value = value[0];
 
     this.otpValues[index] = value[0] ?? '';
     input.value = this.otpValues[index];
@@ -114,13 +123,20 @@ export class OtpModalComponent implements OnInit, OnDestroy {
   }
 
   onKeyDown(event: KeyboardEvent, index: number): void {
+    if (this.isLocked) return;
+
+    const input = event.target as HTMLInputElement;
+
     if (event.key === 'Backspace') {
       if (this.otpValues[index]) {
         this.otpValues[index] = '';
+        input.value = '';
       } else if (index > 0) {
         this.otpValues[index - 1] = '';
+        this.setInputValue(index - 1, '');
         this.focusInput(index - 1);
       }
+      return;
     }
 
     if (event.key === 'ArrowLeft'  && index > 0) this.focusInput(index - 1);
@@ -128,39 +144,37 @@ export class OtpModalComponent implements OnInit, OnDestroy {
   }
 
   onPaste(event: ClipboardEvent): void {
+    if (this.isLocked) return;
+
     event.preventDefault();
-    const pasted = event.clipboardData?.getData('text') ?? '';
-    const digits = pasted.replace(/\D/g, '').slice(0, 6).split('');
+    const digits = (event.clipboardData?.getData('text') ?? '')
+      .replace(/\D/g, '').slice(0, 6).split('');
 
-    digits.forEach((d, i) => {
-      if (i < 6) this.otpValues[i] = d;
-    });
+    digits.forEach((d, i) => { if (i < 6) this.otpValues[i] = d; });
+    this.syncInputsFromValues();
 
-    const lastIndex = Math.min(digits.length - 1, 5);
-    setTimeout(() => this.focusInput(lastIndex), 0);
+    setTimeout(() => this.focusInput(Math.min(digits.length - 1, 5)), 0);
   }
 
-  // ─────────────────────────────────────────────
-  //  Acciones
-  // ─────────────────────────────────────────────
+  // ─── Acciones ────────────────────────────────────────────
 
   validar(): void {
-    if (!this.isComplete) return;
+    if (this.isLocked || !this.isComplete || this.isLoading) return;
     this.isLoading = true;
     const code = this.otpValues.join('');
     this.validate.emit(code);
   }
 
   /**
-   * Llama este método desde el padre cuando el backend confirma que
-   * el código es CORRECTO. Muestra el estado de éxito y luego emite
-   * (successRedirect) para que el padre navegue a inicio.
+   * Llamar desde el padre cuando el backend confirma código CORRECTO.
+   * Muestra animación de éxito y emite successRedirect tras 2 segundos.
    */
   showSuccess(): void {
     this.isLoading = false;
     this.isSuccess = true;
     this.clearCountdown();
-    // Espera 2 segundos mostrando el éxito y luego avisa al padre
+    this.clearLock();
+
     setTimeout(() => {
       this.successRedirect.emit();
       this.resetModal();
@@ -168,18 +182,49 @@ export class OtpModalComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Llama este método desde el padre cuando el backend devuelve que
-   * el código es INCORRECTO.
+   * Llamar desde el padre cuando el código es INCORRECTO
+   * y el backend no informa cuántos intentos quedan.
    */
   showError(): void {
-    this.isLoading = false;
-    this.hasError = true;
-    this.otpValues = ['', '', '', '', '', ''];
-    setTimeout(() => this.focusInput(0), 100);
-    setTimeout(() => (this.hasError = false), 3000);
+    this.errorMessage = 'Código incorrecto. Intenta de nuevo.';
+    this.aplicarError();
   }
 
-  /** Para detener el spinner manualmente si es necesario */
+  /**
+   * Llamar desde el padre cuando el código es INCORRECTO
+   * y el backend informa cuántos intentos quedan.
+   *
+   * @param restantes número de intentos restantes que devuelve el backend
+   */
+  showErrorConIntentos(restantes: number): void {
+    this.errorMessage = `Código incorrecto. Intentos restantes: ${restantes}`;
+    this.aplicarError();
+  }
+
+  /**
+   * Llamar desde el padre cuando la cuenta queda bloqueada temporalmente.
+   *
+   * @param seconds segundos de bloqueo
+   */
+  showLocked(seconds: number): void {
+    this.isLoading = false;
+    this.isLocked  = true;
+
+    this.otpValues = ['', '', '', '', '', ''];
+    this.syncInputsFromValues();
+
+    this.lockSeconds = Math.max(1, Math.floor(seconds));
+    this.clearLock();
+
+    this.lockInterval = setInterval(() => {
+      this.lockSeconds--;
+      if (this.lockSeconds <= 0) {
+        this.clearLock();
+        this.isLocked = false;
+      }
+    }, 1000);
+  }
+
   stopLoading(): void {
     this.isLoading = false;
   }
@@ -190,10 +235,15 @@ export class OtpModalComponent implements OnInit, OnDestroy {
   }
 
   reenviarCodigo(): void {
+    if (this.isLocked) return;
+
     this.otpValues = ['', '', '', '', '', ''];
+    this.syncInputsFromValues();
+
     this.hasError = false;
     this.startCountdown();
     this.resend.emit();
+
     setTimeout(() => this.focusInput(0), 100);
   }
 
@@ -203,13 +253,38 @@ export class OtpModalComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ─────────────────────────────────────────────
-  //  Helpers
-  // ─────────────────────────────────────────────
+  // ─── Helpers privados ────────────────────────────────────
+
+  /**
+   * Lógica común para mostrar estado de error en los inputs.
+   * Se llama desde showError() y showErrorConIntentos().
+   */
+  private aplicarError(): void {
+    this.isLoading = false;
+    this.hasError  = true;
+
+    this.otpValues = ['', '', '', '', '', ''];
+    this.syncInputsFromValues();
+
+    setTimeout(() => this.focusInput(0), 100);
+    setTimeout(() => (this.hasError = false), 3000);
+  }
 
   private focusInput(index: number): void {
-    const inputs = this.otpInputs?.toArray();
-    inputs?.[index]?.nativeElement?.focus();
+    const el = this.otpInputs?.toArray()?.[index]?.nativeElement;
+    el?.focus();
+    el?.select?.();
+  }
+
+  private setInputValue(index: number, value: string): void {
+    const el = this.otpInputs?.toArray()?.[index]?.nativeElement;
+    if (el) el.value = value;
+  }
+
+  private syncInputsFromValues(): void {
+    (this.otpInputs?.toArray() ?? []).forEach((ref, i) => {
+      ref.nativeElement.value = this.otpValues[i] ?? '';
+    });
   }
 
   private startCountdown(): void {
@@ -228,10 +303,22 @@ export class OtpModalComponent implements OnInit, OnDestroy {
     }
   }
 
+  private clearLock(): void {
+    if (this.lockInterval) {
+      clearInterval(this.lockInterval);
+      this.lockInterval = null;
+    }
+  }
+
   private resetModal(): void {
-    this.otpValues = ['', '', '', '', '', ''];
-    this.hasError  = false;
-    this.isLoading = false;
-    this.isSuccess = false;
+    this.otpValues    = ['', '', '', '', '', ''];
+    this.hasError     = false;
+    this.isLoading    = false;
+    this.isSuccess    = false;
+    this.isLocked     = false;
+    this.lockSeconds  = 0;
+    this.errorMessage = 'Código incorrecto. Intenta de nuevo.';
+    this.syncInputsFromValues();
+    this.clearLock();
   }
 }

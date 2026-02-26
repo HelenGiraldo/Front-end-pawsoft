@@ -72,7 +72,7 @@
 /* ---------- Inputs más oscuros ---------- */
 
 .input-item {
-  --background: rgba(74, 99, 88, 0.08);
+  --background: rgba(33, 37, 37, 0.08);
   border-radius: 12px;
   margin-bottom: 16px;
   padding: 6px 10px;
@@ -93,6 +93,7 @@ ion-input {
 .login-btn {
   margin-top: 18px;
   --background: #355c4f; /* verde más oscuro */
+  --color: white;
   --border-radius: 12px;
   font-weight: 600;
 }
@@ -129,7 +130,7 @@ ion-input {
 }
 
 .register span {
-  color: #f4b860; /* ochre suavizado */
+  color: #ff9b00; /* ochre suavizado */
   font-weight: 600;
 }
 
@@ -142,4 +143,30 @@ ion-input {
 .register:hover {
   /* opcional, si quieres solo un efecto mínimo */
   opacity: 0.9;
+}
+
+ion-label {
+  color: #1c2722 !important;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+ion-input {
+  color: #1c2722 !important;
+  --color: #1c2722;
+}
+
+ion-input::part(native) {
+  color: #1c2722 !important;
+}
+.error-message {
+  color: var(--ion-color-danger);
+  text-align: center;
+  font-size: 0.9rem;
+  margin: 12px 0;
+}
+
+.disabled {
+  opacity: 0.6;
+  pointer-events: none;
 }

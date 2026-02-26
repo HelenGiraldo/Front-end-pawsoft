@@ -1,7 +1,5 @@
 <ion-content class="login-content" [fullscreen]="true">
-
   <div class="center-container">
-
     <div class="login-wrapper">
 
       <!-- Logo -->
@@ -12,48 +10,58 @@
 
       <!-- Card Login -->
       <div class="login-card">
-
         <h2>Iniciar Sesión</h2>
 
-        <!-- Email -->
         <ion-item lines="none" class="input-item">
           <ion-label position="stacked">Correo electrónico</ion-label>
           <ion-input
             type="email"
-            placeholder="ejemplo@correo.com">
+            placeholder="ejemplo@correo.com"
+            [(ngModel)]="email"
+            [disabled]="cargando">
           </ion-input>
         </ion-item>
 
-        <!-- Password -->
         <ion-item lines="none" class="input-item">
           <ion-label position="stacked">Contraseña</ion-label>
           <ion-input
             type="password"
-            placeholder="••••••••">
+            placeholder="••••••••"
+            [(ngModel)]="password"
+            [disabled]="cargando">
           </ion-input>
         </ion-item>
 
-        <!-- Button -->
-        <ion-button expand="block" class="login-btn" (click)="login()">
-          Ingresar
+        <!-- Spinner mientras carga -->
+        <div class="loading" *ngIf="cargando">
+          <ion-spinner name="crescent"></ion-spinner>
+          <span>Cargando...</span>
+        </div>
+
+        <p *ngIf="errorMsg && !cargando" class="error-message">
+          {{ errorMsg }}
+        </p>
+
+        <ion-button
+          expand="block"
+          class="login-btn"
+          (click)="login()"
+          [disabled]="cargando || !email || !password.trim()">
+          {{ cargando ? 'Ingresando...' : 'Ingresar' }}
         </ion-button>
 
-        <!-- Forgot -->
-        <div class="forgot" (click)="recuperarContrasena()">
+        <div class="forgot" (click)="recuperarContrasena()" [class.disabled]="cargando">
           ¿Olvidaste tu contraseña?
         </div>
 
-        <!-- Register -->
-        <div class="register" (click)="irRegistro()">
-          ¿No tienes cuenta?
-          <span>Regístrate</span>
+        <div class="register" (click)="irRegistro()" [class.disabled]="cargando">
+          ¿No tienes cuenta? <span>Regístrate</span>
         </div>
-
       </div>
-
     </div>
-
   </div>
+
+
 
   <!-- OTP Modal -->
   <app-otp-modal
@@ -64,5 +72,4 @@
     (closed)="handleOtpCerrado()"
     (resend)="handleReenvio()">
   </app-otp-modal>
-
 </ion-content>

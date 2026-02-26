@@ -17,6 +17,7 @@ import {
   alertCircleOutline,
   arrowBackOutline,
 } from 'ionicons/icons';
+import {AuthService} from "../../../services/auth";
 
 @Component({
   selector: 'app-forgot-password',
@@ -37,6 +38,7 @@ import {
 export class ForgotPasswordPage {
 
   private router = inject(Router);
+  private authService = inject(AuthService);
 
   correo       = '';
   enviado      = false;
@@ -47,19 +49,24 @@ export class ForgotPasswordPage {
   }
 
   continuar() {
+    const email = this.correo?.trim();
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!this.correo || !emailRegex.test(this.correo)) {
+
+    if (!email || !emailRegex.test(email)) {
       this.mostrarError = true;
       setTimeout(() => (this.mostrarError = false), 3000);
       return;
     }
 
-    // ── SIMULACIÓN TEMPORAL (borrar cuando conectes el backend) ──
-    // this.authService.sendResetLink(this.correo).subscribe(() => {
-    //   this.enviado = true;
-    // });
-    this.enviado = true;
-    // ─────────────────────────────────────────────────────────────
+    this.authService.requestPasswordReset(email).subscribe({
+      next: () => {
+        this.enviado = true;
+      },
+      error: () => {
+        this.enviado = true;
+      }
+    });
   }
 
   volverLogin() {
