@@ -47,7 +47,7 @@ export interface RecepUpdateRequest {
 @Injectable({ providedIn: 'root' })
 export class RecepcionistaService {
 
-  private readonly base = 'http://localhost:8080/api/recepcionista/appointments';
+  private readonly base = `${environment.apiUrl}/api/recepcionista/appointments`;
 
   constructor(private readonly http: HttpClient) {}
 
