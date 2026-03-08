@@ -728,17 +728,29 @@ export class DashboardRecComponent implements OnInit {
     const clientParts = (a.clientName ?? '').split(' ');
     const vetParts    = (a.vetName    ?? '').split(' ');
     let status = a.status;
-    if (status === 'UPCOMING') {
+    if (status === 'UPCOMING' && a.date && a.time) {
       if (new Date(`${a.date}T${a.time}`) < new Date()) status = 'NO_SHOW';
     }
     return {
-      id: String(a.id), date: a.date, time: a.time.substring(0, 5),
-      reason: a.reason, notes: a.notes ?? '', status: status as Appointment['status'],
-      cancelReason: a.cancelReason, clientId: String(a.clientId),
-      clientFirstName: clientParts[0] ?? '', clientLastName: clientParts.slice(1).join(' ') ?? '',
-      clientEmail: a.clientEmail, petId: String(a.petId), petName: a.petName,
-      petEmoji: this.getEmojiBySpecies(a.petSpecies), petSpecies: a.petSpecies,
-      vetId: String(a.vetId), vetFirstName: vetParts[0] ?? '', vetLastName: vetParts.slice(1).join(' ') ?? '', vetSpecialty: ''
+      id: String(a.id ?? ''), 
+      date: a.date ?? '', 
+      time: (a.time ?? '').substring(0, 5),
+      reason: a.reason ?? '', 
+      notes: a.notes ?? '', 
+      status: status as Appointment['status'],
+      cancelReason: a.cancelReason, 
+      clientId: String(a.clientId ?? ''),
+      clientFirstName: clientParts[0] ?? '', 
+      clientLastName: clientParts.slice(1).join(' ') ?? '',
+      clientEmail: a.clientEmail ?? '', 
+      petId: String(a.petId ?? ''), 
+      petName: a.petName ?? '',
+      petEmoji: this.getEmojiBySpecies(a.petSpecies ?? ''), 
+      petSpecies: a.petSpecies ?? '',
+      vetId: String(a.vetId ?? ''), 
+      vetFirstName: vetParts[0] ?? '', 
+      vetLastName: vetParts.slice(1).join(' ') ?? '', 
+      vetSpecialty: ''
     };
   }
 
