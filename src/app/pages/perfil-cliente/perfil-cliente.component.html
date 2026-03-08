@@ -183,22 +183,6 @@
             <span class="field-hint">Desactiva transiciones y animaciones para reducir el movimiento en pantalla.</span>
           </div>
 
-          <!-- Lectura de voz (opcional) -->
-          <div class="field-group">
-            <label class="field-label">Lectura de voz <span class="optional-badge">Recomendado</span></label>
-            <div class="switch-wrapper">
-              <label class="switch">
-                <input type="checkbox" 
-                       [checked]="accessibilityService.getVoiceEnabled()"
-                       (change)="accessibilityService.setVoiceEnabled($any($event.target).checked)">
-                <span class="slider"></span>
-              </label>
-              <span class="switch-label">
-                {{ accessibilityService.getVoiceEnabled() ? 'Activado' : 'Desactivado' }}
-              </span>
-            </div>
-            <span class="field-hint">Permite que el sistema lea en voz alta ciertos elementos de la interfaz.</span>
-          </div>
         </div>
 
         <!-- Botón guardar -->
