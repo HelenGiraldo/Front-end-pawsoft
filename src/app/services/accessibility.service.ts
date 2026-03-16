@@ -130,12 +130,7 @@ export class AccessibilityService {
   /* ---------------------- PRIVADOS ---------------------- */
 
   private detectarPreferenciasSistema(): void {
-    // Detectar preferencia de tema oscuro del sistema
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      if (!localStorage.getItem(this.KEY)) {
-        this.prefs.theme = 'dark';
-      }
-    }
+    // Tema: siempre light por defecto, sin importar la preferencia del OS
 
     // Detectar preferencia de movimiento reducido del sistema
     if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -164,8 +159,16 @@ export class AccessibilityService {
 
   private aplicarFuente(): void {
     const body = document.body;
+    const html = document.documentElement;
     body.classList.remove('font-normal', 'font-large', 'font-xlarge');
     body.classList.add(`font-${this.prefs.fontSize}`);
+    // Escala el rem base en el elemento html
+    const sizeMap: Record<string, string> = {
+      normal: '16px',
+      large:  '18px',
+      xlarge: '20px'
+    };
+    html.style.fontSize = sizeMap[this.prefs.fontSize] ?? '16px';
   }
 
   private aplicarReduceMotion(): void {
@@ -208,7 +211,10 @@ export class AccessibilityService {
   private cargarPreferencias(): void {
     const saved = localStorage.getItem(this.KEY);
     if (saved) {
-      this.prefs = { ...this.prefs, ...JSON.parse(saved) };
+      const parsed = JSON.parse(saved);
+      // El tema siempre arranca en light — no se restaura del localStorage
+      const { theme, ...rest } = parsed;
+      this.prefs = { ...this.prefs, ...rest };
     }
   }
 }

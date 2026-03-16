@@ -124,6 +124,13 @@ export class DashboardClienteComponent implements OnInit, OnDestroy {
     this.updateMonthYearLabel();
   }
 
+  ionViewWillEnter(): void {
+    this.userName = localStorage.getItem('email') || 'Usuario';
+    this.userRole = localStorage.getItem('rol')   || 'ROLE_CLIENTE';
+    this.loadPets();
+    this.loadMyAppointments();
+  }
+
   ngOnDestroy(): void {
     clearTimeout(this.toastTimer);
   }

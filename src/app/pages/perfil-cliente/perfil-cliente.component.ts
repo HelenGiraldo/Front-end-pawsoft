@@ -53,6 +53,7 @@ export class PerfilClienteComponent implements OnInit {
   private pendingEmail       = '';
   private pendingPhone       = '';
   private pendingNewPassword = '';
+  private emailActual        = '';
 
   /* ── Mensajes globales ── */
   successMessage = '';
@@ -165,6 +166,10 @@ export class PerfilClienteComponent implements OnInit {
     this.validarPass();
   }
 
+  onPassInput(): void {
+    if (this.passTocado) this.validarPass();
+  }
+
   private validarPass(): void {
     if (!this.newPassword && !this.confirmPassword) {
       this.passError = '';
@@ -221,6 +226,9 @@ export class PerfilClienteComponent implements OnInit {
     this.pendingPhone       = this.phone.trim();
     this.pendingNewPassword = this.newPassword;
 
+    // Guardamos el email actual antes de cualquier cambio
+    this.emailActual = localStorage.getItem('email') ?? this.email;
+
     this.sendingCode = true;
     this.profileService.requestVerification().subscribe({
       next: () => {
@@ -256,16 +264,27 @@ export class PerfilClienteComponent implements OnInit {
       newPassword: this.pendingNewPassword || undefined
     }).subscribe({
       next: () => {
-        localStorage.setItem('email', this.pendingEmail);
-        this.userName = this.pendingEmail;
+        const emailCambio = this.pendingEmail !== (this.emailActual ?? '');
 
         this.verifyingCode   = false;
         this.showVerifyModal = false;
         this.newPassword     = '';
         this.confirmPassword = '';
         this.passError       = '';
-        this.successMessage  = '¡Perfil actualizado correctamente!';
-        setTimeout(() => this.successMessage = '', 4000);
+
+        if (emailCambio) {
+          // El JWT tiene el email viejo — hay que volver a hacer login
+          this.successMessage = '¡Correo actualizado! Por favor inicia sesión de nuevo.';
+          setTimeout(() => {
+            localStorage.clear();
+            this.router.navigate(['/login']);
+          }, 2000);
+        } else {
+          localStorage.setItem('email', this.pendingEmail);
+          this.userName       = this.pendingEmail;
+          this.successMessage = '¡Perfil actualizado correctamente!';
+          setTimeout(() => this.successMessage = '', 4000);
+        }
       },
       error: (err) => {
         this.verifyingCode = false;

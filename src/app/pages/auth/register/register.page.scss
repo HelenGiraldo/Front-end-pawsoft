@@ -207,18 +207,21 @@
 }
 
 ion-label {
-  color: #2e4038;
+  color: #2e4038 !important;
   font-size: 0.85rem;
   font-weight: 500;
 }
 
-ion-input { color: #1c2722; }
+ion-input { color: #1c2722 !important; }
 
 .eye-icon {
   color: #4a6358;
   font-size: 1.2rem;
   cursor: pointer;
   transition: color 0.2s;
+  align-self: center;
+  margin-top: 18px; /* compensa la altura del label stacked */
+  padding-bottom: 0;
 
   &:hover { color: #355c4f; }
 }
@@ -351,3 +354,9 @@ ion-input { color: #1c2722; }
 
   &:hover { color: #d4963a; }
 }
+
+/* Accesibilidad — escala el título PawSoft */
+:host-context(body.font-large) .logo-section h1,
+:host-context(body.font-large) .logo-section h1 span { font-size: 2.75rem !important; }
+:host-context(body.font-xlarge) .logo-section h1,
+:host-context(body.font-xlarge) .logo-section h1 span { font-size: 3.3rem !important; }

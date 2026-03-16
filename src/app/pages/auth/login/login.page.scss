@@ -97,6 +97,9 @@ ion-input::part(native) {
   font-size: 1.2rem;
   cursor: pointer;
   transition: color 0.2s;
+  align-self: center;
+  margin-top: 18px; /* compensa la altura del label stacked */
+  padding-bottom: 0;
   &:hover { color: #355c4f; }
 }
 
@@ -254,3 +257,9 @@ ion-input::part(native) {
    TEMA OSCURO - Estilos en global.scss
 ═══════════════════════════════════════════════════════ */
 
+
+/* Accesibilidad — escala el título PawSoft */
+:host-context(body.font-large) .logo-section h1,
+:host-context(body.font-large) .logo-section h1 span { font-size: 2.75rem !important; }
+:host-context(body.font-xlarge) .logo-section h1,
+:host-context(body.font-xlarge) .logo-section h1 span { font-size: 3.3rem !important; }

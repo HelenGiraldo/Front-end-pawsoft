@@ -96,6 +96,7 @@
                      class="field-input" [(ngModel)]="newPassword"
                      placeholder="Mínimo 8 caracteres"
                      (blur)="onPassBlur()"
+                     (input)="onPassInput()"
                      autocomplete="new-password" />
               <button class="toggle-pass" type="button" (click)="showNewPass = !showNewPass"
                       [attr.aria-label]="showNewPass ? 'Ocultar contraseña' : 'Mostrar contraseña'">
@@ -123,6 +124,7 @@
                      class="field-input" [(ngModel)]="confirmPassword"
                      placeholder="Repite la nueva contraseña"
                      (blur)="onPassBlur()"
+                     (input)="onPassInput()"
                      autocomplete="new-password" />
               <button class="toggle-pass" type="button" (click)="showConfirmPass = !showConfirmPass"
                       [attr.aria-label]="showConfirmPass ? 'Ocultar contraseña' : 'Mostrar contraseña'">

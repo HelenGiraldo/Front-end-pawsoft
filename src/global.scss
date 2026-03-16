@@ -2560,42 +2560,62 @@ body.theme-dark {
 /* ══════════════════════════════════════════════════════
    ACCESIBILIDAD - TAMAÑO DE FUENTE
 
-   Aumenta el tamaño de TODO el texto de forma muy sutil.
+   Se escala el font-size del elemento html para que
+   todos los valores en rem escalen automáticamente,
+   incluyendo títulos, párrafos y cualquier texto.
 
-   - Normal: 100% (base)
-   - Grande: 101% (+1%)
-   - Muy grande: 102% (+2%)
+   - Normal: 16px (base)
+   - Grande: 18px (+12.5%)
+   - Muy grande: 20px (+25%)
 ══════════════════════════════════════════════════════ */
 
-/* Tamaño normal (por defecto) */
-body.font-normal {
-  font-size: 100%;
+html {
+  font-size: 16px;
 }
 
-/* Tamaño grande - 101% */
-body.font-large {
-  font-size: 101%;
+body.font-normal ~ html,
+html:has(body.font-normal) {
+  font-size: 16px !important;
 }
 
-body.font-large * {
-  font-size: 101% !important;
+html:has(body.font-large) {
+  font-size: 18px !important;
 }
 
-/* Tamaño muy grande - 102% */
-body.font-xlarge {
-  font-size: 102%;
+html:has(body.font-xlarge) {
+  font-size: 20px !important;
 }
 
-body.font-xlarge * {
-  font-size: 102% !important;
+/* Fallback para navegadores sin :has() — fuerza escala en elementos clave */
+body.font-large h1, body.font-large h2, body.font-large h3,
+body.font-large h4, body.font-large h5, body.font-large h6,
+body.font-large p, body.font-large span:not(.slider):not(.badge),
+body.font-large a, body.font-large label:not(.switch),
+body.font-large button:not(.accessibility-fab):not(.close-btn),
+body.font-large input, body.font-large textarea,
+body.font-large li, body.font-large td, body.font-large th {
+  font-size: 1.125rem !important;
 }
 
-/* Proteger el logo para que no crezca */
-body.font-large .logo-section,
-body.font-large .logo-section *,
-body.font-xlarge .logo-section,
-body.font-xlarge .logo-section * {
-  font-size: 100% !important;
+body.font-xlarge h1, body.font-xlarge h2, body.font-xlarge h3,
+body.font-xlarge h4, body.font-xlarge h5, body.font-xlarge h6,
+body.font-xlarge p, body.font-xlarge span:not(.slider):not(.badge),
+body.font-xlarge a, body.font-xlarge label:not(.switch),
+body.font-xlarge button:not(.accessibility-fab):not(.close-btn),
+body.font-xlarge input, body.font-xlarge textarea,
+body.font-xlarge li, body.font-xlarge td, body.font-xlarge th {
+  font-size: 1.25rem !important;
+}
+
+/* El logo PawSoft escala junto con el resto del texto */
+body.font-large .logo-section h1,
+body.font-large .logo-section h1 span {
+  font-size: 2.75rem !important;
+}
+
+body.font-xlarge .logo-section h1,
+body.font-xlarge .logo-section h1 span {
+  font-size: 3.3rem !important;
 }
 
 /* ══════════════════════════════════════════════════════
