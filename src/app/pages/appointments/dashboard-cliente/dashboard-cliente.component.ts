@@ -324,10 +324,20 @@ export class DashboardClienteComponent implements OnInit, OnDestroy {
     const month = String(this.selectedDateObj.getMonth() + 1).padStart(2, '0');
     const day   = String(this.selectedDateObj.getDate()).padStart(2, '0');
     const allHours = ['08:00','08:30','09:00','09:30','10:00','10:30',
-      '11:00','11:30','14:00','14:30','15:00','15:30'];
+      '11:00','11:30','14:00','14:30','15:00','15:30','16:00','16:30',
+      '17:00','17:30','18:00','18:30','19:00','19:30','20:00','20:30'];
+    const now = new Date();
+    const isToday = this.selectedDateObj.toDateString() === now.toDateString();
     this.appointmentService.getOccupiedSlots(Number(this.selectedVet.id), `${year}-${month}-${day}`).subscribe({
       next: (occupied) => {
-        this.timeSlots = allHours.map(time => ({
+        this.timeSlots = allHours
+          .filter(time => {
+            if (!isToday) return true;
+            const [h, m] = time.split(':').map(Number);
+            const slotDate = new Date(); slotDate.setHours(h, m, 0, 0);
+            return slotDate > now;
+          })
+          .map(time => ({
           time, status: occupied.some(o => o.startsWith(time)) ? 'taken' : 'available'
         }));
         this.loadingSlots = false;

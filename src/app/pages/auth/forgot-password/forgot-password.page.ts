@@ -48,6 +48,12 @@ export class ForgotPasswordPage {
     addIcons({ lockClosedOutline, mailOutline, alertCircleOutline, arrowBackOutline });
   }
 
+  ionViewWillEnter() {
+    this.correo       = '';
+    this.enviado      = false;
+    this.mostrarError = false;
+  }
+
   continuar() {
     const email = this.correo?.trim();
 
