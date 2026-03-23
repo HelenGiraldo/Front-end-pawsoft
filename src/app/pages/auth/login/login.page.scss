@@ -121,6 +121,28 @@ ion-input::part(native) {
   font-size: 0.9rem;
 }
 
+/* ---------- Password hints ---------- */
+.pass-hints {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: -8px 0 12px;
+  padding: 10px 12px;
+  background: rgba(33, 37, 37, 0.06);
+  border-radius: 10px;
+  font-size: 0.78rem;
+  color: #5a7060;
+
+  span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.2s;
+
+    &.ok { color: #1e6e3e; font-weight: 500; }
+  }
+}
+
 /* ---------- Error ---------- */
 .error-message {
   color: #c0392b;

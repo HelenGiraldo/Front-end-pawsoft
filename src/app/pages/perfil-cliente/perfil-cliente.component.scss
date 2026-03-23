@@ -24,7 +24,7 @@
   background: #ffffff;
   font-family: 'Segoe UI', system-ui, sans-serif;
   color: var(--texto);
-  font-size: 14px;
+  font-size: 1rem;
   overflow: hidden;
 }
 
@@ -201,6 +201,26 @@
   font-size: 0.8rem;
   color: var(--texto-secundario);
   margin: -8px 0 16px;
+}
+
+.pass-req-hint {
+  font-size: 0.78rem;
+  color: var(--texto-secundario);
+  background: var(--verde-claro);
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 16px;
+  line-height: 1.5;
+
+  .special-chars {
+    display: block;
+    font-family: monospace;
+    font-size: 0.82rem;
+    color: var(--verde-oscuro);
+    margin-top: 4px;
+    word-break: break-all;
+  }
 }
 
 .field-group { margin-bottom: 16px; }
@@ -535,9 +555,34 @@
   &:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 
-button:focus-visible {
-  outline: 2px solid var(--verde);
-  outline-offset: 2px;
+/* Cerrar sesión — solo móvil */
+.logout-section {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .logout-section {
+    display: block !important;
+    margin-top: 16px;
+    margin-bottom: 24px;
+  }
+
+  .btn-logout {
+    width: 100%;
+    padding: 14px;
+    background: transparent;
+    color: var(--rojo);
+    border: 1.5px solid var(--rojo);
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover, &:active {
+      background: var(--rojo-claro);
+    }
+  }
 }
 
 @media (max-width: 768px) {
@@ -591,12 +636,12 @@ button:focus-visible {
 
   .field-input,
   .code-input {
-    font-size: 16px !important;
+    font-size: max(1rem, 16px) !important;
   }
 
   .form-actions {
     justify-content: stretch !important;
-    margin-bottom: 0 !important;
+    margin-bottom: 16px !important;
   }
 
   .btn-save {
@@ -724,4 +769,9 @@ button:focus-visible {
   font-size: 0.9rem;
   color: var(--texto-secundario);
   font-weight: 500;
+}
+
+button:focus-visible {
+  outline: 2px solid var(--verde);
+  outline-offset: 2px;
 }

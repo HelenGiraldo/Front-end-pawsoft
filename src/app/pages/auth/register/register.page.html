@@ -103,6 +103,7 @@
               type="email"
               placeholder="ejemplo@correo.com"
               [(ngModel)]="correo"
+              (ionInput)="validarCorreo()"
               (ionBlur)="validarCorreo()">
             </ion-input>
           </ion-item>
@@ -143,6 +144,7 @@
               placeholder="••••••••"
               [(ngModel)]="contrasena"
               autocomplete="new-password"
+              (ionInput)="validarContrasena()"
               (ionBlur)="validarContrasena()">
             </ion-input>
             <ion-icon

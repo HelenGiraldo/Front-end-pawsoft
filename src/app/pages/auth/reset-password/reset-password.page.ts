@@ -49,6 +49,9 @@ export class ResetPasswordPage implements OnInit {
   mensajeError = '';
   cambiado = false;
   token: string | null = null;
+  hintPass = '';
+
+  readonly hintRequisitos = 'Mínimo 8 caracteres, una mayúscula, un número y un carácter especial.';
 
   constructor() {
     addIcons({
@@ -133,6 +136,17 @@ export class ResetPasswordPage implements OnInit {
 
   irLogin() {
     this.router.navigate(['/login']);
+  }
+
+  onNuevaPassInput(): void {
+    const p = this.nuevaPass;
+    if (!p) { this.hintPass = ''; return; }
+    const faltan: string[] = [];
+    if (p.length < 8)             faltan.push('mínimo 8 caracteres');
+    if (!/[A-Z]/.test(p))         faltan.push('una mayúscula');
+    if (!/[0-9]/.test(p))         faltan.push('un número');
+    if (!/[^A-Za-z0-9]/.test(p))  faltan.push('un carácter especial');
+    this.hintPass = faltan.length ? 'Falta: ' + faltan.join(', ') + '.' : '';
   }
 
   private setError(msg: string) {

@@ -132,7 +132,7 @@ export class AuthService {
   logout(): void {
     this.inactivityService.stopWatching();
     localStorage.clear();
-    this.router.navigate(['/login'], { replaceUrl: true });
+    window.location.href = '/login?reason=logout';
   }
 
   // ── Getters de sesión ───────────────────────────────────────────────────────

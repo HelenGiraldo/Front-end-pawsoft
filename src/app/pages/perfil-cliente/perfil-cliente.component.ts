@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { AppSidebarComponent } from 'src/app/share/components/app-sidebar/app-sidebar.component';
 import { ProfileService } from 'src/app/services/profile.service';
 import { AccessibilityService, Theme, FontSize } from 'src/app/services/accessibility.service';
+import { AuthService } from 'src/app/services/auth';
 
 @Component({
   selector: 'app-perfil-cliente',
@@ -62,7 +63,8 @@ export class PerfilClienteComponent implements OnInit {
   constructor(
     readonly router: Router,
     private readonly profileService: ProfileService,
-    readonly accessibilityService: AccessibilityService
+    readonly accessibilityService: AccessibilityService,
+    private readonly authService: AuthService,
   ) {}
 
   ngOnInit(): void {
@@ -167,31 +169,25 @@ export class PerfilClienteComponent implements OnInit {
   }
 
   onPassInput(): void {
-    if (this.passTocado) this.validarPass();
+    this.passTocado = true;
+    this.validarPass();
   }
 
   private validarPass(): void {
-    if (!this.newPassword && !this.confirmPassword) {
-      this.passError = '';
-      return;
-    }
-    if (this.newPassword.length < 8) {
-      this.passError = 'Mínimo 8 caracteres.';
-      return;
-    }
-    if (!this.isPasswordStrong(this.newPassword)) {
-      this.passError = 'Debe tener mayúscula, número y carácter especial (@$!%*?&).';
-      return;
-    }
-    if (this.newPassword !== this.confirmPassword) {
-      this.passError = 'Las contraseñas no coinciden.';
-      return;
-    }
+    if (!this.newPassword && !this.confirmPassword) { this.passError = ''; return; }
+    const p = this.newPassword;
+    const faltan: string[] = [];
+    if (p.length < 8)             faltan.push('mínimo 8 caracteres');
+    if (!/[A-Z]/.test(p))         faltan.push('una mayúscula');
+    if (!/[0-9]/.test(p))         faltan.push('un número');
+    if (!/[^A-Za-z0-9]/.test(p))  faltan.push('un carácter especial');
+    if (faltan.length)             { this.passError = 'Falta: ' + faltan.join(', ') + '.'; return; }
+    if (p !== this.confirmPassword){ this.passError = 'Las contraseñas no coinciden.'; return; }
     this.passError = '';
   }
 
   private isPasswordStrong(pass: string): boolean {
-    return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(pass);
+    return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d])[A-Za-z\d\S]{8,}$/.test(pass);
   }
 
   /* ══════════════════════════════
@@ -331,5 +327,9 @@ export class PerfilClienteComponent implements OnInit {
   private clearMessages(): void {
     this.successMessage = '';
     this.errorMessage   = '';
+  }
+
+  logout(): void {
+    this.authService.logout();
   }
 }

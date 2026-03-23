@@ -1,7 +1,7 @@
 import { CommonModule, Location } from '@angular/common';
 import { Component, NgZone, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { NavigationStart, Router } from '@angular/router';
+import { ActivatedRoute, NavigationStart, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 
@@ -15,7 +15,7 @@ import {
   IonSpinner,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { eyeOutline, eyeOffOutline, refreshOutline, mailOutline } from 'ionicons/icons';
+import { eyeOutline, eyeOffOutline, refreshOutline, mailOutline, checkmarkCircleOutline, timeOutline } from 'ionicons/icons';
 
 import { AuthService, LoginResponse } from '../../../services/auth';
 import { OtpModalComponent } from '../../../component/otp-modal/otp-modal.component';
@@ -44,6 +44,7 @@ export class LoginPage implements OnInit, OnDestroy {
 
   private authService = inject(AuthService);
   private router      = inject(Router);
+  private route       = inject(ActivatedRoute);
   private ngZone      = inject(NgZone);
   private location    = inject(Location);
 
@@ -80,7 +81,7 @@ export class LoginPage implements OnInit, OnDestroy {
   };
 
   constructor() {
-    addIcons({ eyeOutline, eyeOffOutline, refreshOutline, mailOutline });
+    addIcons({ eyeOutline, eyeOffOutline, refreshOutline, mailOutline, checkmarkCircleOutline, timeOutline });
   }
 
   // ── Ciclo de vida ──────────────────────────────────────────────
@@ -91,11 +92,23 @@ export class LoginPage implements OnInit, OnDestroy {
     this.recaptchaToken = '';
     this.renderRecaptcha();
 
+    // Lee el motivo desde query param (funciona tras full reload) o desde navigation state (inactividad en PC)
+    const queryReason = this.route.snapshot.queryParamMap.get('reason');
     const nav = this.router.getCurrentNavigation();
-    if (nav?.extras?.state?.['reason'] === 'inactivity') {
+    const stateReason = nav?.extras?.state?.['reason'];
+    const reason = queryReason ?? stateReason;
+
+    if (reason === 'inactivity') {
       this.sessionExpiredMsg = 'Tu sesión expiró por inactividad. Por favor, inicia sesión de nuevo.';
+    } else if (reason === 'logout') {
+      this.sessionExpiredMsg = 'Has cerrado sesión correctamente.';
     } else {
       this.sessionExpiredMsg = '';
+    }
+
+    // Limpia el query param de la URL sin recargar
+    if (queryReason) {
+      this.router.navigate([], { replaceUrl: true, queryParams: {} });
     }
 
     window.history.pushState(null, '', '/login');

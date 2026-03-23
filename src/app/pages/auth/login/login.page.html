@@ -12,9 +12,9 @@
       <div class="login-card">
         <h2>Iniciar Sesión</h2>
 
-        <!-- Aviso sesión expirada por inactividad -->
+        <!-- Aviso sesión / logout -->
         <div class="session-expired-msg" *ngIf="sessionExpiredMsg">
-          <ion-icon name="time-outline"></ion-icon>
+          <ion-icon [name]="sessionExpiredMsg.includes('cerrado') ? 'checkmark-circle-outline' : 'time-outline'"></ion-icon>
           {{ sessionExpiredMsg }}
         </div>
 

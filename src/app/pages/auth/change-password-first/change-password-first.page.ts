@@ -47,6 +47,9 @@ export class ChangePasswordFirstPage {
   mostrarError  = false;
   mensajeError  = '';
   cambiado      = false;
+  hintPass      = '';
+
+  readonly hintRequisitos = 'Mínimo 8 caracteres, una mayúscula, un número y un carácter especial.';
 
   constructor() {
     addIcons({ keyOutline, eyeOutline, eyeOffOutline, alertCircleOutline, checkmarkCircleOutline });
@@ -124,5 +127,16 @@ export class ChangePasswordFirstPage {
     this.mensajeError = msg;
     this.mostrarError = true;
     setTimeout(() => (this.mostrarError = false), 3500);
+  }
+
+  onNuevaPassInput(): void {
+    const p = this.nuevaPass;
+    if (!p) { this.hintPass = ''; return; }
+    const faltan: string[] = [];
+    if (p.length < 8)             faltan.push('mínimo 8 caracteres');
+    if (!/[A-Z]/.test(p))         faltan.push('una mayúscula');
+    if (!/[0-9]/.test(p))         faltan.push('un número');
+    if (!/[^A-Za-z0-9]/.test(p))  faltan.push('un carácter especial');
+    this.hintPass = faltan.length ? 'Falta: ' + faltan.join(', ') + '.' : '';
   }
 }

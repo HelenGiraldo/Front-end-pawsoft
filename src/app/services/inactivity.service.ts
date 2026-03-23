@@ -40,11 +40,16 @@ export class InactivityService implements OnDestroy {
     'touchmove',
     'scroll',
     'wheel',
+    'pointerdown',
+    'pointermove',
   ];
 
   private timeoutRef: ReturnType<typeof setTimeout> | null = null;
   private boundReset!: () => void;
+  private boundVisibility!: () => void;
   private isWatching = false;
+  /** Timestamp de la última actividad detectada (ms) */
+  private lastActivityAt = 0;
 
   constructor(
     private readonly router: Router,
@@ -67,15 +72,17 @@ export class InactivityService implements OnDestroy {
     if (this.isWatching) return;
     this.isWatching = true;
 
-    // Crea la referencia bound una sola vez para poder removerla después
     this.boundReset = this.resetTimer.bind(this);
+    this.boundVisibility = this.onVisibilityChange.bind(this);
 
-    // Registra fuera de la zona de Angular para no triggear detección de
-    // cambios en cada evento del mouse/teclado (optimización de rendimiento)
     this.ngZone.runOutsideAngular(() => {
-      this.ACTIVITY_EVENTS.forEach(event =>
-        window.addEventListener(event, this.boundReset, { passive: true })
-      );
+      // Escucha en window Y en document para cubrir Ionic/Capacitor en móvil
+      this.ACTIVITY_EVENTS.forEach(event => {
+        window.addEventListener(event, this.boundReset, { passive: true });
+        document.addEventListener(event as any, this.boundReset, { passive: true });
+      });
+      // Detecta cuando el usuario vuelve a la app desde background
+      document.addEventListener('visibilitychange', this.boundVisibility);
     });
 
     this.resetTimer();
@@ -92,9 +99,13 @@ export class InactivityService implements OnDestroy {
     this.clearTimer();
 
     if (this.boundReset) {
-      this.ACTIVITY_EVENTS.forEach(event =>
-        window.removeEventListener(event, this.boundReset)
-      );
+      this.ACTIVITY_EVENTS.forEach(event => {
+        window.removeEventListener(event, this.boundReset);
+        document.removeEventListener(event as any, this.boundReset);
+      });
+    }
+    if (this.boundVisibility) {
+      document.removeEventListener('visibilitychange', this.boundVisibility);
     }
   }
 
@@ -105,10 +116,10 @@ export class InactivityService implements OnDestroy {
    * Corre fuera de la zona Angular — NO trigger detección de cambios.
    */
   private resetTimer(): void {
+    this.lastActivityAt = Date.now();
     this.clearTimer();
 
     this.timeoutRef = setTimeout(() => {
-      // Vuelve a la zona Angular para que la navegación funcione correctamente
       this.ngZone.run(() => this.onTimeout());
     }, this.TIMEOUT_MS);
   }
@@ -125,8 +136,31 @@ export class InactivityService implements OnDestroy {
     // replaceUrl: true evita que el botón "atrás" regrese a una ruta protegida
     this.router.navigate(['/login'], {
       replaceUrl: true,
-      state: { reason: 'inactivity' }, // opcional: para mostrar aviso en el login
+      state: { reason: 'inactivity' },
     });
+  }
+
+  /**
+   * Se ejecuta cuando el documento vuelve a ser visible (app en primer plano).
+   * Si el timer ya expiró mientras la app estaba en background, hace logout.
+   */
+  private onVisibilityChange(): void {
+    if (document.visibilityState === 'visible') {
+      if (!localStorage.getItem('token')) return;
+
+      const elapsed = Date.now() - this.lastActivityAt;
+      if (elapsed >= this.TIMEOUT_MS) {
+        // El tiempo de inactividad ya pasó mientras la app estaba en background
+        this.ngZone.run(() => this.onTimeout());
+      } else {
+        // Aún dentro del tiempo — reinicia el timer con el tiempo restante
+        this.clearTimer();
+        const remaining = this.TIMEOUT_MS - elapsed;
+        this.timeoutRef = setTimeout(() => {
+          this.ngZone.run(() => this.onTimeout());
+        }, remaining);
+      }
+    }
   }
 
   private clearTimer(): void {

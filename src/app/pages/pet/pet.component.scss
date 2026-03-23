@@ -20,7 +20,7 @@
   background: var(--fondo);
   font-family: 'Segoe UI', system-ui, sans-serif;
   color: var(--texto);
-  font-size: 14px;
+  font-size: 1rem;
   overflow: hidden;
 }
 
@@ -731,13 +731,13 @@
   /* font-size 16px evita zoom automático de Safari */
   .form-input,
   .form-select {
-    font-size: 16px !important;
+    font-size: max(1rem, 16px) !important;
     padding: 9px 10px !important;
     border-radius: 8px !important;
   }
 
   .date-display {
-    font-size: 14px !important;
+    font-size: max(0.875rem, 14px) !important;
     padding: 9px 10px !important;
   }
 

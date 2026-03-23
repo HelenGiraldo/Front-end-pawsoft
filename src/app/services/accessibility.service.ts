@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
 
 export type Theme = 'light' | 'dark';
 export type FontSize = 'normal' | 'large' | 'xlarge';
@@ -21,19 +20,10 @@ export class AccessibilityService {
     underlineLinks: true
   };
 
-  constructor(private translate: TranslateService) {
-    // Carga preferencias del localStorage
+  constructor() {
     this.cargarPreferencias();
-
-    // Detecta preferencias del sistema
     this.detectarPreferenciasSistema();
-
-    // Aplica tema y fuente desde las preferencias
     this.aplicarTodo();
-
-    // Inicializa ngx-translate con el idioma guardado
-    this.translate.setDefaultLang(this.prefs.language);
-    this.translate.use(this.prefs.language);
   }
 
   /* ---------------------- SETTERS ---------------------- */
@@ -53,7 +43,6 @@ export class AccessibilityService {
   setLanguage(lang: Language): void {
     this.prefs.language = lang;
     this.guardar();
-    this.translate.use(lang);
   }
 
   setReduceMotion(enabled: boolean): void {

@@ -113,6 +113,10 @@
                 {{ passwordStrengthLabel }}
               </span>
             </div>
+            <span class="match-hint match-err"
+                  *ngIf="passTocado && passError && passError !== 'Las contraseñas no coinciden.'">
+              ❌ {{ passError }}
+            </span>
           </div>
 
           <!-- Confirmar contraseña -->
@@ -134,7 +138,7 @@
             <span class="match-hint match-ok"
                   *ngIf="confirmPassword && newPassword === confirmPassword">✅ Las contraseñas coinciden</span>
             <span class="match-hint match-err"
-                  *ngIf="passTocado && passError">❌ {{ passError }}</span>
+                  *ngIf="passTocado && passError === 'Las contraseñas no coinciden.'">❌ {{ passError }}</span>
           </div>
         </div>
 
@@ -194,6 +198,13 @@
             <span *ngIf="sendingCode" class="btn-loading">
               <span class="spinner-sm"></span> Enviando código...
             </span>
+          </button>
+        </div>
+
+        <!-- Cerrar sesión — solo visible en móvil -->
+        <div class="logout-section">
+          <button class="btn-logout" (click)="logout()">
+            ⏻ Cerrar sesión
           </button>
         </div>
 

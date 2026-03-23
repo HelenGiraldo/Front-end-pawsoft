@@ -2586,14 +2586,16 @@ html:has(body.font-xlarge) {
   font-size: 20px !important;
 }
 
-/* Fallback para navegadores sin :has() — fuerza escala en elementos clave */
+/* ── Escala fuente en elementos HTML nativos ── */
 body.font-large h1, body.font-large h2, body.font-large h3,
 body.font-large h4, body.font-large h5, body.font-large h6,
 body.font-large p, body.font-large span:not(.slider):not(.badge),
 body.font-large a, body.font-large label:not(.switch),
 body.font-large button:not(.accessibility-fab):not(.close-btn),
-body.font-large input, body.font-large textarea,
-body.font-large li, body.font-large td, body.font-large th {
+body.font-large input, body.font-large textarea, body.font-large select,
+body.font-large li, body.font-large td, body.font-large th,
+body.font-large .form-input, body.font-large .form-select,
+body.font-large .form-textarea, body.font-large .field-input {
   font-size: 1.125rem !important;
 }
 
@@ -2602,12 +2604,47 @@ body.font-xlarge h4, body.font-xlarge h5, body.font-xlarge h6,
 body.font-xlarge p, body.font-xlarge span:not(.slider):not(.badge),
 body.font-xlarge a, body.font-xlarge label:not(.switch),
 body.font-xlarge button:not(.accessibility-fab):not(.close-btn),
-body.font-xlarge input, body.font-xlarge textarea,
-body.font-xlarge li, body.font-xlarge td, body.font-xlarge th {
+body.font-xlarge input, body.font-xlarge textarea, body.font-xlarge select,
+body.font-xlarge li, body.font-xlarge td, body.font-xlarge th,
+body.font-xlarge .form-input, body.font-xlarge .form-select,
+body.font-xlarge .form-textarea, body.font-xlarge .field-input {
   font-size: 1.25rem !important;
 }
 
-/* El logo PawSoft escala junto con el resto del texto */
+/* ── Escala fuente en componentes Ionic (shadow DOM) ── */
+body.font-large ion-input,
+body.font-large ion-textarea,
+body.font-large ion-select,
+body.font-large ion-label,
+body.font-large ion-item,
+body.font-large ion-note,
+body.font-large ion-text {
+  font-size: 1.125rem !important;
+  --font-size: 1.125rem;
+}
+
+body.font-large ion-input::part(native),
+body.font-large ion-textarea::part(native) {
+  font-size: 1.125rem !important;
+}
+
+body.font-xlarge ion-input,
+body.font-xlarge ion-textarea,
+body.font-xlarge ion-select,
+body.font-xlarge ion-label,
+body.font-xlarge ion-item,
+body.font-xlarge ion-note,
+body.font-xlarge ion-text {
+  font-size: 1.25rem !important;
+  --font-size: 1.25rem;
+}
+
+body.font-xlarge ion-input::part(native),
+body.font-xlarge ion-textarea::part(native) {
+  font-size: 1.25rem !important;
+}
+
+/* ── El logo PawSoft escala junto con el resto del texto ── */
 body.font-large .logo-section h1,
 body.font-large .logo-section h1 span {
   font-size: 2.75rem !important;

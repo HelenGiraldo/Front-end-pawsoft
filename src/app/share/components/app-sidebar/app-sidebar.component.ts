@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
+import { AuthService } from '../../../services/auth';
 
 interface MenuItem {
   icon: string;
@@ -32,7 +33,8 @@ export class AppSidebarComponent implements OnInit, OnChanges {
 
   constructor(
     private readonly router: Router,
-    private readonly cdr: ChangeDetectorRef
+    private readonly cdr: ChangeDetectorRef,
+    private readonly authService: AuthService,
   ) {}
 
   ngOnInit(): void {
@@ -146,7 +148,6 @@ export class AppSidebarComponent implements OnInit, OnChanges {
   }
 
   logout(): void {
-    localStorage.clear();
-    this.router.navigate(['/login'], { replaceUrl: true });
+    this.authService.logout();
   }
 }

@@ -151,21 +151,22 @@ export class RegisterPage implements OnInit {
   }
 
   validarContrasena(): void {
-    this.tocado.contrasena  = true;
-    const pattern           = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    if (!this.contrasena) {
-      this.errores.contrasena = 'La contraseña es obligatoria.';
-    } else if (!pattern.test(this.contrasena)) {
-      this.errores.contrasena = 'Mínimo 8 caracteres, una mayúscula, un número y un carácter especial (@$!%*?&).';
-    } else {
-      this.errores.contrasena = '';
-    }
+    this.tocado.contrasena = true;
+    const p = this.contrasena;
+    if (!p) { this.errores.contrasena = 'La contraseña es obligatoria.'; return; }
+    const faltan: string[] = [];
+    if (p.length < 8)             faltan.push('mínimo 8 caracteres');
+    if (!/[A-Z]/.test(p))         faltan.push('una mayúscula');
+    if (!/[0-9]/.test(p))         faltan.push('un número');
+    if (!/[^A-Za-z0-9]/.test(p))  faltan.push('un carácter especial');
+    this.errores.contrasena = faltan.length ? 'Falta: ' + faltan.join(', ') + '.' : '';
   }
 
   soloNumeros(event: Event): void {
     const input   = event.target as HTMLInputElement;
     input.value   = input.value.replace(/\D/g, '');
     this.telefono = input.value;
+    this.validarTelefono();
   }
 
   // ── Indicador de fuerza ───────────────────────────────────────
