@@ -177,25 +177,32 @@ export class DashboardClienteComponent implements OnInit, OnDestroy {
   loadMyAppointments(): void {
     this.appointmentService.getMyAppointments().subscribe({
       next: (data: AppointmentResponse[]) => {
-        this.myAppointments = data.map(a => {
-          const rawStatus  = (a.status ?? 'upcoming').toLowerCase() as AppointmentView['status'];
-          const aptDate    = new Date(a.date ?? a.dateFormatted ?? '');
-          const tomorrow   = new Date();
-          tomorrow.setHours(0, 0, 0, 0);
-          tomorrow.setDate(tomorrow.getDate() + 1);
-          return {
-            id:          String(a.id),
-            petName:     a.petName     ?? 'Mi mascota',
-            petEmoji:    a.petEmoji    ?? '🐾',
-            petPhotoUrl: a.petPhotoUrl ?? undefined,
-            date:        this.formatearFecha(a.dateFormatted ?? a.date ?? ''),
-            time:        this.formatearHora(a.time ?? ''),
-            reason:      this.getReasonLabel(a.reason),
-            vetName:     a.vetName     ?? 'Veterinario',
-            status:      rawStatus,
-            canCancel:   rawStatus === 'upcoming' && aptDate >= tomorrow,
-          };
-        });
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        this.myAppointments = data
+          .filter(a => {
+            if ((a.status ?? '').toLowerCase() === 'cancelled') return false;
+            const aptDate = new Date(a.date ?? a.dateFormatted ?? '');
+            aptDate.setHours(0, 0, 0, 0);
+            return aptDate >= today;
+          })
+          .map(a => {
+            const rawStatus  = (a.status ?? 'upcoming').toLowerCase() as AppointmentView['status'];
+            const aptDate    = new Date(a.date ?? a.dateFormatted ?? '');
+            aptDate.setHours(0, 0, 0, 0);
+            const tomorrow   = new Date(today); tomorrow.setDate(today.getDate() + 1);
+            return {
+              id:          String(a.id),
+              petName:     a.petName     ?? 'Mi mascota',
+              petEmoji:    a.petEmoji    ?? '🐾',
+              petPhotoUrl: a.petPhotoUrl ?? undefined,
+              date:        this.formatearFecha(a.dateFormatted ?? a.date ?? ''),
+              time:        this.formatearHora(a.time ?? ''),
+              reason:      this.getReasonLabel(a.reason),
+              vetName:     a.vetName     ?? 'Veterinario',
+              status:      rawStatus,
+              canCancel:   rawStatus === 'upcoming' && aptDate >= tomorrow,
+            };
+          });
       },
       error: () => {}
     });

@@ -42,6 +42,12 @@
                           *ngIf="appt.canCancel && appt.status === 'upcoming'"
                           (click)="openCancelModal(appt)">Cancelar</button>
                   <div class="appt-cancelled-label" *ngIf="appt.status === 'cancelled'">Cancelada</div>
+                  <div class="appt-status-badge" [ngClass]="appt.status"
+                       *ngIf="appt.status !== 'cancelled' && appt.status !== 'upcoming'">
+                    <span *ngIf="appt.status === 'completed'">✅ Completada</span>
+                    <span *ngIf="appt.status === 'confirmed'">✔ Confirmada</span>
+                    <span *ngIf="appt.status === 'no_show'">⚠️ No asistió</span>
+                  </div>
                 </div>
               </div>
             </div>

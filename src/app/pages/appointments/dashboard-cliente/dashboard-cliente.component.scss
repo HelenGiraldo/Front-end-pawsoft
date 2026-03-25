@@ -1031,3 +1031,16 @@ button, [role="button"], .pet-chip, .cal-day, .time-slot { cursor: pointer; }
 
   .price-hint-disclaimer { color: #7A6B40; }
 }
+
+/* ── Badge de estado de cita ── */
+.appt-status-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+
+  &.completed  { background: #E6F5EE; color: #145C42; }
+  &.confirmed  { background: #E8F0FE; color: #1A56DB; }
+  &.no_show    { background: #FEF3C7; color: #92400E; }
+}
