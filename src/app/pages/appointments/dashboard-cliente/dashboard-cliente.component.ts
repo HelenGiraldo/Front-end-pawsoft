@@ -177,19 +177,20 @@ export class DashboardClienteComponent implements OnInit, OnDestroy {
   loadMyAppointments(): void {
     this.appointmentService.getMyAppointments().subscribe({
       next: (data: AppointmentResponse[]) => {
-        const today = new Date(); today.setHours(0, 0, 0, 0);
+        const now = new Date();
+        const todayStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
         this.myAppointments = data
           .filter(a => {
-            if ((a.status ?? '').toLowerCase() === 'cancelled') return false;
-            const aptDate = new Date(a.date ?? a.dateFormatted ?? '');
-            aptDate.setHours(0, 0, 0, 0);
-            return aptDate >= today;
+            const status = (a.status ?? '').toLowerCase();
+            if (status === 'cancelled') return false;
+            const dateStr = a.date ?? a.dateFormatted ?? '';
+            return dateStr >= todayStr;
           })
           .map(a => {
-            const rawStatus  = (a.status ?? 'upcoming').toLowerCase() as AppointmentView['status'];
-            const aptDate    = new Date(a.date ?? a.dateFormatted ?? '');
+            const rawStatus = (a.status ?? 'upcoming').toLowerCase() as AppointmentView['status'];
+            const aptDate   = new Date(a.date ?? a.dateFormatted ?? '');
             aptDate.setHours(0, 0, 0, 0);
-            const tomorrow   = new Date(today); tomorrow.setDate(today.getDate() + 1);
+            const tomorrow  = new Date(now); tomorrow.setHours(0,0,0,0); tomorrow.setDate(tomorrow.getDate() + 1);
             return {
               id:          String(a.id),
               petName:     a.petName     ?? 'Mi mascota',
