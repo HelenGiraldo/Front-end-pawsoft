@@ -23,7 +23,7 @@ interface TimeSlot { time: string; status: 'available' | 'taken' | 'selected'; }
 interface AppointmentView {
   id: string; petName: string; petEmoji: string; petPhotoUrl?: string;
   date: string; time: string; reason: string; vetName: string;
-  status: 'upcoming' | 'completed' | 'cancelled'; canCancel: boolean;
+  status: 'upcoming' | 'completed' | 'cancelled' | 'confirmed' | 'no_show'; canCancel: boolean;
 }
 
 /**
