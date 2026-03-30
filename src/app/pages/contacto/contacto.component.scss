@@ -1,0 +1,343 @@
+/* ═══════════════════════════════════════════
+   CONTACTO — paleta verde Pawsoft
+═══════════════════════════════════════════ */
+
+:host {
+  --verde: #1A7A4C;
+  --verde-claro: #E8F5EE;
+  --verde-hover: #DFF2EA;
+  --verde-oscuro: #0F4D2E;
+  --texto: #1A2820;
+  --texto-secundario: #4A6359;
+  --borde: #D4E8DC;
+  --fondo: #ffffff;
+  --blanco: #ffffff;
+  --radio: 14px;
+  --sombra: 0 4px 16px rgba(15, 77, 46, 0.07);
+}
+
+.dashboard-layout {
+  display: flex;
+  height: 100vh;
+  background: #ffffff;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  color: var(--texto);
+  font-size: 1rem;
+  overflow: hidden;
+}
+
+.main-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.topbar {
+  padding: 16px 24px;
+  background: var(--blanco);
+  border-bottom: 1px solid var(--borde);
+  flex-shrink: 0;
+}
+
+.topbar-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--verde-oscuro);
+}
+
+.topbar-sub {
+  font-size: 0.85rem;
+  color: var(--texto-secundario);
+  margin-top: 2px;
+  font-weight: 400;
+}
+
+.content-area {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 24px 40px;
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ══ Contact Card ══ */
+
+.contact-card {
+  background: var(--blanco);
+  border-radius: var(--radio);
+  padding: 28px;
+  box-shadow: var(--sombra);
+  border: 1px solid var(--borde);
+  margin-bottom: 20px;
+}
+
+.contact-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid var(--borde);
+}
+
+.header-icon {
+  font-size: 2.5rem;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--verde-claro);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.contact-header h2 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--verde-oscuro);
+  margin: 0 0 4px;
+}
+
+.contact-header p {
+  font-size: 0.9rem;
+  color: var(--texto-secundario);
+  margin: 0;
+}
+
+.contact-details {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.detail-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px;
+  background: var(--verde-claro);
+  border-radius: 12px;
+  border: 1px solid var(--borde);
+}
+
+.detail-icon {
+  font-size: 1.8rem;
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--blanco);
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(15, 77, 46, 0.08);
+}
+
+.detail-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.detail-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--texto-secundario);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.whatsapp-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+
+  &:hover .whatsapp-number {
+    color: var(--verde-oscuro);
+  }
+
+  &:hover .whatsapp-action {
+    transform: translateX(4px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--verde);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+.whatsapp-number {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--verde);
+  transition: color 0.2s ease;
+}
+
+.whatsapp-action {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--verde);
+  transition: transform 0.2s ease;
+}
+
+.detail-value {
+  font-size: 1rem;
+  color: var(--texto);
+  line-height: 1.7;
+
+  strong {
+    color: var(--verde-oscuro);
+  }
+}
+
+/* ══ Info Card ══ */
+
+.info-card {
+  background: var(--blanco);
+  border-radius: var(--radio);
+  padding: 24px;
+  box-shadow: var(--sombra);
+  border: 1px solid var(--borde);
+}
+
+.info-card h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--verde-oscuro);
+  margin: 0 0 16px;
+}
+
+.help-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.help-list li {
+  font-size: 0.9rem;
+  color: var(--texto);
+  padding-left: 24px;
+  position: relative;
+
+  &::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--verde);
+    font-weight: 700;
+  }
+}
+
+/* Accesibilidad: subrayar enlaces */
+body.underline-links .whatsapp-link {
+  text-decoration: underline;
+}
+
+/* ══ Responsive ══ */
+
+@media (max-width: 768px) {
+
+  .dashboard-layout {
+    flex-direction: column !important;
+    height: 100dvh !important;
+    overflow: hidden !important;
+  }
+
+  .main-content {
+    flex: 1 !important;
+    height: 100% !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .topbar {
+    padding: 12px 16px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .topbar-title { font-size: 1.1rem !important; }
+  .topbar-sub   { font-size: 0.78rem !important; }
+
+  .content-area {
+    flex: 1 !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding: 16px !important;
+    padding-bottom: calc(65px + 32px + env(safe-area-inset-bottom)) !important;
+    max-width: 100% !important;
+  }
+
+  .contact-card {
+    padding: 20px !important;
+    margin-bottom: 16px !important;
+  }
+
+  .contact-header {
+    flex-direction: column !important;
+    text-align: center !important;
+    gap: 12px !important;
+  }
+
+  .header-icon {
+    font-size: 2rem !important;
+    width: 56px !important;
+    height: 56px !important;
+  }
+
+  .contact-header h2 {
+    font-size: 1.1rem !important;
+  }
+
+  .contact-header p {
+    font-size: 0.85rem !important;
+  }
+
+  .detail-item {
+    padding: 14px !important;
+  }
+
+  .detail-icon {
+    width: 42px !important;
+    height: 42px !important;
+    font-size: 1.5rem !important;
+  }
+
+  .whatsapp-link {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 6px !important;
+  }
+
+  .whatsapp-number {
+    font-size: 1.2rem !important;
+  }
+
+  .whatsapp-action {
+    font-size: 0.85rem !important;
+  }
+
+  .info-card {
+    padding: 18px !important;
+  }
+
+  .info-card h3 {
+    font-size: 0.95rem !important;
+  }
+
+  .help-list li {
+    font-size: 0.85rem !important;
+  }
+}

@@ -1,0 +1,74 @@
+<div class="dashboard-layout">
+
+  <app-sidebar [userRole]="userRole" [userName]="userName"></app-sidebar>
+
+  <main class="main-content">
+
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">Contacto y Soporte</div>
+        <div class="topbar-sub">¿Necesitas ayuda? Estamos aquí para ti</div>
+      </div>
+    </div>
+
+    <div class="content-area">
+
+      <!-- ══ Información de contacto ══ -->
+      <div class="contact-card">
+        <div class="contact-header">
+          <div class="header-icon">💬</div>
+          <div>
+            <h2>Contáctanos por WhatsApp</h2>
+            <p>Responderemos tus consultas lo más pronto posible</p>
+          </div>
+        </div>
+
+        <div class="contact-details">
+          
+          <!-- WhatsApp -->
+          <div class="detail-item">
+            <div class="detail-icon" aria-hidden="true">📱</div>
+            <div class="detail-content">
+              <div class="detail-label">WhatsApp</div>
+              <a [href]="getWhatsAppLink()" 
+                 target="_blank" 
+                 rel="noopener noreferrer"
+                 class="whatsapp-link"
+                 [attr.aria-label]="'Abrir WhatsApp con el número ' + supportInfo.whatsapp.displayFormat">
+                <span class="whatsapp-number">{{ supportInfo.whatsapp.displayFormat }}</span>
+                <span class="whatsapp-action">Abrir chat →</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Horario -->
+          <div class="detail-item">
+            <div class="detail-icon" aria-hidden="true">🕒</div>
+            <div class="detail-content">
+              <div class="detail-label">Horario de atención</div>
+              <div class="detail-value">
+                <strong>{{ supportInfo.schedule.days }}</strong><br>
+                {{ supportInfo.schedule.hours }}
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ══ Información adicional ══ -->
+      <div class="info-card">
+        <h3>¿En qué podemos ayudarte?</h3>
+        <ul class="help-list">
+          <li>Agendar o modificar citas</li>
+          <li>Gestión de mascotas</li>
+          <li>Consultas sobre pagos</li>
+          <li>Problemas técnicos con la aplicación</li>
+          <li>Solicitar baja de la aplicación</li>
+        </ul>
+      </div>
+
+    </div>
+
+  </main>
+</div>

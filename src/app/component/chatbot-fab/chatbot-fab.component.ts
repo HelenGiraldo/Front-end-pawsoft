@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ChatbotService } from '../../services/chatbot.service';
+import { UiStateService } from '../../services/ui-state.service';
 import { ChatMessage } from '../../pages/chat-bot/chatbot.model';
 
 @Component({
@@ -17,8 +18,20 @@ export class ChatbotFabComponent {
   messages: ChatMessage[] = [];
   inputText = '';
   isLoading = false;
+  accessibilityPanelOpen = false;
 
-  constructor(private chatbotService: ChatbotService, private sanitizer: DomSanitizer) {}
+  constructor(
+    private chatbotService: ChatbotService,
+    private sanitizer: DomSanitizer,
+    private uiStateService: UiStateService
+  ) {
+    this.uiStateService.accessibilityPanelOpen$.subscribe(isOpen => {
+      this.accessibilityPanelOpen = isOpen;
+      if (isOpen && this.isOpen) {
+        this.isOpen = false;
+      }
+    });
+  }
 
   toggleChat() {
     this.isOpen = !this.isOpen;

@@ -73,6 +73,14 @@ export const routes: Routes = [
       import('./pages/pet/pet.component').then(m => m.PetComponent),
   },
 
+  {
+    path: 'contacto',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['ROLE_CLIENTE'] },
+    loadComponent: () =>
+      import('./pages/contacto/contacto.component').then(m => m.ContactoComponent),
+  },
+
   // ── Roles desktop-only (authGuard + desktopOnlyGuard + roleGuard) ─────────
   {
     path: 'dashboard-admin',

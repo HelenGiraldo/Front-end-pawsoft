@@ -88,6 +88,7 @@ export class AppSidebarComponent implements OnInit, OnChanges {
           { icon: '📅', label: 'Mis Citas',    route: '/dashboard-cliente' },
           { icon: '🐾', label: 'Mis Mascotas', route: '/pet' },
           { icon: '👤', label: 'Mi Perfil',    route: '/perfil-cliente' },
+          { icon: '📞', label: 'Contacto',     route: '/contacto' },
         ];
         break;
 
