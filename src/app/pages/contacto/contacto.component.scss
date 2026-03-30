@@ -189,6 +189,26 @@
   transition: transform 0.2s ease;
 }
 
+.email-link {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--verde);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  display: inline-block;
+
+  &:hover {
+    color: var(--verde-oscuro);
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--verde);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
 .detail-value {
   font-size: 1rem;
   color: var(--texto);
@@ -241,7 +261,8 @@
 }
 
 /* Accesibilidad: subrayar enlaces */
-body.underline-links .whatsapp-link {
+body.underline-links .whatsapp-link,
+body.underline-links .email-link {
   text-decoration: underline;
 }
 

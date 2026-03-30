@@ -12,6 +12,7 @@ export interface ScheduleInfo {
 export interface SupportInfo {
   whatsapp: WhatsAppInfo;
   schedule: ScheduleInfo;
+  email: string;
 }
 
 export const SUPPORT_INFO: SupportInfo = {
@@ -23,5 +24,6 @@ export const SUPPORT_INFO: SupportInfo = {
   schedule: {
     days: 'Lunes a Viernes',
     hours: '8:00 AM - 6:00 PM'
-  }
+  },
+  email: 'pawsoft.vet@gmail.com'
 };
