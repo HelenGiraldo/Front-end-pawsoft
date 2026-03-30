@@ -60,6 +60,7 @@
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   padding: 24px 40px;
+  padding-right: 32px;
   max-width: 800px;
   margin: 0 auto;
   width: 100%;
@@ -72,6 +73,7 @@
   &::-webkit-scrollbar-track {
     background: rgba(26, 122, 76, 0.05);
     border-radius: 10px;
+    margin: 4px 0;
   }
 
   &::-webkit-scrollbar-thumb {
