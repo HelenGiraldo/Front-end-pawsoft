@@ -41,6 +41,19 @@
             </div>
           </div>
 
+          <!-- Correo -->
+          <div class="detail-item">
+            <div class="detail-icon" aria-hidden="true">✉️</div>
+            <div class="detail-content">
+              <div class="detail-label">Correo electrónico</div>
+              <a [href]="'mailto:' + supportInfo.email" 
+                 class="email-link"
+                 [attr.aria-label]="'Enviar correo a ' + supportInfo.email">
+                {{ supportInfo.email }}
+              </a>
+            </div>
+          </div>
+
           <!-- Horario -->
           <div class="detail-item">
             <div class="detail-icon" aria-hidden="true">🕒</div>
