@@ -21,7 +21,6 @@ export class AtencionMedicaComponent implements OnInit {
   citas: RecepAppointmentResponse[] = [];
   citasFiltradas: RecepAppointmentResponse[] = [];
   searchText = '';
-  filtroEstado: 'todas' | 'pendiente' | 'en_proceso' = 'todas';
 
   isLoading = false;
   errorMsg = '';
@@ -54,10 +53,12 @@ export class AtencionMedicaComponent implements OnInit {
     this.isLoading = true;
     this.errorMsg = '';
 
+    const todayStr = new Date().toISOString().split('T')[0];
+
     this.appointmentService.getVetAppointments().subscribe({
       next: (data) => {
-        // Solo citas CONFIRMED
-        this.citas = data.filter(a => a.status === 'CONFIRMED');
+        // Solo citas CONFIRMED de hoy
+        this.citas = data.filter(a => a.status === 'CONFIRMED' && a.date === todayStr);
         this.aplicarFiltros();
         this.isLoading = false;
       },
@@ -73,18 +74,9 @@ export class AtencionMedicaComponent implements OnInit {
     const search = this.searchText.toLowerCase();
 
     this.citasFiltradas = this.citas.filter(c => {
-      const matchSearch = !search ||
+      return !search ||
         c.petName.toLowerCase().includes(search) ||
         c.clientName.toLowerCase().includes(search);
-
-      const enProceso = atencionActiva?.appointmentId === c.id;
-
-      const matchEstado =
-        this.filtroEstado === 'todas' ||
-        (this.filtroEstado === 'en_proceso' && enProceso) ||
-        (this.filtroEstado === 'pendiente' && !enProceso);
-
-      return matchSearch && matchEstado;
     });
   }
 

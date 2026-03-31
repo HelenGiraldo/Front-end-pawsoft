@@ -26,12 +26,6 @@
             placeholder="Buscar por mascota o propietario..."
             [(ngModel)]="searchText"
             (input)="aplicarFiltros()">
-
-          <select class="form-select filter-select" [(ngModel)]="filtroEstado" (change)="aplicarFiltros()">
-            <option value="todas">Todas</option>
-            <option value="pendiente">Pendiente</option>
-            <option value="en_proceso">En proceso</option>
-          </select>
         </div>
       </div>
 

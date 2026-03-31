@@ -41,14 +41,22 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
   diagnosticoSecundario = '';
   notasClinicas = '';
 
-  // Tratamiento
+  // Tratamiento (interno - procedimiento)
   medicamentos: Medicamento[] = [];
   indicaciones = '';
+
+  // Resumen para cliente
+  diagnosticoCliente = '';
+  medicamentosRecetados: Medicamento[] = [];
+  indicacionesCliente = '';
 
   // Vacunas y controles
   vacunasAplicadas: VacunaControl[] = [];
   proximoControlFecha = '';
   proximoControlMotivo = '';
+
+  // Control de secciones
+  seccionActiva: 'interno' | 'cliente' = 'interno';
 
   // Fecha mínima para próximo control (hoy + 1 día)
   readonly minFechaControl = (() => {
@@ -105,6 +113,9 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
       this.notasClinicas          = borrador.notasClinicas ?? '';
       this.medicamentos           = borrador.medicamentos ?? [];
       this.indicaciones           = borrador.indicaciones ?? '';
+      this.diagnosticoCliente     = borrador.diagnosticoCliente ?? '';
+      this.medicamentosRecetados  = borrador.medicamentosRecetados ?? [];
+      this.indicacionesCliente    = borrador.indicacionesCliente ?? '';
       this.vacunasAplicadas       = borrador.vacunasAplicadas ?? [];
       this.proximoControlFecha    = borrador.proximoControlFecha ?? '';
       this.proximoControlMotivo   = borrador.proximoControlMotivo ?? '';
@@ -130,6 +141,10 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
     this.estadoGuardado = 'guardado';
   }
 
+  cambiarSeccion(seccion: 'interno' | 'cliente'): void {
+    this.seccionActiva = seccion;
+  }
+
   agregarMedicamento(): void {
     this.medicamentos.push({ nombre: '', dosisValor: '', dosisUnidad: 'mg', via: '' });
     this.onFormChange();
@@ -140,8 +155,30 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
     this.onFormChange();
   }
 
+  agregarMedicamentoRecetado(): void {
+    this.medicamentosRecetados.push({ nombre: '', dosisValor: '', dosisUnidad: 'mg', via: '', frecuencia: '', duracion: '' });
+    this.onFormChange();
+  }
+
+  eliminarMedicamentoRecetado(index: number): void {
+    this.medicamentosRecetados.splice(index, 1);
+    this.onFormChange();
+  }
+
   cerrarAtencion(): void {
     if (!this.atencion || this.isSubmitting) return;
+    
+    // Validar campos requeridos
+    if (!this.diagnosticoPrincipal.trim()) {
+      this.errorMsg = 'El diagnóstico principal es obligatorio';
+      return;
+    }
+    
+    if (!this.diagnosticoCliente.trim()) {
+      this.errorMsg = 'El diagnóstico para el cliente es obligatorio';
+      return;
+    }
+    
     this.isSubmitting = true;
     this.errorMsg = '';
 
@@ -152,8 +189,9 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
         this.isSubmitting = false;
         this.router.navigate(['/veterinario/atencion-medica']);
       },
-      error: () => {
-        this.errorMsg = 'Error al cerrar la atención. Los datos no se perdieron.';
+      error: (err) => {
+        console.error('Error al cerrar atención:', err);
+        this.errorMsg = 'Error al cerrar la atención. Verifica los datos e intenta de nuevo.';
         this.isSubmitting = false;
       }
     });
@@ -205,6 +243,18 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
     if (input) input.showPicker?.();
   }
 
+  /** Sanitiza input numérico removiendo espacios y caracteres no numéricos */
+  sanitizarNumero(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const valor = input.value;
+    // Remover espacios y caracteres no numéricos (excepto punto decimal)
+    const sanitizado = valor.replace(/[^\d.]/g, '');
+    if (valor !== sanitizado) {
+      input.value = sanitizado;
+      input.dispatchEvent(new Event('input'));
+    }
+  }
+
   /** Bloquea entrada si el número resultante excede el máximo permitido */
   clampNumericInput(event: Event, max: number, decimals = 1): void {
     const input = event.target as HTMLInputElement;
@@ -229,6 +279,9 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
       notasClinicas:          this.notasClinicas,
       medicamentos:           this.medicamentos,
       indicaciones:           this.indicaciones,
+      diagnosticoCliente:     this.diagnosticoCliente,
+      medicamentosRecetados:  this.medicamentosRecetados,
+      indicacionesCliente:    this.indicacionesCliente,
       vacunasAplicadas:       this.vacunasAplicadas,
       proximoControlFecha:    this.proximoControlFecha,
       proximoControlMotivo:   this.proximoControlMotivo,

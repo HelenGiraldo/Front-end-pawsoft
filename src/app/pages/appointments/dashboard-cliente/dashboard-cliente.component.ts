@@ -7,6 +7,7 @@ import { AppointmentService, AppointmentRequest, AppointmentResponse } from 'src
 import { PetService } from 'src/app/services/pet.service';
 import { AdminUserService, AdminUser } from 'src/app/services/admin-user.service';
 import { PaymentService, PaymentResponse, ServicePrice } from 'src/app/services/Payment.service';
+import { MedicalRecordService, MedicalRecordResponse, Medicamento } from 'src/app/services/medical-record.service';
 
 interface Pet {
   id: string; name: string; species: string; breed: string;
@@ -25,6 +26,8 @@ interface AppointmentView {
   date: string; time: string; reason: string; vetName: string;
   status: 'upcoming' | 'completed' | 'cancelled' | 'confirmed' | 'no_show'; canCancel: boolean;
   rawDate: string; rawTime: string; sortTimestamp: number; isPast: boolean;
+  medicalRecord?: MedicalRecordResponse;
+  showingMedicalRecord?: boolean;
 }
 
 /**
@@ -113,6 +116,7 @@ export class DashboardClienteComponent implements OnInit, OnDestroy {
     private readonly petService: PetService,
     private readonly adminUserService: AdminUserService,
     private readonly paymentService: PaymentService,
+    private readonly medicalRecordService: MedicalRecordService,
   ) {}
 
   ngOnInit(): void {
@@ -513,5 +517,45 @@ export class DashboardClienteComponent implements OnInit, OnDestroy {
   getVetInitials(vet: AdminUser): string {
     const parts = vet.name.trim().split(' ');
     return `${parts[0]?.[0] ?? ''}${parts[1]?.[0] ?? ''}`.toUpperCase();
+  }
+
+  /* ══════════════════════════════
+     REGISTRO MÉDICO
+  ══════════════════════════════ */
+
+  toggleMedicalRecord(appt: AppointmentView): void {
+    if (appt.status !== 'completed') return;
+    
+    // Si ya está mostrando, solo ocultar
+    if (appt.showingMedicalRecord) {
+      appt.showingMedicalRecord = false;
+      return;
+    }
+
+    // Si ya tiene el registro cargado, solo mostrar
+    if (appt.medicalRecord) {
+      appt.showingMedicalRecord = true;
+      return;
+    }
+
+    // Cargar el registro médico
+    this.medicalRecordService.obtenerPorCita(Number(appt.id)).subscribe({
+      next: (record) => {
+        appt.medicalRecord = record;
+        appt.showingMedicalRecord = true;
+      },
+      error: () => {
+        console.warn('No se pudo cargar el registro médico');
+      }
+    });
+  }
+
+  parseMedicamentosRecetados(jsonStr: string | null | undefined): Medicamento[] {
+    if (!jsonStr) return [];
+    try {
+      return JSON.parse(jsonStr);
+    } catch {
+      return [];
+    }
   }
 }

@@ -50,7 +50,6 @@ export class DashboardVetComponent implements OnInit {
   upcomingAppointments: Appointment[] = [];
   filteredUpcomingAppointments: Appointment[] = [];
   searchUpcoming = '';
-  statusFilterUpcoming = '';
 
   todayStats: StatCard[] = [];
   upcomingStats: StatCard[] = [];
@@ -91,9 +90,12 @@ export class DashboardVetComponent implements OnInit {
     this.appointmentService.getVetAppointments().subscribe({
       next: (data: RecepAppointmentResponse[]) => {
         const mapped = data.map((a: RecepAppointmentResponse) => this.mapToLocal(a));
-        this.todayAppointments     = mapped.filter((a: Appointment) => a.date === this.todayStr);
-        this.upcomingAppointments  = mapped.filter((a: Appointment) => a.date > this.todayStr);
-        this.filteredTodayAppointments    = [...this.todayAppointments];
+        this.todayAppointments = mapped.filter((a: Appointment) => a.date === this.todayStr);
+        // Próximas: fecha >= hoy, excluir NO_SHOW y COMPLETED
+        this.upcomingAppointments = mapped.filter((a: Appointment) => 
+          a.date >= this.todayStr && a.status !== 'NO_SHOW' && a.status !== 'COMPLETED'
+        );
+        this.filteredTodayAppointments = [...this.todayAppointments];
         this.filteredUpcomingAppointments = [...this.upcomingAppointments];
         this.buildStats();
         this.isLoading = false;
@@ -184,8 +186,7 @@ export class DashboardVetComponent implements OnInit {
   filterUpcomingAppointments(): void {
     const search = this.searchUpcoming.toLowerCase();
     this.filteredUpcomingAppointments = this.upcomingAppointments.filter(a =>
-      `${a.petName} ${a.ownerName}`.toLowerCase().includes(search) &&
-      (!this.statusFilterUpcoming || a.status === this.statusFilterUpcoming)
+      `${a.petName} ${a.ownerName}`.toLowerCase().includes(search)
     );
   }
 
@@ -201,7 +202,7 @@ export class DashboardVetComponent implements OnInit {
 
     this.upcomingStats = [
       { icon: '🗓️', label: 'Total próximas', value: this.upcomingAppointments.length },
-      { icon: '✅', label: 'Activas',         value: this.upcomingAppointments.filter(a => active.includes(a.status)).length },
+      { icon: '✅', label: 'Activas',         value: this.upcomingAppointments.filter(a => a.status === 'UPCOMING' || a.status === 'CONFIRMED').length },
       { icon: '❌', label: 'Canceladas',      value: this.upcomingAppointments.filter(a => a.status === 'CANCELLED').length },
       { icon: '📅', label: 'Días con citas',  value: new Set(this.upcomingAppointments.map(a => a.date)).size }
     ];

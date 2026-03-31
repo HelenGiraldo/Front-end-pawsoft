@@ -23,7 +23,7 @@
   cursor: pointer; font-family: 'Manrope', sans-serif; white-space: nowrap;
   &:hover { background: #D4EDE0; }
 }
-.topbar-center { flex: 1; text-align: center; }
+.topbar-center { flex: 1; text-align: center; min-width: 0; }
 .topbar-title  { font-size: 1.1rem; font-weight: 800; color: #163A2B; }
 .topbar-sub    { font-size: .78rem; color: #5F7F71; margin-top: 2px; }
 .guardado-indicator {
@@ -46,7 +46,7 @@
 .banner-pet-name { font-size: 1.1rem; font-weight: 800; }
 .banner-details  { font-size: .8rem; opacity: .75; margin-top: 2px; }
 .banner-owner    { font-size: .8rem; opacity: .75; margin-top: 2px; }
-.banner-info     { flex: 1; }
+.banner-info     { flex: 1; min-width: 0; }
 .motivo-tag {
   background: rgba(244,184,96,.2); border: 1px solid rgba(244,184,96,.4);
   color: #f4b860; padding: 5px 12px; border-radius: 20px; font-size: .78rem; font-weight: 600;
@@ -63,6 +63,28 @@
   padding: 24px 28px 100px;
   display: flex; flex-direction: column; gap: 20px;
   max-width: 900px; width: 100%; margin: 0 auto;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Tabs */
+.tabs-container {
+  display: flex; gap: 8px; background: #F8FBF9; padding: 6px;
+  border-radius: 12px; border: 1px solid #E8EFE9;
+}
+.tab-btn {
+  flex: 1; padding: 12px 16px; border: none; background: transparent;
+  color: #5F7F71; font-size: .875rem; font-weight: 700; border-radius: 8px;
+  cursor: pointer; font-family: 'Manrope', sans-serif; transition: all .2s;
+  &:hover { background: rgba(34,160,107,.08); }
+  &.active {
+    background: #fff; color: #22A06B;
+    box-shadow: 0 2px 8px rgba(18,38,30,.08);
+  }
+}
+
+.seccion-content {
+  display: flex; flex-direction: column; gap: 20px;
 }
 
 /* Secciones */
@@ -70,10 +92,15 @@
   background: #fff; border-radius: 16px; padding: 24px;
   box-shadow: 0 2px 12px rgba(18,38,30,.05); border: 1px solid #E8EFE9;
   display: flex; flex-direction: column; gap: 16px;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 .seccion-title {
   font-size: 1rem; font-weight: 800; color: #163A2B;
   padding-bottom: 12px; border-bottom: 1px solid #F0F5F2;
+}
+.seccion-hint {
+  font-size: .8rem; color: #7A9488; margin: -8px 0 4px;
 }
 
 /* Forms */
@@ -81,9 +108,22 @@
   display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
   @media (max-width: 700px) { grid-template-columns: 1fr; }
 }
-.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 6px; 
+  min-width: 0;
+  overflow: hidden;
+}
 .form-group.full-width { grid-column: 1 / -1; }
-label { font-size: .8rem; font-weight: 700; color: #5F7F71; }
+label { 
+  font-size: .8rem; 
+  font-weight: 700; 
+  color: #5F7F71;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .required { color: #e53935; }
 .optional  { font-weight: 400; color: #9AAFA6; }
 .char-hint { font-weight: 400; color: #9AAFA6; font-size: .72rem; }
@@ -92,10 +132,13 @@ label { font-size: .8rem; font-weight: 700; color: #5F7F71; }
   padding: 10px 14px; border: 1.5px solid #DCEAE2; border-radius: 9px;
   font-size: .875rem; color: #163A2B; background: #FAFCFB;
   font-family: 'Manrope', sans-serif; transition: border-color .15s;
+  width: 100%; 
+  min-width: 0;
+  box-sizing: border-box;
   &:focus { outline: none; border-color: #22A06B; box-shadow: 0 0 0 3px rgba(34,160,107,.1); }
   &::placeholder { color: #9AAFA6; }
 }
-.form-textarea { resize: vertical; min-height: 80px; }
+.form-textarea { resize: vertical; min-height: 80px; max-width: 100%; }
 
 /* Medicamentos */
 .medicamentos-list { display: flex; flex-direction: column; gap: 12px; }
@@ -104,16 +147,38 @@ label { font-size: .8rem; font-weight: 700; color: #5F7F71; }
   display: flex; align-items: flex-end; gap: 10px;
   background: #F8FBF9; border-radius: 10px; padding: 12px;
   border: 1px solid #E8EFE9;
+  overflow: hidden;
 }
 
 .med-fields {
   flex: 1;
+  min-width: 0;
   display: grid;
   grid-template-columns: 2fr 1fr 1fr 1.5fr;
   gap: 10px;
   align-items: end;
+  overflow: hidden;
   @media (max-width: 700px) { grid-template-columns: 1fr 1fr; }
 }
+
+.medicamento-item-recetado {
+  display: flex; align-items: flex-end; gap: 10px;
+  background: #F8FBF9; border-radius: 10px; padding: 12px;
+  border: 1px solid #E8EFE9;
+  overflow: hidden;
+}
+
+.med-fields-recetado {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1.5fr 1.2fr;
+  gap: 10px;
+  align-items: end;
+  overflow: hidden;
+  @media (max-width: 700px) { grid-template-columns: 1fr 1fr; }
+}
+
 .btn-eliminar {
   background: #FEECEC; border: 1px solid #FFCDD2; color: #b03030;
   width: 34px; height: 34px; border-radius: 8px; cursor: pointer;
@@ -149,7 +214,7 @@ label { font-size: .8rem; font-weight: 700; color: #5F7F71; }
 
 /* Barra inferior */
 .bottom-bar {
-  position: fixed; bottom: 0; left: 260px; right: 80px;
+  position: fixed; bottom: 0; left: 260px; right: 0;
   background: #fff; border-top: 1px solid #E7EFEA;
   padding: 14px 28px; display: flex; gap: 12px; justify-content: flex-end;
   box-shadow: 0 -4px 16px rgba(18,38,30,.06); z-index: 10;

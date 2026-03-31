@@ -24,6 +24,8 @@ export interface Medicamento {
   dosisValor: string;
   dosisUnidad: string;
   via: string;
+  frecuencia?: string;  // Para medicamentos recetados
+  duracion?: string;    // Para medicamentos recetados
 }
 
 export interface VacunaControl {
@@ -160,20 +162,31 @@ export class MedicalRecordService {
   // ── API ─────────────────────────────────────────────────────────────────────
 
   guardar(registro: RegistroMedico, cerrar: boolean): Observable<MedicalRecordResponse> {
+    // Convertir strings a números y normalizar formato
+    const parseNumber = (val: any): number | null => {
+      if (val === null || val === undefined || val === '') return null;
+      const str = String(val).replace(',', '.').trim();
+      const num = parseFloat(str);
+      return isNaN(num) ? null : num;
+    };
+
     const payload = {
       appointmentId:          registro.appointmentId,
-      peso:                   registro.peso,
-      temperatura:            registro.temperatura,
-      frecuenciaCardiaca:     registro.frecuenciaCardiaca,
-      observacionesGenerales: registro.observacionesGenerales,
-      diagnosticoPrincipal:   registro.diagnosticoPrincipal,
-      diagnosticoSecundario:  registro.diagnosticoSecundario,
-      notasClinicas:          registro.notasClinicas,
+      peso:                   parseNumber(registro.peso),
+      temperatura:            parseNumber(registro.temperatura),
+      frecuenciaCardiaca:     parseNumber(registro.frecuenciaCardiaca),
+      observacionesGenerales: registro.observacionesGenerales?.trim() || null,
+      diagnosticoPrincipal:   registro.diagnosticoPrincipal?.trim() || null,
+      diagnosticoSecundario:  registro.diagnosticoSecundario?.trim() || null,
+      notasClinicas:          registro.notasClinicas?.trim() || null,
       medicamentos:           JSON.stringify(registro.medicamentos),
-      indicaciones:           registro.indicaciones,
+      indicaciones:           registro.indicaciones?.trim() || null,
+      diagnosticoCliente:     registro.diagnosticoCliente?.trim() || null,
+      medicamentosRecetados:  JSON.stringify(registro.medicamentosRecetados),
+      indicacionesCliente:    registro.indicacionesCliente?.trim() || null,
       vacunasAplicadas:       JSON.stringify(registro.vacunasAplicadas),
-      proximoControlFecha:    registro.proximoControlFecha || null,
-      proximoControlMotivo:   registro.proximoControlMotivo,
+      proximoControlFecha:    registro.proximoControlFecha?.trim() || null,
+      proximoControlMotivo:   registro.proximoControlMotivo?.trim() || null,
     };
     return this.http.post<MedicalRecordResponse>(
       `${this.apiUrl}?cerrar=${cerrar}`,

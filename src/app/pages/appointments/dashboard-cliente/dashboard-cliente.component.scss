@@ -1109,3 +1109,84 @@ button, [role="button"], .pet-chip, .cal-day, .time-slot { cursor: pointer; }
   &.no_show    { background: #FEF3C7; color: #92400E; }
   &.pending-status { background: #F3F4F6; color: #6B7280; }
 }
+
+/* ══════════════════════════════
+   REGISTRO MÉDICO
+══════════════════════════════ */
+
+.btn-view-record {
+  background: var(--verde-claro);
+  color: var(--verde-oscuro);
+  border: 1px solid var(--borde);
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  margin-left: 8px;
+
+  &:hover {
+    background: var(--verde-hover);
+    border-color: var(--verde);
+  }
+}
+
+.medical-record-summary {
+  width: 100%;
+  margin-top: 12px;
+  padding: 16px;
+  background: var(--fondo);
+  border-radius: 10px;
+  border: 1px solid var(--borde);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.record-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.record-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--verde-oscuro);
+  margin-bottom: 4px;
+}
+
+.record-text {
+  font-size: 0.85rem;
+  color: var(--texto);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.medication-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.medication-item {
+  padding: 10px 12px;
+  background: var(--blanco);
+  border-radius: 8px;
+  border: 1px solid var(--borde);
+}
+
+.med-name {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--texto);
+  margin-bottom: 3px;
+}
+
+.med-details {
+  font-size: 0.78rem;
+  color: var(--texto-secundario);
+  line-height: 1.4;
+}

@@ -51,6 +51,46 @@
                     <span *ngIf="appt.status === 'confirmed'">Confirmada</span>
                     <span *ngIf="appt.status === 'no_show'">No asistió</span>
                   </div>
+                  <button class="btn-view-record" 
+                          *ngIf="appt.status === 'completed'"
+                          (click)="toggleMedicalRecord(appt)">
+                    {{ appt.showingMedicalRecord ? '▲ Ocultar' : '▼ Ver resumen' }}
+                  </button>
+                </div>
+
+                <!-- RESUMEN MÉDICO (expandible) -->
+                <div class="medical-record-summary" *ngIf="appt.showingMedicalRecord && appt.medicalRecord">
+                  <div class="record-section">
+                    <div class="record-title">📋 Diagnóstico</div>
+                    <p class="record-text">{{ appt.medicalRecord.diagnosticoCliente || 'No especificado' }}</p>
+                  </div>
+
+                  <div class="record-section" *ngIf="parseMedicamentosRecetados(appt.medicalRecord.medicamentosRecetados).length > 0">
+                    <div class="record-title">💊 Medicamentos Recetados</div>
+                    <div class="medication-list">
+                      <div class="medication-item" *ngFor="let med of parseMedicamentosRecetados(appt.medicalRecord.medicamentosRecetados)">
+                        <div class="med-name">{{ med.nombre }}</div>
+                        <div class="med-details">
+                          {{ med.dosisValor }} {{ med.dosisUnidad }}
+                          <span *ngIf="med.frecuencia"> · {{ med.frecuencia }}</span>
+                          <span *ngIf="med.duracion"> · {{ med.duracion }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="record-section" *ngIf="appt.medicalRecord.indicacionesCliente">
+                    <div class="record-title">🏠 Cuidados en Casa</div>
+                    <p class="record-text">{{ appt.medicalRecord.indicacionesCliente }}</p>
+                  </div>
+
+                  <div class="record-section" *ngIf="appt.medicalRecord.proximoControlFecha">
+                    <div class="record-title">📅 Próximo Control</div>
+                    <p class="record-text">
+                      <strong>{{ appt.medicalRecord.proximoControlFecha }}</strong>
+                      <span *ngIf="appt.medicalRecord.proximoControlMotivo"> · {{ appt.medicalRecord.proximoControlMotivo }}</span>
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
