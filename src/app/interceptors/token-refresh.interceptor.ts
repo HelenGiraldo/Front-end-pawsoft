@@ -4,6 +4,15 @@ import { Router } from '@angular/router';
 import { catchError, switchMap, throwError } from 'rxjs';
 import { AuthService } from '../services/auth';
 
+/**
+ * Interceptor HTTP que renueva automáticamente el JWT antes de su expiración.
+ * 
+ * Estrategia de renovación:
+ * 1. Renovación proactiva: Si el JWT expira en menos de 5 minutos, lo renueva antes de hacer la petición
+ * 2. Renovación reactiva: Si recibe un 403, intenta renovar el JWT con el refresh token
+ * 
+ * Si la renovación falla, cierra la sesión y redirige al login.
+ */
 let isRefreshing = false;
 
 export const tokenRefreshInterceptor: HttpInterceptorFn = (req, next) => {

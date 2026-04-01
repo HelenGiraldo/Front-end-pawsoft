@@ -14,6 +14,26 @@ import { AppointmentService } from 'src/app/services/appointment.service';
 
 type EstadoGuardado = 'sin_cambios' | 'guardando' | 'guardado' | 'error';
 
+/**
+ * Componente para el formulario de consulta médica veterinaria.
+ * 
+ * Funcionalidad:
+ * - Registro de examen físico (peso, temperatura, frecuencia cardíaca)
+ * - Diagnóstico y notas clínicas (interno)
+ * - Tratamiento y medicamentos aplicados
+ * - Resumen para el cliente con diagnóstico e indicaciones
+ * - Registro de vacunas aplicadas
+ * - Programación de próximo control
+ * - Adjuntar fotos (radiografías, análisis)
+ * - Guardado automático de borrador cada 30 segundos
+ * - Validación de campos obligatorios antes de cerrar atención
+ * 
+ * Flujo:
+ * 1. Veterinario completa sección interna (examen, diagnóstico, tratamiento)
+ * 2. Sistema valida campos obligatorios antes de permitir continuar
+ * 3. Veterinario completa resumen para cliente
+ * 4. Sistema guarda registro y cierra la cita (estado COMPLETED)
+ */
 @Component({
   selector: 'app-formulario-consulta',
   standalone: true,
@@ -175,6 +195,11 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
     this.seccionActiva = seccion;
   }
 
+  /**
+   * Valida que todos los campos obligatorios de la sección interna estén completos
+   * antes de permitir continuar al resumen para cliente.
+   * Previene que el veterinario cierre la atención sin completar la información clínica.
+   */
   continuarACliente(): void {
     // Validar campos obligatorios de la sección interna antes de continuar
     this.validarPeso();
@@ -303,6 +328,11 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
     this.onFormChange();
   }
 
+  /**
+   * Maneja la selección de archivo de foto para adjuntar al registro médico.
+   * Valida tipo de archivo (solo imágenes) y tamaño (máximo 2MB).
+   * Sube la foto a Cloudinary y agrega la URL al array de fotos adjuntas.
+   */
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) return;
@@ -338,6 +368,9 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Elimina una foto del array de fotos adjuntas.
+   */
   eliminarFoto(index: number): void {
     this.fotosAdjuntas.splice(index, 1);
     this.onFormChange();
