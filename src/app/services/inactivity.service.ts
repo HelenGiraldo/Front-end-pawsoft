@@ -26,10 +26,15 @@ import { Router } from '@angular/router';
 @Injectable({ providedIn: 'root' })
 export class InactivityService implements OnDestroy {
 
-  /** Minutos de inactividad antes de hacer logout automático */
-  private readonly TIMEOUT_MINUTES = 3;
+  /** Tiempos de inactividad según rol (en minutos) */
+  private readonly TIMEOUT_BY_ROLE: Record<string, number> = {
+    'ROLE_VETERINARIO': 60,  // 1 hora
+    'ROLE_ADMIN': 60,         // 1 hora
+    'ROLE_RECEPCIONISTA': 30, // 30 minutos
+    'ROLE_CLIENTE': 15        // 15 minutos
+  };
 
-  private readonly TIMEOUT_MS = this.TIMEOUT_MINUTES * 60 * 1000;
+  private timeoutMs = 60 * 60 * 1000; // Default 1 hora
 
   /** Eventos del DOM que se consideran "actividad del usuario" */
   private readonly ACTIVITY_EVENTS: (keyof WindowEventMap)[] = [
@@ -71,6 +76,11 @@ export class InactivityService implements OnDestroy {
   startWatching(): void {
     if (this.isWatching) return;
     this.isWatching = true;
+
+    // Obtener el rol del usuario y configurar el timeout correspondiente
+    const userRole = localStorage.getItem('rol') || 'ROLE_CLIENTE';
+    const timeoutMinutes = this.TIMEOUT_BY_ROLE[userRole] || 15;
+    this.timeoutMs = timeoutMinutes * 60 * 1000;
 
     this.boundReset = this.resetTimer.bind(this);
     this.boundVisibility = this.onVisibilityChange.bind(this);
@@ -121,7 +131,7 @@ export class InactivityService implements OnDestroy {
 
     this.timeoutRef = setTimeout(() => {
       this.ngZone.run(() => this.onTimeout());
-    }, this.TIMEOUT_MS);
+    }, this.timeoutMs);
   }
 
   /**
@@ -149,13 +159,13 @@ export class InactivityService implements OnDestroy {
       if (!localStorage.getItem('token')) return;
 
       const elapsed = Date.now() - this.lastActivityAt;
-      if (elapsed >= this.TIMEOUT_MS) {
+      if (elapsed >= this.timeoutMs) {
         // El tiempo de inactividad ya pasó mientras la app estaba en background
         this.ngZone.run(() => this.onTimeout());
       } else {
         // Aún dentro del tiempo — reinicia el timer con el tiempo restante
         this.clearTimer();
-        const remaining = this.TIMEOUT_MS - elapsed;
+        const remaining = this.timeoutMs - elapsed;
         this.timeoutRef = setTimeout(() => {
           this.ngZone.run(() => this.onTimeout());
         }, remaining);

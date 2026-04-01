@@ -397,6 +397,17 @@
     color: #145C42;
   }
 
+  &.status-confirmada {
+    background: #E6F5EE;
+    color: #145C42;
+  }
+
+  &.status-enprogreso {
+    background: #FFF4E6;
+    color: #B86E00;
+    border: 1px solid #FFD699;
+  }
+
   &.status-cancelada {
     background: #FEECEC;
     color: #b03030;
@@ -449,4 +460,135 @@
 
 @media (max-width: 480px) {
   .stats-strip { grid-template-columns: 1fr 1fr; }
+}
+
+/* ══════════════════════════════════════════════════════
+   MODO OSCURO - Dashboard Veterinario
+   ══════════════════════════════════════════════════════ */
+
+:host-context(body.theme-dark) {
+
+  .dashboard-layout {
+    background: linear-gradient(135deg, #0a0f0d 0%, #121816 100%) !important;
+    color: #ffffff !important;
+  }
+
+  .topbar {
+    background: #1a1f1d !important;
+    border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .topbar-title { color: #ffffff !important; }
+  .topbar-sub { color: #b8c5be !important; }
+
+  .today-badge {
+    background: #0f1412 !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    color: #b8c5be !important;
+  }
+
+  .today-dot {
+    background: #1A7A4C !important;
+  }
+
+  .tab-nav {
+    background: #1a1f1d !important;
+    border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .tab-btn {
+    color: #b8c5be !important;
+    &:hover {
+      color: #ffffff !important;
+      background: rgba(26, 122, 76, 0.1) !important;
+    }
+    &.active {
+      color: #7dd3a3 !important;
+      border-bottom-color: #1A7A4C !important;
+    }
+  }
+
+  .section-card {
+    background: #1a1f1d !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 2px 12px rgba(0,0,0,.4) !important;
+  }
+
+  .stat-card {
+    background: #1a1f1d !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,.4) !important;
+    &:hover {
+      box-shadow: 0 6px 18px rgba(0,0,0,.6) !important;
+    }
+  }
+
+  .stat-icon-wrap {
+    background: rgba(26, 122, 76, 0.15) !important;
+  }
+
+  .stat-value { color: #ffffff !important; }
+  .stat-label { color: #b8c5be !important; }
+
+  .form-input, .form-select {
+    background: #0f1412 !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    color: #ffffff !important;
+    &:focus {
+      border-color: #1A7A4C !important;
+      box-shadow: 0 0 0 3px rgba(26, 122, 76, 0.2) !important;
+      background: #0f1412 !important;
+    }
+    &::placeholder { color: rgba(255, 255, 255, 0.4) !important; }
+  }
+
+  .data-table {
+    thead tr {
+      background: #0f1412 !important;
+      border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+    }
+    th { color: #b8c5be !important; }
+    td { border-bottom-color: rgba(255, 255, 255, 0.05) !important; }
+  }
+
+  .table-row {
+    &:hover { background: #0f1412 !important; }
+  }
+
+  .cell-name { color: #ffffff !important; }
+  .cell-sub { color: #8a9a92 !important; }
+  .cell-text { color: #b8c5be !important; }
+  .empty-row { color: #8a9a92 !important; }
+
+  .time-chip {
+    background: rgba(26, 122, 76, 0.15) !important;
+    border-color: rgba(26, 122, 76, 0.3) !important;
+    color: #7dd3a3 !important;
+  }
+
+  .date-chip {
+    background: rgba(139, 109, 184, 0.15) !important;
+    border-color: rgba(139, 109, 184, 0.3) !important;
+    color: #b8a3d8 !important;
+  }
+
+  .status-apt-badge {
+    &.status-programada {
+      background: rgba(26, 122, 76, 0.15) !important;
+      color: #7dd3a3 !important;
+    }
+    &.status-confirmada {
+      background: rgba(26, 122, 76, 0.15) !important;
+      color: #7dd3a3 !important;
+    }
+    &.status-enprogreso {
+      background: rgba(255, 152, 0, 0.2) !important;
+      border-color: rgba(255, 152, 0, 0.4) !important;
+      color: #ffb74d !important;
+    }
+    &.status-cancelada {
+      background: rgba(244, 67, 54, 0.15) !important;
+      color: #ff8a80 !important;
+    }
+  }
 }

@@ -56,6 +56,8 @@ export interface RegistroMedico {
   vacunasAplicadas: VacunaControl[];
   proximoControlFecha: string;
   proximoControlMotivo: string;
+  // Archivos adjuntos
+  fotosAdjuntas: string[];
 }
 
 export interface MedicalRecordResponse {
@@ -90,6 +92,7 @@ export interface MedicalRecordResponse {
   vacunasAplicadas: string;
   proximoControlFecha: string | null;
   proximoControlMotivo: string;
+  fotosAdjuntas: string;
   creadoEn: string;
   actualizadoEn: string | null;
 }
@@ -187,6 +190,7 @@ export class MedicalRecordService {
       vacunasAplicadas:       JSON.stringify(registro.vacunasAplicadas),
       proximoControlFecha:    registro.proximoControlFecha?.trim() || null,
       proximoControlMotivo:   registro.proximoControlMotivo?.trim() || null,
+      fotosAdjuntas:          JSON.stringify(registro.fotosAdjuntas || []),
     };
     return this.http.post<MedicalRecordResponse>(
       `${this.apiUrl}?cerrar=${cerrar}`,
@@ -203,6 +207,17 @@ export class MedicalRecordService {
     return this.http.get<MedicalRecordResponse>(
       `${this.apiUrl}/appointment/${appointmentId}`,
       { headers: this.headers() }
+    );
+  }
+
+  uploadPhoto(file: File): Observable<{ secure_url: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', environment.cloudinary.uploadPreset);
+    
+    return this.http.post<{ secure_url: string }>(
+      `https://api.cloudinary.com/v1_1/${environment.cloudinary.cloudName}/image/upload`,
+      formData
     );
   }
 

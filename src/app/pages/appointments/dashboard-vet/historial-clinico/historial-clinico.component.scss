@@ -8,6 +8,7 @@
 .content-area {
   padding: 28px; flex: 1; display: flex; flex-direction: column; gap: 20px;
   max-width: 1100px; width: 100%; margin: 0 auto;
+  overflow-y: auto;
 }
 
 /* Topbar */
@@ -23,10 +24,18 @@
   background: #fff; border-radius: 16px; padding: 20px 24px;
   box-shadow: 0 2px 12px rgba(18,38,30,.05); border: 1px solid #E8EFE9;
 }
-.filters-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.filters-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
 .search-input { flex: 2; min-width: 200px; }
-.date-input   { flex: 1; min-width: 140px; }
 .especie-select { flex: 1; min-width: 160px; }
+
+.date-filter-group {
+  display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 140px;
+}
+.date-label {
+  font-size: .75rem; font-weight: 600; color: #5F7F71;
+  padding-left: 4px;
+}
+.date-input { width: 100%; }
 
 .form-input, .form-select {
   padding: 10px 14px; border: 1.5px solid #DCEAE2; border-radius: 9px;
@@ -34,6 +43,20 @@
   font-family: 'Manrope', sans-serif; transition: border-color .15s;
   &:focus { outline: none; border-color: #22A06B; box-shadow: 0 0 0 3px rgba(34,160,107,.1); }
   &::placeholder { color: #9AAFA6; }
+}
+
+.form-input[type="date"] {
+  color-scheme: light;
+  position: relative;
+  &::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    filter: invert(0.4) sepia(1) saturate(3) hue-rotate(130deg);
+    position: absolute;
+    right: 10px;
+  }
+  &::-webkit-datetime-edit {
+    padding-right: 30px;
+  }
 }
 
 /* Error / Loading */
@@ -124,3 +147,130 @@
 .empty-icon  { font-size: 3rem; margin-bottom: 12px; }
 .empty-title { font-size: 1.1rem; font-weight: 700; color: #163A2B; }
 .empty-sub   { font-size: .85rem; color: #7A9A8C; margin-top: 6px; }
+
+
+/* ══════════════════════════════════════════════════════
+   MODO OSCURO - Historial Clínico
+   ══════════════════════════════════════════════════════ */
+
+:host-context(body.theme-dark) {
+
+  .dashboard-layout {
+    background: linear-gradient(135deg, #0a0f0d 0%, #121816 100%) !important;
+    color: #ffffff !important;
+  }
+
+  .topbar {
+    background: #1a1f1d !important;
+    border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .topbar-title { color: #ffffff !important; }
+  .topbar-sub { color: #b8c5be !important; }
+
+  .section-card {
+    background: #1a1f1d !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 2px 12px rgba(0,0,0,.4) !important;
+  }
+
+  .form-input, .form-select {
+    background: #0f1412 !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    color: #ffffff !important;
+    &:focus {
+      border-color: #1A7A4C !important;
+      box-shadow: 0 0 0 3px rgba(26, 122, 76, 0.2) !important;
+    }
+    &::placeholder { color: rgba(255, 255, 255, 0.4) !important; }
+  }
+
+  .form-input[type="date"] {
+    &::-webkit-calendar-picker-indicator {
+      filter: invert(0.8) sepia(1) saturate(2) hue-rotate(100deg) !important;
+    }
+  }
+
+  .date-label {
+    color: #b8c5be !important;
+  }
+
+  .error-card {
+    background: rgba(244, 67, 54, 0.15) !important;
+    border-color: rgba(244, 67, 54, 0.3) !important;
+    color: #ff8a80 !important;
+  }
+
+  .btn-retry {
+    background: #b03030 !important;
+    &:hover { background: #8a2424 !important; }
+  }
+
+  .loading-wrap {
+    color: #b8c5be !important;
+  }
+
+  .spinner {
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    border-top-color: #1A7A4C !important;
+  }
+
+  .registro-item {
+    background: #1e2422 !important;
+    border-color: rgba(34, 160, 107, 0.2) !important;
+    box-shadow: 0 2px 12px rgba(0,0,0,.5) !important;
+  }
+
+  .registro-header {
+    &:hover { background: rgba(34, 160, 107, 0.12) !important; }
+  }
+
+  .reg-avatar {
+    background: rgba(34, 160, 107, 0.25) !important;
+    border: 1px solid rgba(34, 160, 107, 0.3);
+  }
+
+  .reg-pet-name { color: #e8f5ee !important; }
+  .reg-details { color: #a8bfb5 !important; }
+
+  .reg-fecha {
+    background: rgba(94, 45, 158, 0.25) !important;
+    border-color: rgba(94, 45, 158, 0.4) !important;
+    color: #d4b3f0 !important;
+  }
+
+  .reg-diagnostico {
+    color: #c8ddd2 !important;
+  }
+
+  .reg-chevron {
+    color: #a8bfb5 !important;
+  }
+
+  .registro-detalle {
+    background: #151a18 !important;
+    border-top-color: rgba(34, 160, 107, 0.15) !important;
+  }
+
+  .detalle-titulo {
+    color: #e8f5ee !important;
+    border-bottom-color: rgba(34, 160, 107, 0.2) !important;
+  }
+
+  .det-label { color: #a8bfb5 !important; }
+  .det-val { color: #e8f5ee !important; }
+
+  .med-tag {
+    background: rgba(34, 160, 107, 0.2) !important;
+    border-color: rgba(34, 160, 107, 0.35) !important;
+    color: #8fe6b8 !important;
+  }
+
+  .empty-state {
+    background: #1a1f1d !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .empty-title { color: #ffffff !important; }
+  .empty-sub { color: #8a9a92 !important; }
+}

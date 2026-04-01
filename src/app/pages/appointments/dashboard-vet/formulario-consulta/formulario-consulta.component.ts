@@ -10,6 +10,7 @@ import {
   VacunaControl,
   RegistroMedico
 } from 'src/app/services/medical-record.service';
+import { AppointmentService } from 'src/app/services/appointment.service';
 
 type EstadoGuardado = 'sin_cambios' | 'guardando' | 'guardado' | 'error';
 
@@ -52,11 +53,36 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
 
   // Vacunas y controles
   vacunasAplicadas: VacunaControl[] = [];
+  requiereProximoControl = false;
   proximoControlFecha = '';
   proximoControlMotivo = '';
 
+  // Fotos adjuntas
+  adjuntarFotos = false;
+  fotosAdjuntas: string[] = [];
+  uploadingPhoto = false;
+
   // Control de secciones
   seccionActiva: 'interno' | 'cliente' = 'interno';
+
+  // Modal de confirmación
+  mostrarModalCancelar = false;
+
+  // Errores inline
+  errores = {
+    diagnosticoPrincipal: '',
+    diagnosticoCliente: '',
+    proximoControlFecha: '',
+    proximoControlMotivo: '',
+    peso: '',
+    temperatura: '',
+    frecuenciaCardiaca: '',
+    observacionesGenerales: '',
+    notasClinicas: '',
+    indicacionesCliente: '',
+    medicamentos: [] as string[],
+    medicamentosRecetados: [] as string[]
+  };
 
   // Fecha mínima para próximo control (hoy + 1 día)
   readonly minFechaControl = (() => {
@@ -88,6 +114,7 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
   constructor(
     private readonly router: Router,
     private readonly medicalRecordService: MedicalRecordService,
+    private readonly appointmentService: AppointmentService,
   ) {}
 
   ngOnInit(): void {
@@ -117,8 +144,11 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
       this.medicamentosRecetados  = borrador.medicamentosRecetados ?? [];
       this.indicacionesCliente    = borrador.indicacionesCliente ?? '';
       this.vacunasAplicadas       = borrador.vacunasAplicadas ?? [];
+      this.requiereProximoControl = !!(borrador.proximoControlFecha || borrador.proximoControlMotivo);
       this.proximoControlFecha    = borrador.proximoControlFecha ?? '';
       this.proximoControlMotivo   = borrador.proximoControlMotivo ?? '';
+      this.adjuntarFotos          = !!(borrador.fotosAdjuntas && borrador.fotosAdjuntas.length > 0);
+      this.fotosAdjuntas          = borrador.fotosAdjuntas ?? [];
     }
   }
 
@@ -145,37 +175,251 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
     this.seccionActiva = seccion;
   }
 
+  continuarACliente(): void {
+    // Validar campos obligatorios de la sección interna antes de continuar
+    this.validarPeso();
+    this.validarTemperatura();
+    this.validarFrecuenciaCardiaca();
+    this.validarObservacionesGenerales();
+    this.validarDiagnosticoPrincipal();
+    this.validarNotasClinicas();
+    this.validarMedicamentos();
+    
+    const hayErroresInternos = 
+      this.errores.peso ||
+      this.errores.temperatura ||
+      this.errores.frecuenciaCardiaca ||
+      this.errores.observacionesGenerales ||
+      this.errores.diagnosticoPrincipal ||
+      this.errores.notasClinicas ||
+      this.errores.medicamentos.some(e => e);
+    
+    if (hayErroresInternos) {
+      this.errorMsg = 'Por favor completa todos los campos obligatorios de la información clínica';
+      return;
+    }
+    
+    this.errorMsg = '';
+    this.seccionActiva = 'cliente';
+  }
+
+  validarDiagnosticoPrincipal(): void {
+    if (!this.diagnosticoPrincipal.trim()) {
+      this.errores.diagnosticoPrincipal = 'El diagnóstico principal es obligatorio';
+    } else {
+      this.errores.diagnosticoPrincipal = '';
+    }
+  }
+
+  validarDiagnosticoCliente(): void {
+    if (!this.diagnosticoCliente.trim()) {
+      this.errores.diagnosticoCliente = 'El diagnóstico para el cliente es obligatorio';
+    } else {
+      this.errores.diagnosticoCliente = '';
+    }
+  }
+
+  validarPeso(): void {
+    if (this.peso === null || this.peso === undefined || String(this.peso).trim() === '') {
+      this.errores.peso = 'El peso es obligatorio';
+    } else {
+      this.errores.peso = '';
+    }
+  }
+
+  validarTemperatura(): void {
+    if (this.temperatura === null || this.temperatura === undefined || String(this.temperatura).trim() === '') {
+      this.errores.temperatura = 'La temperatura es obligatoria';
+    } else {
+      this.errores.temperatura = '';
+    }
+  }
+
+  validarFrecuenciaCardiaca(): void {
+    if (this.frecuenciaCardiaca === null || this.frecuenciaCardiaca === undefined || String(this.frecuenciaCardiaca).trim() === '') {
+      this.errores.frecuenciaCardiaca = 'La frecuencia cardíaca es obligatoria';
+    } else {
+      this.errores.frecuenciaCardiaca = '';
+    }
+  }
+
+  validarObservacionesGenerales(): void {
+    if (!this.observacionesGenerales.trim()) {
+      this.errores.observacionesGenerales = 'Las observaciones generales son obligatorias';
+    } else {
+      this.errores.observacionesGenerales = '';
+    }
+  }
+
+  validarNotasClinicas(): void {
+    if (!this.notasClinicas.trim()) {
+      this.errores.notasClinicas = 'Las notas clínicas internas son obligatorias';
+    } else {
+      this.errores.notasClinicas = '';
+    }
+  }
+
+  validarIndicacionesCliente(): void {
+    if (!this.indicacionesCliente.trim()) {
+      this.errores.indicacionesCliente = 'Las indicaciones de cuidado son obligatorias';
+    } else {
+      this.errores.indicacionesCliente = '';
+    }
+  }
+
+  validarProximoControl(): void {
+    if (this.requiereProximoControl) {
+      if (!this.proximoControlFecha) {
+        this.errores.proximoControlFecha = 'Debes especificar la fecha del próximo control';
+      } else {
+        this.errores.proximoControlFecha = '';
+      }
+
+      if (!this.proximoControlMotivo.trim()) {
+        this.errores.proximoControlMotivo = 'Debes especificar el motivo del próximo control';
+      } else {
+        this.errores.proximoControlMotivo = '';
+      }
+    } else {
+      this.errores.proximoControlFecha = '';
+      this.errores.proximoControlMotivo = '';
+    }
+  }
+
+  onRequiereProximoControlChange(): void {
+    if (!this.requiereProximoControl) {
+      this.proximoControlFecha = '';
+      this.proximoControlMotivo = '';
+      this.errores.proximoControlFecha = '';
+      this.errores.proximoControlMotivo = '';
+    }
+    this.onFormChange();
+  }
+
+  onAdjuntarFotosChange(): void {
+    if (!this.adjuntarFotos) {
+      this.fotosAdjuntas = [];
+    }
+    this.onFormChange();
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const file = input.files[0];
+    
+    if (!file.type.startsWith('image/')) {
+      this.errorMsg = 'Solo se permiten archivos de imagen';
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      this.errorMsg = 'La imagen no debe superar 2MB';
+      return;
+    }
+
+    this.uploadingPhoto = true;
+    this.errorMsg = '';
+
+    this.medicalRecordService.uploadPhoto(file).subscribe({
+      next: (res) => {
+        this.fotosAdjuntas.push(res.secure_url);
+        this.uploadingPhoto = false;
+        this.onFormChange();
+        input.value = '';
+      },
+      error: (err) => {
+        console.error('Error subiendo foto:', err);
+        this.errorMsg = 'Error al subir la foto. Intenta de nuevo.';
+        this.uploadingPhoto = false;
+        input.value = '';
+      }
+    });
+  }
+
+  eliminarFoto(index: number): void {
+    this.fotosAdjuntas.splice(index, 1);
+    this.onFormChange();
+  }
+
+  validarMedicamentos(): void {
+    this.errores.medicamentos = [];
+    this.medicamentos.forEach((med, i) => {
+      const errores: string[] = [];
+      if (!med.nombre) errores.push('nombre del medicamento');
+      if (!med.dosisValor) errores.push('dosis');
+      if (!med.via) errores.push('vía de administración');
+      
+      if (errores.length > 0) {
+        this.errores.medicamentos[i] = `Falta: ${errores.join(', ')}`;
+      } else {
+        this.errores.medicamentos[i] = '';
+      }
+    });
+  }
+
+  validarMedicamentosRecetados(): void {
+    this.errores.medicamentosRecetados = [];
+    this.medicamentosRecetados.forEach((med, i) => {
+      const errores: string[] = [];
+      if (!med.nombre) errores.push('nombre del medicamento');
+      if (!med.dosisValor) errores.push('dosis');
+      if (!med.frecuencia) errores.push('frecuencia');
+      if (!med.duracion) errores.push('duración');
+      
+      if (errores.length > 0) {
+        this.errores.medicamentosRecetados[i] = `Falta: ${errores.join(', ')}`;
+      } else {
+        this.errores.medicamentosRecetados[i] = '';
+      }
+    });
+  }
+
   agregarMedicamento(): void {
     this.medicamentos.push({ nombre: '', dosisValor: '', dosisUnidad: 'mg', via: '' });
+    this.validarMedicamentos();
     this.onFormChange();
   }
 
   eliminarMedicamento(index: number): void {
     this.medicamentos.splice(index, 1);
+    this.validarMedicamentos();
     this.onFormChange();
   }
 
   agregarMedicamentoRecetado(): void {
     this.medicamentosRecetados.push({ nombre: '', dosisValor: '', dosisUnidad: 'mg', via: '', frecuencia: '', duracion: '' });
+    this.validarMedicamentosRecetados();
     this.onFormChange();
   }
 
   eliminarMedicamentoRecetado(index: number): void {
     this.medicamentosRecetados.splice(index, 1);
+    this.validarMedicamentosRecetados();
     this.onFormChange();
   }
 
   cerrarAtencion(): void {
     if (!this.atencion || this.isSubmitting) return;
     
-    // Validar campos requeridos
-    if (!this.diagnosticoPrincipal.trim()) {
-      this.errorMsg = 'El diagnóstico principal es obligatorio';
-      return;
-    }
+    // Validar solo campos realmente obligatorios
+    this.validarDiagnosticoPrincipal();
+    this.validarDiagnosticoCliente();
+    this.validarProximoControl();
+    this.validarMedicamentos();
+    this.validarMedicamentosRecetados();
     
-    if (!this.diagnosticoCliente.trim()) {
-      this.errorMsg = 'El diagnóstico para el cliente es obligatorio';
+    const hayErrores = 
+      this.errores.diagnosticoPrincipal ||
+      this.errores.diagnosticoCliente ||
+      this.errores.proximoControlFecha ||
+      this.errores.proximoControlMotivo ||
+      this.errores.medicamentos.some(e => e) ||
+      this.errores.medicamentosRecetados.some(e => e);
+    
+    if (hayErrores) {
+      this.errorMsg = 'Por favor completa todos los campos obligatorios y verifica los medicamentos';
       return;
     }
     
@@ -191,7 +435,13 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         console.error('Error al cerrar atención:', err);
-        this.errorMsg = 'Error al cerrar la atención. Verifica los datos e intenta de nuevo.';
+        if (err.status === 403) {
+          this.errorMsg = 'Error de permisos (403). Verifica que tu sesión no haya expirado.';
+        } else if (err.status === 400) {
+          this.errorMsg = 'Datos inválidos (400). Verifica que todos los campos estén correctos.';
+        } else {
+          this.errorMsg = `Error al cerrar la atención (${err.status}). Intenta de nuevo.`;
+        }
         this.isSubmitting = false;
       }
     });
@@ -199,6 +449,35 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
 
   volver(): void {
     this.router.navigate(['/veterinario/atencion-medica']);
+  }
+
+  abrirModalCancelar(): void {
+    this.mostrarModalCancelar = true;
+  }
+
+  cerrarModalCancelar(): void {
+    this.mostrarModalCancelar = false;
+  }
+
+  confirmarCancelarAtencion(): void {
+    if (!this.atencion || this.isSubmitting) return;
+
+    this.isSubmitting = true;
+    this.errorMsg = '';
+    this.mostrarModalCancelar = false;
+
+    this.appointmentService.cancelStartedAppointment(this.atencion.appointmentId).subscribe({
+      next: () => {
+        this.medicalRecordService.cerrarAtencion();
+        this.isSubmitting = false;
+        this.router.navigate(['/veterinario/atencion-medica']);
+      },
+      error: (err) => {
+        console.error('Error al cancelar atención:', err);
+        this.errorMsg = 'Error al cancelar la atención. Intenta de nuevo.';
+        this.isSubmitting = false;
+      }
+    });
   }
 
   getEstadoGuardadoLabel(): string {
@@ -243,32 +522,8 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
     if (input) input.showPicker?.();
   }
 
-  /** Sanitiza input numérico removiendo espacios y caracteres no numéricos */
-  sanitizarNumero(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const valor = input.value;
-    // Remover espacios y caracteres no numéricos (excepto punto decimal)
-    const sanitizado = valor.replace(/[^\d.]/g, '');
-    if (valor !== sanitizado) {
-      input.value = sanitizado;
-      input.dispatchEvent(new Event('input'));
-    }
-  }
-
-  /** Bloquea entrada si el número resultante excede el máximo permitido */
-  clampNumericInput(event: Event, max: number, decimals = 1): void {
-    const input = event.target as HTMLInputElement;
-    let val = parseFloat(input.value);
-    if (isNaN(val)) return;
-    if (val > max) {
-      val = max;
-      input.value = val.toFixed(decimals);
-      // Forzar actualización del ngModel
-      input.dispatchEvent(new Event('input'));
-    }
-  }
-
-  private buildRegistro(): RegistroMedico {    return {
+  private buildRegistro(): RegistroMedico {
+    return {
       appointmentId:          this.atencion!.appointmentId,
       peso:                   this.peso,
       temperatura:            this.temperatura,
@@ -283,8 +538,17 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
       medicamentosRecetados:  this.medicamentosRecetados,
       indicacionesCliente:    this.indicacionesCliente,
       vacunasAplicadas:       this.vacunasAplicadas,
-      proximoControlFecha:    this.proximoControlFecha,
-      proximoControlMotivo:   this.proximoControlMotivo,
+      proximoControlFecha:    this.requiereProximoControl ? this.proximoControlFecha : '',
+      proximoControlMotivo:   this.requiereProximoControl ? this.proximoControlMotivo : '',
+      fotosAdjuntas:          this.adjuntarFotos ? this.fotosAdjuntas : [],
     };
+  }
+
+  tieneMedicamentosIncompletos(): boolean {
+    return this.errores.medicamentos.some(e => e);
+  }
+
+  tieneMedicamentosRecetadosIncompletos(): boolean {
+    return this.errores.medicamentosRecetados.some(e => e);
   }
 }

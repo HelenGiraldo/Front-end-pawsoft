@@ -30,7 +30,7 @@ export class AtencionMedicaComponent implements OnInit {
   constructor(
     private readonly router: Router,
     private readonly appointmentService: AppointmentService,
-    private readonly medicalRecordService: MedicalRecordService,
+    public readonly medicalRecordService: MedicalRecordService,
   ) {}
 
   ngOnInit(): void {
@@ -57,8 +57,11 @@ export class AtencionMedicaComponent implements OnInit {
 
     this.appointmentService.getVetAppointments().subscribe({
       next: (data) => {
-        // Solo citas CONFIRMED de hoy
-        this.citas = data.filter(a => a.status === 'CONFIRMED' && a.date === todayStr);
+        // Citas CONFIRMED o IN_PROGRESS de hoy
+        this.citas = data.filter(a => 
+          (a.status === 'CONFIRMED' || a.status === 'IN_PROGRESS') && 
+          a.date === todayStr
+        );
         this.aplicarFiltros();
         this.isLoading = false;
       },
@@ -85,8 +88,25 @@ export class AtencionMedicaComponent implements OnInit {
   }
 
   iniciarAtencion(cita: RecepAppointmentResponse): void {
-    this.medicalRecordService.iniciarAtencion(cita);
-    this.router.navigate(['/veterinario/formulario-consulta']);
+    const atencionActiva = this.medicalRecordService.getAtencionActiva();
+    
+    // Si ya hay una atención activa diferente, mostrar error
+    if (atencionActiva && atencionActiva.appointmentId !== cita.id) {
+      this.errorMsg = `Ya tienes una atención en proceso para ${atencionActiva.petName}. Debes cerrarla antes de iniciar otra.`;
+      return;
+    }
+    
+    // Llamar al backend para cambiar estado a IN_PROGRESS
+    this.appointmentService.startAppointment(cita.id).subscribe({
+      next: () => {
+        this.medicalRecordService.iniciarAtencion(cita);
+        this.router.navigate(['/veterinario/formulario-consulta']);
+      },
+      error: (err) => {
+        console.error('Error iniciando atención:', err);
+        this.errorMsg = err.error?.message || 'No se pudo iniciar la atención. Intenta de nuevo.';
+      }
+    });
   }
 
   continuarAtencion(): void {

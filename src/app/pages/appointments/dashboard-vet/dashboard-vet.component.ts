@@ -17,7 +17,7 @@ interface Appointment {
   date: string;
   time: string;
   reason: string;
-  status: 'UPCOMING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED' | 'NO_SHOW';
+  status: 'UPCOMING' | 'CONFIRMED' | 'IN_PROGRESS' | 'CANCELLED' | 'COMPLETED' | 'NO_SHOW';
 }
 
 interface StatCard {
@@ -90,11 +90,19 @@ export class DashboardVetComponent implements OnInit {
     this.appointmentService.getVetAppointments().subscribe({
       next: (data: RecepAppointmentResponse[]) => {
         const mapped = data.map((a: RecepAppointmentResponse) => this.mapToLocal(a));
-        this.todayAppointments = mapped.filter((a: Appointment) => a.date === this.todayStr);
-        // Próximas: fecha >= hoy, excluir NO_SHOW y COMPLETED
-        this.upcomingAppointments = mapped.filter((a: Appointment) => 
-          a.date >= this.todayStr && a.status !== 'NO_SHOW' && a.status !== 'COMPLETED'
+        
+        // Citas de hoy: UPCOMING, CONFIRMED, IN_PROGRESS (las que puedes atender o estás atendiendo)
+        this.todayAppointments = mapped.filter((a: Appointment) => 
+          a.date === this.todayStr && 
+          (a.status === 'UPCOMING' || a.status === 'CONFIRMED' || a.status === 'IN_PROGRESS')
         );
+        
+        // Próximas citas: fecha > hoy, solo UPCOMING y CONFIRMED (las que van a ocurrir)
+        this.upcomingAppointments = mapped.filter((a: Appointment) => 
+          a.date > this.todayStr && 
+          (a.status === 'UPCOMING' || a.status === 'CONFIRMED')
+        );
+        
         this.filteredTodayAppointments = [...this.todayAppointments];
         this.filteredUpcomingAppointments = [...this.upcomingAppointments];
         this.buildStats();
@@ -191,19 +199,17 @@ export class DashboardVetComponent implements OnInit {
   }
 
   buildStats(): void {
-    const active = ['UPCOMING', 'CONFIRMED'];
-
     this.todayStats = [
-      { icon: '📋', label: 'Total de hoy', value: this.todayAppointments.length },
-      { icon: '✅', label: 'Activas',      value: this.todayAppointments.filter(a => active.includes(a.status)).length },
-      { icon: '❌', label: 'Canceladas',   value: this.todayAppointments.filter(a => a.status === 'CANCELLED').length },
-      { icon: '⏰', label: 'Próxima cita', value: this.getNextAppointmentTime() }
+      { icon: '📋', label: 'Total de hoy',  value: this.todayAppointments.length },
+      { icon: '🔄', label: 'En progreso',   value: this.todayAppointments.filter(a => a.status === 'IN_PROGRESS').length },
+      { icon: '✅', label: 'Confirmadas',   value: this.todayAppointments.filter(a => a.status === 'CONFIRMED').length },
+      { icon: '⏰', label: 'Próxima cita',  value: this.getNextAppointmentTime() }
     ];
 
     this.upcomingStats = [
       { icon: '🗓️', label: 'Total próximas', value: this.upcomingAppointments.length },
-      { icon: '✅', label: 'Activas',         value: this.upcomingAppointments.filter(a => a.status === 'UPCOMING' || a.status === 'CONFIRMED').length },
-      { icon: '❌', label: 'Canceladas',      value: this.upcomingAppointments.filter(a => a.status === 'CANCELLED').length },
+      { icon: '✅', label: 'Confirmadas',     value: this.upcomingAppointments.filter(a => a.status === 'CONFIRMED').length },
+      { icon: '⏳', label: 'Pendientes',      value: this.upcomingAppointments.filter(a => a.status === 'UPCOMING').length },
       { icon: '📅', label: 'Días con citas',  value: new Set(this.upcomingAppointments.map(a => a.date)).size }
     ];
   }
@@ -212,7 +218,7 @@ export class DashboardVetComponent implements OnInit {
     const now    = new Date();
     const nowMin = now.getHours() * 60 + now.getMinutes();
     const pending = this.todayAppointments
-      .filter(a => a.status === 'UPCOMING' || a.status === 'CONFIRMED')
+      .filter(a => a.status === 'CONFIRMED') // Solo confirmadas, no en progreso
       .map(a => {
         const [timePart, mod] = a.time.split(' ');
         let [h, m] = timePart.split(':').map(Number);
@@ -232,22 +238,24 @@ export class DashboardVetComponent implements OnInit {
 
   getStatusClass(status: string): string {
     const map: { [key: string]: string } = {
-      'UPCOMING':  'status-programada',
-      'CONFIRMED': 'status-confirmada',
-      'CANCELLED': 'status-cancelada',
-      'COMPLETED': 'status-completada',
-      'NO_SHOW':   'status-noshow'
+      'UPCOMING':     'status-programada',
+      'CONFIRMED':    'status-confirmada',
+      'IN_PROGRESS':  'status-enprogreso',
+      'CANCELLED':    'status-cancelada',
+      'COMPLETED':    'status-completada',
+      'NO_SHOW':      'status-noshow'
     };
     return map[status] || '';
   }
 
   getStatusLabel(status: string): string {
     const map: { [key: string]: string } = {
-      'UPCOMING':  'Programada',
-      'CONFIRMED': 'Confirmada',
-      'CANCELLED': 'Cancelada',
-      'COMPLETED': 'Completada',
-      'NO_SHOW':   'No asistió'
+      'UPCOMING':     'Programada',
+      'CONFIRMED':    'Confirmada',
+      'IN_PROGRESS':  'En progreso',
+      'CANCELLED':    'Cancelada',
+      'COMPLETED':    'Completada',
+      'NO_SHOW':      'No asistió'
     };
     return map[status] || status;
   }

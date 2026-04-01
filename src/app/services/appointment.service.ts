@@ -29,7 +29,7 @@ export interface RecepAppointmentResponse {
   date: string;
   time: string;
   reason: string;
-  status: 'UPCOMING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED' | 'NO_SHOW';
+  status: 'UPCOMING' | 'CONFIRMED' | 'IN_PROGRESS' | 'CANCELLED' | 'COMPLETED' | 'NO_SHOW';
   cancelReason: string | null;
   clientId: number;
   clientName: string;
@@ -89,5 +89,13 @@ export class AppointmentService {
 
   getVetAppointments(): Observable<RecepAppointmentResponse[]> {
     return this.http.get<RecepAppointmentResponse[]>(this.vetUrl, { headers: this.headers() });
+  }
+
+  startAppointment(id: number): Observable<void> {
+    return this.http.post<void>(`${this.vetUrl}/${id}/start`, {}, { headers: this.headers() });
+  }
+
+  cancelStartedAppointment(id: number): Observable<void> {
+    return this.http.post<void>(`${this.vetUrl}/${id}/cancel-start`, {}, { headers: this.headers() });
   }
 }

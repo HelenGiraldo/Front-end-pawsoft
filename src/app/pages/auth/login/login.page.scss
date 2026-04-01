@@ -1,6 +1,7 @@
 .login-content {
   --background: linear-gradient(135deg, rgb(47, 60, 54), rgb(47, 57, 53));
   position: relative;
+  --overflow: hidden;
 }
 
 .login-content::before {
@@ -17,12 +18,14 @@
 
 .center-container {
   min-height: 100vh;
+  height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 24px;
   position: relative;
   z-index: 1;
+  overflow: hidden;
 }
 
 .login-wrapper {

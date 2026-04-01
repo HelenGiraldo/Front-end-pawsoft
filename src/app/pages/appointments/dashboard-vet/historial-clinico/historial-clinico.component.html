@@ -20,13 +20,21 @@
             placeholder="Buscar por mascota o propietario..."
             [(ngModel)]="searchText" (input)="aplicarFiltros()">
 
-          <input type="date" class="form-input date-input"
-            [(ngModel)]="filtroFechaInicio" (change)="aplicarFiltros()"
-            title="Fecha inicio">
+          <div class="date-filter-group">
+            <label class="date-label">Desde:</label>
+            <input type="date" class="form-input date-input"
+              [(ngModel)]="filtroFechaInicio" (change)="aplicarFiltros()"
+              [min]="minDate" [max]="maxDate"
+              placeholder="dd/mm/aaaa">
+          </div>
 
-          <input type="date" class="form-input date-input"
-            [(ngModel)]="filtroFechaFin" (change)="aplicarFiltros()"
-            title="Fecha fin">
+          <div class="date-filter-group">
+            <label class="date-label">Hasta:</label>
+            <input type="date" class="form-input date-input"
+              [(ngModel)]="filtroFechaFin" (change)="aplicarFiltros()"
+              [min]="minDate" [max]="maxDate"
+              placeholder="dd/mm/aaaa">
+          </div>
 
           <select class="form-select especie-select"
             [(ngModel)]="filtroEspecie" (change)="aplicarFiltros()">

@@ -134,7 +134,16 @@
   font-family: 'Manrope', sans-serif; transition: background .15s, transform .1s;
   &:active { transform: scale(.97); }
 }
-.btn-iniciar  { background: #22A06B; color: #fff; &:hover { background: #1b7f56; } }
+.btn-iniciar  { 
+  background: #22A06B; color: #fff; 
+  &:hover { background: #1b7f56; }
+  &:disabled {
+    background: #C8E6D4;
+    color: #7A9A8C;
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
 .btn-continuar { background: #163A2B; color: #fff; &:hover { background: #0f2a1e; } }
 
 /* Vacío */
@@ -145,3 +154,127 @@
 .empty-icon  { font-size: 3rem; margin-bottom: 12px; }
 .empty-title { font-size: 1.1rem; font-weight: 700; color: #163A2B; }
 .empty-sub   { font-size: .85rem; color: #7A9A8C; margin-top: 6px; }
+
+/* ══════════════════════════════════════════════════════
+   MODO OSCURO - Atención Médica
+   ══════════════════════════════════════════════════════ */
+
+:host-context(body.theme-dark) {
+
+  .dashboard-layout {
+    background: linear-gradient(135deg, #0a0f0d 0%, #121816 100%) !important;
+    color: #ffffff !important;
+  }
+
+  .topbar {
+    background: #1a1f1d !important;
+    border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .topbar-title { color: #ffffff !important; }
+  .topbar-sub { color: #b8c5be !important; }
+
+  .today-badge {
+    background: #0f1412 !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    color: #b8c5be !important;
+  }
+
+  .today-dot {
+    background: #1A7A4C !important;
+  }
+
+  .section-card {
+    background: #1a1f1d !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 2px 12px rgba(0,0,0,.4) !important;
+  }
+
+  .form-input, .form-select {
+    background: #0f1412 !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    color: #ffffff !important;
+    &:focus {
+      border-color: #1A7A4C !important;
+      box-shadow: 0 0 0 3px rgba(26, 122, 76, 0.2) !important;
+    }
+    &::placeholder { color: rgba(255, 255, 255, 0.4) !important; }
+  }
+
+  .error-card {
+    background: rgba(244, 67, 54, 0.15) !important;
+    border-color: rgba(244, 67, 54, 0.3) !important;
+    color: #ff8a80 !important;
+  }
+
+  .btn-retry {
+    background: #b03030 !important;
+    &:hover { background: #8a2424 !important; }
+  }
+
+  .loading-wrap {
+    color: #b8c5be !important;
+  }
+
+  .spinner {
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    border-top-color: #1A7A4C !important;
+  }
+
+  .cita-card {
+    background: #1a1f1d !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,.4) !important;
+    &:hover {
+      box-shadow: 0 6px 20px rgba(0,0,0,.6) !important;
+    }
+    &.en-proceso {
+      border-color: #1A7A4C !important;
+      box-shadow: 0 0 0 2px rgba(26, 122, 76, 0.3) !important;
+    }
+  }
+
+  .pet-avatar {
+    background: rgba(26, 122, 76, 0.15) !important;
+  }
+
+  .pet-name { color: #ffffff !important; }
+  .pet-species { color: #8a9a92 !important; }
+
+  .estado-badge {
+    &.pendiente {
+      background: rgba(244, 184, 96, 0.15) !important;
+      color: #f4b860 !important;
+    }
+    &.en-proceso-badge {
+      background: rgba(26, 122, 76, 0.15) !important;
+      color: #7dd3a3 !important;
+    }
+  }
+
+  .dato-text { color: #b8c5be !important; }
+
+  .btn-iniciar {
+    background: #1A7A4C !important;
+    &:hover { background: #145c3a !important; }
+    &:disabled {
+      background: rgba(26, 122, 76, 0.3) !important;
+      color: rgba(255, 255, 255, 0.4) !important;
+      cursor: not-allowed !important;
+    }
+  }
+
+  .btn-continuar {
+    background: #0f1412 !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.15) !important;
+    &:hover { background: rgba(26, 122, 76, 0.15) !important; }
+  }
+
+  .empty-state {
+    background: #1a1f1d !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .empty-title { color: #ffffff !important; }
+  .empty-sub { color: #8a9a92 !important; }
+}

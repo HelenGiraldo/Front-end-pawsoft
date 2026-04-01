@@ -55,15 +55,6 @@
               placeholder="Buscar por mascota o propietario..."
               [(ngModel)]="searchToday"
               (input)="filterTodayAppointments()">
-
-            <select class="form-select filter-select" [(ngModel)]="statusFilterToday" (change)="filterTodayAppointments()">
-              <option value="">Todos los estados</option>
-              <option value="UPCOMING">Programada</option>
-              <option value="CONFIRMED">Confirmada</option>
-              <option value="CANCELLED">Cancelada</option>
-              <option value="COMPLETED">Completada</option>
-              <option value="NO_SHOW">No asistió</option>
-            </select>
           </div>
         </div>
 

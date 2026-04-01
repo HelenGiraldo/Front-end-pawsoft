@@ -5,6 +5,7 @@ import { routes } from './app/app.routes';
 import { provideHttpClient, withInterceptors, HttpClient } from '@angular/common/http';
 import { provideIonicAngular } from '@ionic/angular/standalone';
 import { tokenInterceptor } from './app/interceptors/token.interceptor';
+import { tokenRefreshInterceptor } from './app/interceptors/token-refresh.interceptor';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { importProvidersFrom } from '@angular/core';
@@ -17,7 +18,7 @@ bootstrapApplication(AppComponent, {
   providers: [
     provideIonicAngular(),
     provideRouter(routes),
-    provideHttpClient(withInterceptors([tokenInterceptor])),
+    provideHttpClient(withInterceptors([tokenInterceptor, tokenRefreshInterceptor])),
     importProvidersFrom(
       TranslateModule.forRoot({
         defaultLanguage: 'es',

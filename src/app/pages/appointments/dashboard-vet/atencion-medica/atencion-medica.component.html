@@ -89,6 +89,7 @@
             <button
               *ngIf="!isEnProceso(cita)"
               class="btn-iniciar"
+              [disabled]="medicalRecordService.getAtencionActiva() !== null"
               (click)="iniciarAtencion(cita)">
               Iniciar atención →
             </button>

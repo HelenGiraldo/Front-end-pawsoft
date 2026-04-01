@@ -260,7 +260,7 @@ export class LoginPage implements OnInit, OnDestroy {
           return;
         }
 
-        this.authService.guardarSesion(response.token, response.role, this.correoUsuario);
+        this.authService.guardarSesion(response.token, response.role, this.correoUsuario, response.refreshToken);
 
         if (response.mustChangePassword) {
           localStorage.setItem('mustChangePassword', 'true');

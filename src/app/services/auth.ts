@@ -11,6 +11,7 @@ export interface LoginResponse {
   role: string;
   email: string;
   message: string;
+  refreshToken: string;
   mustChangePassword: boolean;
 }
 
@@ -122,17 +123,37 @@ export class AuthService {
 
   // ── Gestión de sesión ───────────────────────────────────────────────────────
 
-  guardarSesion(token: string, rol: string, email: string): void {
+  guardarSesion(token: string, rol: string, email: string, refreshToken?: string): void {
     localStorage.setItem('token', token);
     localStorage.setItem('rol', rol);
     localStorage.setItem('email', email.toLowerCase());
+    if (refreshToken) {
+      localStorage.setItem('refreshToken', refreshToken);
+    }
     this.inactivityService.startWatching();
   }
 
   logout(): void {
+    const refreshToken = localStorage.getItem('refreshToken');
+    if (refreshToken) {
+      this.http.post(`${this.apiUrl}/auth/logout`, { refreshToken }).subscribe();
+    }
     this.inactivityService.stopWatching();
     localStorage.clear();
     window.location.href = '/login?reason=logout';
+  }
+
+  // ── Refresh Token ───────────────────────────────────────────────────────────
+
+  refreshToken(): Observable<LoginResponse> {
+    const refreshToken = localStorage.getItem('refreshToken');
+    if (!refreshToken) {
+      throw new Error('No refresh token available');
+    }
+    return this.http.post<LoginResponse>(
+      `${this.apiUrl}/auth/refresh`,
+      { refreshToken }
+    );
   }
 
   // ── Getters de sesión ───────────────────────────────────────────────────────
@@ -140,4 +161,5 @@ export class AuthService {
   getToken(): string | null  { return localStorage.getItem('token'); }
   getRol():   string | null  { return localStorage.getItem('rol');   }
   getEmail(): string | null  { return localStorage.getItem('email'); }
+  getRefreshToken(): string | null { return localStorage.getItem('refreshToken'); }
 }
