@@ -777,6 +777,9 @@ body.theme-dark {
 
   .admin-payments-component .stat-icon-wrap {
     background: rgba(26, 122, 76, 0.15) !important;
+    /* Forzar que el emoji sea visible en modo oscuro */
+    color: #ffffff !important;
+    filter: brightness(1.5) contrast(1.1) !important;
   }
 
   .admin-payments-component .stat-value {
@@ -2801,3 +2804,36 @@ body.contrast-high.theme-dark {
 body.contrast-medium.theme-dark {
   filter: grayscale(100%) contrast(1.5) brightness(1.05) !important;
 }
+
+/* ══════════════════════════════════════════════════════
+   TEMA CLARO - FIX PARA DATE-ARROW
+══════════════════════════════════════════════════════ */
+
+body.theme-light {
+  .date-arrow {
+    color: #163A2B !important;
+    opacity: 1 !important;
+    display: inline !important;
+    visibility: visible !important;
+  }
+  
+  /* Fix para el ícono del calendario nativo en input type="date" */
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0) brightness(0.3) !important;
+    cursor: pointer;
+    opacity: 1 !important;
+  }
+}
+
+/* ══════════════════════════════════════════════════════
+   TEMA OSCURO - FIX PARA ÍCONO DE CALENDARIO NATIVO
+══════════════════════════════════════════════════════ */
+
+body.theme-dark {
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1) brightness(1.5) !important;
+    cursor: pointer;
+    opacity: 1 !important;
+  }
+}
+

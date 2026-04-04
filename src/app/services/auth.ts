@@ -124,6 +124,9 @@ export class AuthService {
   // ── Gestión de sesión ───────────────────────────────────────────────────────
 
   guardarSesion(token: string, rol: string, email: string, refreshToken?: string): void {
+    // Limpiar localStorage antes de guardar nueva sesión
+    localStorage.clear();
+    
     localStorage.setItem('token', token);
     localStorage.setItem('rol', rol);
     localStorage.setItem('email', email.toLowerCase());

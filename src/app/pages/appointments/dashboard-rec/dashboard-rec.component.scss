@@ -1158,7 +1158,14 @@
   &.invalid { border-color: #C0392B; box-shadow: 0 0 0 3px rgba(192,57,43,0.1); }
 }
 .date-placeholder { color: #aaa; }
-.date-arrow       { font-size: 0.8rem; color: #4A6359; }
+.date-arrow       { 
+  font-size: 1.2rem !important; 
+  color: #163A2B !important;
+  display: inline-block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  margin-left: 8px;
+}
 
 .calendar-popup {
   position: absolute; top: calc(100% + 6px); left: 50%; transform: translateX(-50%);
@@ -1262,4 +1269,12 @@
   font-size: 0.73rem;
   .req-ok { color: #22A06B; font-weight: 600; }
   .req-no { color: #9AAFA6; }
+}
+
+
+/* ── Fix para el ícono del calendario nativo en input type="date" ── */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0) brightness(0.3) !important;
+  cursor: pointer;
+  opacity: 1 !important;
 }

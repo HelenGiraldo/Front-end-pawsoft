@@ -1252,6 +1252,26 @@ export class DashboardRecComponent implements OnInit {
     return this.payments.find(p => String(p.appointmentId) === aptId);
   }
 
+  getTodayDate(): string {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  validateDateInput(event: any): void {
+    const input = event.target as HTMLInputElement;
+    const selectedDate = new Date(input.value);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    if (selectedDate > today) {
+      input.value = this.getTodayDate();
+      this.paymentDateFilter = this.getTodayDate();
+    }
+  }
+
   pwHasLength(pw: string):  boolean { return pw.length >= 8; }
   pwHasUpper(pw: string):   boolean { return /[A-Z]/.test(pw); }
   pwHasNumber(pw: string):  boolean { return /\d/.test(pw); }

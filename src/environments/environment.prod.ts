@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://api.pawsoft.online',
+  apiUrl: 'https://pawsoft-backend.azurewebsites.net',
   cloudinary: {
     cloudName: 'dp24p2jhq',
     uploadPreset: 'pawsoft_pets'
