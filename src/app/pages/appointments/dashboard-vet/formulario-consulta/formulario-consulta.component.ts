@@ -185,6 +185,58 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
     }, 2000);
   }
 
+  limitarPeso(): void {
+    if (this.peso !== null && this.peso !== undefined) {
+      const valor = Number(this.peso);
+      if (!isNaN(valor)) {
+        if (valor > 999) {
+          this.peso = 999;
+        } else if (valor < 0.1 && valor !== 0) {
+          this.peso = 0.1;
+        }
+      }
+    }
+  }
+
+  limitarTemperatura(): void {
+    if (this.temperatura !== null && this.temperatura !== undefined) {
+      const valor = Number(this.temperatura);
+      if (!isNaN(valor)) {
+        if (valor > 45) {
+          this.temperatura = 45;
+        } else if (valor < 30 && valor !== 0) {
+          this.temperatura = 30;
+        }
+      }
+    }
+  }
+
+  limitarFrecuenciaCardiaca(): void {
+    if (this.frecuenciaCardiaca !== null && this.frecuenciaCardiaca !== undefined) {
+      const valor = Number(this.frecuenciaCardiaca);
+      if (!isNaN(valor)) {
+        if (valor > 999) {
+          this.frecuenciaCardiaca = 999;
+        } else if (valor < 1 && valor !== 0) {
+          this.frecuenciaCardiaca = 1;
+        }
+      }
+    }
+  }
+
+  limitarDosis(med: Medicamento): void {
+    if (med.dosisValor !== null && med.dosisValor !== undefined && med.dosisValor !== '') {
+      const valor = Number(med.dosisValor);
+      if (!isNaN(valor)) {
+        if (valor > 9999) {
+          med.dosisValor = '9999';
+        } else if (valor < 0.01 && valor !== 0) {
+          med.dosisValor = '0.01';
+        }
+      }
+    }
+  }
+
   guardarBorrador(): void {
     if (!this.atencion) return;
     this.medicalRecordService.guardarBorrador(this.buildRegistro());
@@ -247,6 +299,10 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
   validarPeso(): void {
     if (this.peso === null || this.peso === undefined || String(this.peso).trim() === '') {
       this.errores.peso = 'El peso es obligatorio';
+    } else if (this.peso < 0.1) {
+      this.errores.peso = 'El peso debe ser al menos 0.1 kg';
+    } else if (this.peso > 999) {
+      this.errores.peso = 'El peso no puede superar 999 kg';
     } else {
       this.errores.peso = '';
     }
@@ -255,6 +311,10 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
   validarTemperatura(): void {
     if (this.temperatura === null || this.temperatura === undefined || String(this.temperatura).trim() === '') {
       this.errores.temperatura = 'La temperatura es obligatoria';
+    } else if (this.temperatura < 30) {
+      this.errores.temperatura = 'La temperatura debe ser al menos 30°C';
+    } else if (this.temperatura > 45) {
+      this.errores.temperatura = 'La temperatura no puede superar 45°C';
     } else {
       this.errores.temperatura = '';
     }
@@ -263,6 +323,10 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
   validarFrecuenciaCardiaca(): void {
     if (this.frecuenciaCardiaca === null || this.frecuenciaCardiaca === undefined || String(this.frecuenciaCardiaca).trim() === '') {
       this.errores.frecuenciaCardiaca = 'La frecuencia cardíaca es obligatoria';
+    } else if (this.frecuenciaCardiaca < 1) {
+      this.errores.frecuenciaCardiaca = 'La frecuencia cardíaca debe ser al menos 1 lpm';
+    } else if (this.frecuenciaCardiaca > 999) {
+      this.errores.frecuenciaCardiaca = 'La frecuencia cardíaca no puede superar 999 lpm';
     } else {
       this.errores.frecuenciaCardiaca = '';
     }
@@ -381,7 +445,19 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
     this.medicamentos.forEach((med, i) => {
       const errores: string[] = [];
       if (!med.nombre) errores.push('nombre del medicamento');
-      if (!med.dosisValor) errores.push('dosis');
+      if (!med.dosisValor) {
+        errores.push('dosis');
+      } else {
+        const dosis = Number(med.dosisValor);
+        if (dosis < 0.01) {
+          this.errores.medicamentos[i] = 'La dosis debe ser al menos 0.01';
+          return;
+        }
+        if (dosis > 9999) {
+          this.errores.medicamentos[i] = 'La dosis no puede superar 9999';
+          return;
+        }
+      }
       if (!med.via) errores.push('vía de administración');
       
       if (errores.length > 0) {
@@ -397,7 +473,19 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
     this.medicamentosRecetados.forEach((med, i) => {
       const errores: string[] = [];
       if (!med.nombre) errores.push('nombre del medicamento');
-      if (!med.dosisValor) errores.push('dosis');
+      if (!med.dosisValor) {
+        errores.push('dosis');
+      } else {
+        const dosis = Number(med.dosisValor);
+        if (dosis < 0.01) {
+          this.errores.medicamentosRecetados[i] = 'La dosis debe ser al menos 0.01';
+          return;
+        }
+        if (dosis > 9999) {
+          this.errores.medicamentosRecetados[i] = 'La dosis no puede superar 9999';
+          return;
+        }
+      }
       if (!med.frecuencia) errores.push('frecuencia');
       if (!med.duracion) errores.push('duración');
       
