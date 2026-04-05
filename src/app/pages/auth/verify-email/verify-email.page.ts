@@ -63,7 +63,13 @@ export class VerifyEmailPage implements OnInit {
         error: (err) => {
           console.error('Error verificando email:', err);
           this.verificando = false;
-          this.mensajeError = err.error?.message || 'No se pudo verificar el correo. El token puede haber expirado.';
+          
+          // Si el error es 200 pero Angular lo trata como error por ser texto plano, es éxito
+          if (err.status === 200 || err.status === 0) {
+            this.verificado = true;
+          } else {
+            this.mensajeError = err.error?.message || 'No se pudo verificar el correo. El token puede haber expirado.';
+          }
         },
       });
     });
