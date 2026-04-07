@@ -21,10 +21,10 @@ export class AtencionMedicaComponent implements OnInit {
   citas: RecepAppointmentResponse[] = [];
   citasFiltradas: RecepAppointmentResponse[] = [];
   searchText = '';
+  filtroEstado: 'todas' | 'pendiente' | 'en_proceso' = 'todas';
 
   isLoading = false;
   errorMsg = '';
-
   todayFormatted = '';
 
   constructor(
@@ -53,15 +53,10 @@ export class AtencionMedicaComponent implements OnInit {
     this.isLoading = true;
     this.errorMsg = '';
 
-    const todayStr = new Date().toISOString().split('T')[0];
-
     this.appointmentService.getVetAppointments().subscribe({
       next: (data) => {
-        // Citas CONFIRMED o IN_PROGRESS de hoy
-        this.citas = data.filter(a => 
-          (a.status === 'CONFIRMED' || a.status === 'IN_PROGRESS') && 
-          a.date === todayStr
-        );
+        this.citas = data.filter(a => a.status === 'CONFIRMED');
+        this.limpiarAtencionHuerfana();
         this.aplicarFiltros();
         this.isLoading = false;
       },
@@ -72,14 +67,33 @@ export class AtencionMedicaComponent implements OnInit {
     });
   }
 
+  /** Si la atención activa en localStorage no corresponde a ninguna cita CONFIRMED visible, la limpia */
+  private limpiarAtencionHuerfana(): void {
+    const activa = this.medicalRecordService.getAtencionActiva();
+    if (!activa) return;
+    const existe = this.citas.some(c => c.id === activa.appointmentId);
+    if (!existe) {
+      this.medicalRecordService.cerrarAtencion();
+    }
+  }
+
   aplicarFiltros(): void {
     const atencionActiva = this.medicalRecordService.getAtencionActiva();
     const search = this.searchText.toLowerCase();
 
     this.citasFiltradas = this.citas.filter(c => {
-      return !search ||
+      const matchSearch = !search ||
         c.petName.toLowerCase().includes(search) ||
         c.clientName.toLowerCase().includes(search);
+
+      const enProceso = atencionActiva?.appointmentId === c.id;
+
+      const matchEstado =
+        this.filtroEstado === 'todas' ||
+        (this.filtroEstado === 'en_proceso' && enProceso) ||
+        (this.filtroEstado === 'pendiente' && !enProceso);
+
+      return matchSearch && matchEstado;
     });
   }
 
@@ -87,26 +101,13 @@ export class AtencionMedicaComponent implements OnInit {
     return this.medicalRecordService.getAtencionActiva()?.appointmentId === cita.id;
   }
 
+  hayAtencionActiva(): boolean {
+    return !!this.medicalRecordService.getAtencionActiva();
+  }
+
   iniciarAtencion(cita: RecepAppointmentResponse): void {
-    const atencionActiva = this.medicalRecordService.getAtencionActiva();
-    
-    // Si ya hay una atención activa diferente, mostrar error
-    if (atencionActiva && atencionActiva.appointmentId !== cita.id) {
-      this.errorMsg = `Ya tienes una atención en proceso para ${atencionActiva.petName}. Debes cerrarla antes de iniciar otra.`;
-      return;
-    }
-    
-    // Llamar al backend para cambiar estado a IN_PROGRESS
-    this.appointmentService.startAppointment(cita.id).subscribe({
-      next: () => {
-        this.medicalRecordService.iniciarAtencion(cita);
-        this.router.navigate(['/veterinario/formulario-consulta']);
-      },
-      error: (err) => {
-        console.error('Error iniciando atención:', err);
-        this.errorMsg = err.error?.message || 'No se pudo iniciar la atención. Intenta de nuevo.';
-      }
-    });
+    this.medicalRecordService.iniciarAtencion(cita);
+    this.router.navigate(['/veterinario/formulario-consulta']);
   }
 
   continuarAtencion(): void {

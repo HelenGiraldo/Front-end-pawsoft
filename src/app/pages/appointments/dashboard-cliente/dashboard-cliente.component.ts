@@ -186,27 +186,26 @@ export class DashboardClienteComponent implements OnInit, OnDestroy {
       next: (data: AppointmentResponse[]) => {
         const now = new Date();
         const todayStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-        
-        // Filtrar y mapear las citas
+
+        // Solo citas de HOY con estado UPCOMING (pendiente) o CONFIRMED
         this.allAppointments = data
           .filter(a => {
             const status = (a.status ?? '').toLowerCase();
-            if (status === 'cancelled') return false;
-            // no_show siempre se muestra (el cliente debe saber que no asistió)
-            if (status === 'no_show') return true;
             const dateStr = a.date ?? a.dateFormatted ?? '';
-            return dateStr >= todayStr;
+            const isToday = dateStr === todayStr;
+            const isActive = status === 'upcoming' || status === 'confirmed';
+            return isToday && isActive;
           })
           .map(a => {
             const rawStatus = (a.status ?? 'upcoming').toLowerCase() as AppointmentView['status'];
             const aptDate   = new Date(a.date ?? a.dateFormatted ?? '');
             aptDate.setHours(0, 0, 0, 0);
             const tomorrow  = new Date(now); tomorrow.setHours(0,0,0,0); tomorrow.setDate(tomorrow.getDate() + 1);
-            
+
             const rawDateStr = a.date ?? a.dateFormatted ?? '';
             const rawTimeStr = a.time ?? '00:00:00';
             const sortTimestamp = new Date(`${rawDateStr}T${rawTimeStr}`).getTime();
-            
+
             return {
               id:          String(a.id),
               petName:     a.petName     ?? 'Mi mascota',
@@ -225,20 +224,7 @@ export class DashboardClienteComponent implements OnInit, OnDestroy {
             };
           });
 
-        // Ordenar: primero las futuras (más cercanas primero), luego las pasadas (más recientes primero)
-        this.allAppointments.sort((a, b) => {
-          // Si una es pasada y la otra futura, la futura va primero
-          if (a.isPast && !b.isPast) return 1;
-          if (!a.isPast && b.isPast) return -1;
-          
-          // Si ambas son futuras, la más cercana va primero (orden ascendente)
-          if (!a.isPast && !b.isPast) return a.sortTimestamp - b.sortTimestamp;
-          
-          // Si ambas son pasadas, la más reciente va primero (orden descendente)
-          return b.sortTimestamp - a.sortTimestamp;
-        });
-
-        // Mostrar solo las primeras 5 o todas según el estado
+        this.allAppointments.sort((a, b) => a.sortTimestamp - b.sortTimestamp);
         this.updateDisplayedAppointments();
       },
       error: () => {}

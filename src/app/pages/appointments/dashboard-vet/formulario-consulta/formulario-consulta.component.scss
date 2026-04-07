@@ -108,10 +108,22 @@
   font-size: .8rem; color: #7A9488; margin: -8px 0 4px;
 }
 
+/* Vital signs badge */
+.input-vital-wrap {
+  position: relative; display: flex; align-items: center;
+}
+.input-vital-wrap .form-input { flex: 1; padding-right: 36px; }
+.vital-badge {
+  position: absolute; right: 10px;
+  font-size: 1.1rem; line-height: 1; pointer-events: none;
+  cursor: default;
+}
+
 /* Forms */
 .form-grid {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
-  @media (max-width: 700px) { grid-template-columns: 1fr; }
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
+  @media (max-width: 800px) { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 500px) { grid-template-columns: 1fr; }
 }
 .form-group { 
   display: flex; 

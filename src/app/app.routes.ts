@@ -86,6 +86,14 @@ export const routes: Routes = [
       import('./pages/contacto/contacto.component').then(m => m.ContactoComponent),
   },
 
+  {
+    path: 'mis-citas',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['ROLE_CLIENTE'] },
+    loadComponent: () =>
+      import('./pages/mis-citas/mis-citas.component').then(m => m.MisCitasComponent),
+  },
+
   // ── Roles desktop-only (authGuard + desktopOnlyGuard + roleGuard) ─────────
   {
     path: 'dashboard-admin',

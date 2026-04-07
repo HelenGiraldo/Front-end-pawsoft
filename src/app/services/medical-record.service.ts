@@ -40,6 +40,7 @@ export interface RegistroMedico {
   peso: number | null;
   temperatura: number | null;
   frecuenciaCardiaca: number | null;
+  frecuenciaRespiratoria: number | null;
   observacionesGenerales: string;
   // Diagnóstico (interno)
   diagnosticoPrincipal: string;
@@ -80,6 +81,7 @@ export interface MedicalRecordResponse {
   peso: number | null;
   temperatura: number | null;
   frecuenciaCardiaca: number | null;
+  frecuenciaRespiratoria: number | null;
   observacionesGenerales: string;
   diagnosticoPrincipal: string;
   diagnosticoSecundario: string;
@@ -133,6 +135,17 @@ export class MedicalRecordService {
       appointmentTime: appointment.time,
       appointmentDate: appointment.date,
     };
+
+    // Limpiar borradores de otras citas que no sean la actual
+    const keysToRemove: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('medical_draft_') && key !== draftKey(appointment.id)) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach(k => localStorage.removeItem(k));
+
     localStorage.setItem(KEY_ATENCION, JSON.stringify(activa));
     this._atencionActiva$.next(activa);
   }
@@ -178,6 +191,7 @@ export class MedicalRecordService {
       peso:                   parseNumber(registro.peso),
       temperatura:            parseNumber(registro.temperatura),
       frecuenciaCardiaca:     parseNumber(registro.frecuenciaCardiaca),
+      frecuenciaRespiratoria: parseNumber(registro.frecuenciaRespiratoria),
       observacionesGenerales: registro.observacionesGenerales?.trim() || null,
       diagnosticoPrincipal:   registro.diagnosticoPrincipal?.trim() || null,
       diagnosticoSecundario:  registro.diagnosticoSecundario?.trim() || null,
@@ -206,6 +220,20 @@ export class MedicalRecordService {
   obtenerPorCita(appointmentId: number): Observable<MedicalRecordResponse> {
     return this.http.get<MedicalRecordResponse>(
       `${this.apiUrl}/appointment/${appointmentId}`,
+      { headers: this.headers() }
+    );
+  }
+
+  obtenerResumenCliente(appointmentId: number): Observable<MedicalRecordResponse> {
+    return this.http.get<MedicalRecordResponse>(
+      `${environment.apiUrl}/api/cliente/medical-records/appointment/${appointmentId}`,
+      { headers: this.headers() }
+    );
+  }
+
+  obtenerRegistrosCliente(): Observable<MedicalRecordResponse[]> {
+    return this.http.get<MedicalRecordResponse[]>(
+      `${environment.apiUrl}/api/cliente/medical-records`,
       { headers: this.headers() }
     );
   }

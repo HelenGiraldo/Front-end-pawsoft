@@ -11,6 +11,13 @@ import {
   RegistroMedico
 } from 'src/app/services/medical-record.service';
 import { AppointmentService } from 'src/app/services/appointment.service';
+import {
+  evaluarTemperatura,
+  evaluarFrecuenciaCardiaca,
+  evaluarFrecuenciaRespiratoria,
+  evaluarPeso,
+  VitalResult
+} from 'src/app/utils/vital-signs.util';
 
 type EstadoGuardado = 'sin_cambios' | 'guardando' | 'guardado' | 'error';
 
@@ -55,6 +62,7 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
   peso: number | null = null;
   temperatura: number | null = null;
   frecuenciaCardiaca: number | null = null;
+  frecuenciaRespiratoria: number | null = null;
   observacionesGenerales = '';
 
   // Diagnóstico
@@ -97,6 +105,7 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
     peso: '',
     temperatura: '',
     frecuenciaCardiaca: '',
+    frecuenciaRespiratoria: '',
     observacionesGenerales: '',
     notasClinicas: '',
     indicacionesCliente: '',
@@ -154,6 +163,7 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
       this.peso                   = borrador.peso ?? null;
       this.temperatura            = borrador.temperatura ?? null;
       this.frecuenciaCardiaca     = borrador.frecuenciaCardiaca ?? null;
+      this.frecuenciaRespiratoria = borrador.frecuenciaRespiratoria ?? null;
       this.observacionesGenerales = borrador.observacionesGenerales ?? '';
       this.diagnosticoPrincipal   = borrador.diagnosticoPrincipal ?? '';
       this.diagnosticoSecundario  = borrador.diagnosticoSecundario ?? '';
@@ -189,11 +199,8 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
     if (this.peso !== null && this.peso !== undefined) {
       const valor = Number(this.peso);
       if (!isNaN(valor)) {
-        if (valor > 999) {
-          this.peso = 999;
-        } else if (valor < 0.1 && valor !== 0) {
-          this.peso = 0.1;
-        }
+        if (valor > 999) this.peso = 999;
+        else if (valor <= 0) this.peso = 0.02;
       }
     }
   }
@@ -202,11 +209,8 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
     if (this.temperatura !== null && this.temperatura !== undefined) {
       const valor = Number(this.temperatura);
       if (!isNaN(valor)) {
-        if (valor > 45) {
-          this.temperatura = 45;
-        } else if (valor < 30 && valor !== 0) {
-          this.temperatura = 30;
-        }
+        if (valor > 45) this.temperatura = 45;
+        else if (valor <= 0) this.temperatura = 0.1;
       }
     }
   }
@@ -215,14 +219,27 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
     if (this.frecuenciaCardiaca !== null && this.frecuenciaCardiaca !== undefined) {
       const valor = Number(this.frecuenciaCardiaca);
       if (!isNaN(valor)) {
-        if (valor > 999) {
-          this.frecuenciaCardiaca = 999;
-        } else if (valor < 1 && valor !== 0) {
-          this.frecuenciaCardiaca = 1;
-        }
+        if (valor > 999) this.frecuenciaCardiaca = 999;
+        else if (valor <= 0) this.frecuenciaCardiaca = 1;
       }
     }
   }
+
+  limitarFrecuenciaRespiratoria(): void {
+    if (this.frecuenciaRespiratoria !== null && this.frecuenciaRespiratoria !== undefined) {
+      const valor = Number(this.frecuenciaRespiratoria);
+      if (!isNaN(valor)) {
+        if (valor > 999) this.frecuenciaRespiratoria = 999;
+        else if (valor <= 0) this.frecuenciaRespiratoria = 1;
+      }
+    }
+  }
+
+  // ── Evaluación de signos vitales ──────────────────────────────────────────
+  get vitalPeso():                 VitalResult | null { return evaluarPeso(this.peso); }
+  get vitalTemperatura():          VitalResult | null { return evaluarTemperatura(this.temperatura); }
+  get vitalFrecuenciaCardiaca():   VitalResult | null { return evaluarFrecuenciaCardiaca(this.frecuenciaCardiaca); }
+  get vitalFrecuenciaRespiratoria(): VitalResult | null { return evaluarFrecuenciaRespiratoria(this.frecuenciaRespiratoria); }
 
   limitarDosis(med: Medicamento): void {
     if (med.dosisValor !== null && med.dosisValor !== undefined && med.dosisValor !== '') {
@@ -257,6 +274,7 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
     this.validarPeso();
     this.validarTemperatura();
     this.validarFrecuenciaCardiaca();
+    this.validarFrecuenciaRespiratoria();
     this.validarObservacionesGenerales();
     this.validarDiagnosticoPrincipal();
     this.validarNotasClinicas();
@@ -266,6 +284,7 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
       this.errores.peso ||
       this.errores.temperatura ||
       this.errores.frecuenciaCardiaca ||
+      this.errores.frecuenciaRespiratoria ||
       this.errores.observacionesGenerales ||
       this.errores.diagnosticoPrincipal ||
       this.errores.notasClinicas ||
@@ -299,8 +318,10 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
   validarPeso(): void {
     if (this.peso === null || this.peso === undefined || String(this.peso).trim() === '') {
       this.errores.peso = 'El peso es obligatorio';
-    } else if (this.peso < 0.1) {
-      this.errores.peso = 'El peso debe ser al menos 0.1 kg';
+    } else if (this.peso <= 0) {
+      this.errores.peso = 'El peso debe ser mayor a 0';
+    } else if (this.peso < 0.02) {
+      this.errores.peso = 'El peso mínimo válido es 0.02 kg';
     } else if (this.peso > 999) {
       this.errores.peso = 'El peso no puede superar 999 kg';
     } else {
@@ -309,26 +330,39 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
   }
 
   validarTemperatura(): void {
-    if (this.temperatura === null || this.temperatura === undefined || String(this.temperatura).trim() === '') {
-      this.errores.temperatura = 'La temperatura es obligatoria';
-    } else if (this.temperatura < 30) {
-      this.errores.temperatura = 'La temperatura debe ser al menos 30°C';
-    } else if (this.temperatura > 45) {
-      this.errores.temperatura = 'La temperatura no puede superar 45°C';
-    } else {
-      this.errores.temperatura = '';
+      if (this.temperatura === null || this.temperatura === undefined || String(this.temperatura).trim() === '') {
+        this.errores.temperatura = 'La temperatura es obligatoria';
+      } else if (this.temperatura <= 0) {
+        this.errores.temperatura = 'La temperatura debe ser mayor a 0°C';
+      } else if (this.temperatura > 45) {
+        this.errores.temperatura = 'La temperatura no puede superar 45°C';
+      } else {
+        this.errores.temperatura = '';
+      }
     }
-  }
+
 
   validarFrecuenciaCardiaca(): void {
     if (this.frecuenciaCardiaca === null || this.frecuenciaCardiaca === undefined || String(this.frecuenciaCardiaca).trim() === '') {
       this.errores.frecuenciaCardiaca = 'La frecuencia cardíaca es obligatoria';
-    } else if (this.frecuenciaCardiaca < 1) {
-      this.errores.frecuenciaCardiaca = 'La frecuencia cardíaca debe ser al menos 1 lpm';
+    } else if (this.frecuenciaCardiaca <= 0) {
+      this.errores.frecuenciaCardiaca = 'La frecuencia cardíaca debe ser mayor a 0 lpm';
     } else if (this.frecuenciaCardiaca > 999) {
       this.errores.frecuenciaCardiaca = 'La frecuencia cardíaca no puede superar 999 lpm';
     } else {
       this.errores.frecuenciaCardiaca = '';
+    }
+  }
+
+  validarFrecuenciaRespiratoria(): void {
+    if (this.frecuenciaRespiratoria === null || this.frecuenciaRespiratoria === undefined || String(this.frecuenciaRespiratoria).trim() === '') {
+      this.errores.frecuenciaRespiratoria = 'La frecuencia respiratoria es obligatoria';
+    } else if (this.frecuenciaRespiratoria <= 0) {
+      this.errores.frecuenciaRespiratoria = 'La frecuencia respiratoria debe ser mayor a 0 rpm';
+    } else if (this.frecuenciaRespiratoria > 999) {
+      this.errores.frecuenciaRespiratoria = 'La frecuencia respiratoria no puede superar 999 rpm';
+    } else {
+      this.errores.frecuenciaRespiratoria = '';
     }
   }
 
@@ -649,6 +683,7 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
       peso:                   this.peso,
       temperatura:            this.temperatura,
       frecuenciaCardiaca:     this.frecuenciaCardiaca,
+      frecuenciaRespiratoria: this.frecuenciaRespiratoria,
       observacionesGenerales: this.observacionesGenerales,
       diagnosticoPrincipal:   this.diagnosticoPrincipal,
       diagnosticoSecundario:  this.diagnosticoSecundario,

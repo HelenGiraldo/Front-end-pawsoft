@@ -109,4 +109,9 @@ export class AppointmentService {
   cancelStartedAppointment(id: number): Observable<void> {
     return this.http.post<void>(`${this.vetUrl}/${id}/cancel-start`, {}, { headers: this.headers() });
   }
+
+  /** Todas las citas del cliente sin filtro de estado ni fecha */
+  getAllMyAppointments(): Observable<AppointmentResponse[]> {
+    return this.http.get<AppointmentResponse[]>(`${this.baseUrl}/all`, { headers: this.headers() });
+  }
 }

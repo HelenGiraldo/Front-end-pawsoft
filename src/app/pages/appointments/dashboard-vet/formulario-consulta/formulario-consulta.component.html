@@ -65,8 +65,8 @@
                 (ngModelChange)="onFormChange()"
                 (blur)="validarPeso()"
                 placeholder="Ej: 12.5"
-                min="0.1" max="999" step="0.1"
-                oninput="if(this.value > 999) this.value = 999; if(this.value < 0 && this.value !== '') this.value = 0.1;">
+                min="0.02" max="999" step="0.1"
+                oninput="if(this.value > 999) this.value = 999; if(this.value <= 0 && this.value !== '') this.value = 0.02;">
               <div class="field-error" *ngIf="errores.peso">{{ errores.peso }}</div>
             </div>
             <div class="form-group">
@@ -78,12 +78,12 @@
                 (ngModelChange)="onFormChange()"
                 (blur)="validarTemperatura()"
                 placeholder="Ej: 38.5"
-                min="30" max="45" step="0.1"
-                oninput="if(this.value > 45) this.value = 45; if(this.value < 0 && this.value !== '') this.value = 30;">
+                min="0.1" max="45" step="0.1"
+                oninput="if(this.value > 45) this.value = 45; if(this.value <= 0 && this.value !== '') this.value = 0.1;">
               <div class="field-error" *ngIf="errores.temperatura">{{ errores.temperatura }}</div>
             </div>
             <div class="form-group">
-              <label>Frecuencia cardíaca (lpm)</label>
+              <label>Frec. cardíaca (lpm)</label>
               <input type="number" class="form-input" 
                 [class.input-error]="errores.frecuenciaCardiaca"
                 [(ngModel)]="frecuenciaCardiaca"
@@ -92,8 +92,21 @@
                 (blur)="validarFrecuenciaCardiaca()"
                 placeholder="Ej: 80"
                 min="1" max="999" step="1"
-                oninput="if(this.value > 999) this.value = 999; if(this.value < 0 && this.value !== '') this.value = 1;">
+                oninput="if(this.value > 999) this.value = 999; if(this.value <= 0 && this.value !== '') this.value = 1;">
               <div class="field-error" *ngIf="errores.frecuenciaCardiaca">{{ errores.frecuenciaCardiaca }}</div>
+            </div>
+            <div class="form-group">
+              <label>Frec. respiratoria (rpm)</label>
+              <input type="number" class="form-input"
+                [class.input-error]="errores.frecuenciaRespiratoria"
+                [(ngModel)]="frecuenciaRespiratoria"
+                (input)="limitarFrecuenciaRespiratoria()"
+                (ngModelChange)="onFormChange()"
+                (blur)="validarFrecuenciaRespiratoria()"
+                placeholder="Ej: 20"
+                min="1" max="999" step="1"
+                oninput="if(this.value > 999) this.value = 999; if(this.value <= 0 && this.value !== '') this.value = 1;">
+              <div class="field-error" *ngIf="errores.frecuenciaRespiratoria">{{ errores.frecuenciaRespiratoria }}</div>
             </div>
           </div>
           <div class="form-group">

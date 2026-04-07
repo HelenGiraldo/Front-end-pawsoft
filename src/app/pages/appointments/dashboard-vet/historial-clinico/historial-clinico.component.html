@@ -16,31 +16,36 @@
       <!-- FILTROS -->
       <div class="section-card">
         <div class="filters-row">
-          <input type="text" class="form-input search-input"
-            placeholder="Buscar por mascota o propietario..."
-            [(ngModel)]="searchText" (input)="aplicarFiltros()">
-
-          <div class="date-filter-group">
-            <label class="date-label">Desde:</label>
-            <input type="date" class="form-input date-input"
-              [(ngModel)]="filtroFechaInicio" (change)="aplicarFiltros()"
-              [min]="minDate" [max]="maxDate"
-              placeholder="dd/mm/aaaa">
+          <div class="filter-group search-input">
+            <label class="filter-label">Buscar</label>
+            <input type="text" class="form-input"
+              placeholder="Mascota o propietario..."
+              [(ngModel)]="searchText" (input)="aplicarFiltros()">
           </div>
 
-          <div class="date-filter-group">
-            <label class="date-label">Hasta:</label>
-            <input type="date" class="form-input date-input"
+          <div class="filter-group date-input">
+            <label class="filter-label">Desde</label>
+            <input type="date" class="form-input"
+              [(ngModel)]="filtroFechaInicio" (change)="onFechaInicioChange()"
+              [max]="maxDate">
+          </div>
+
+          <div class="filter-group date-input">
+            <label class="filter-label">Hasta</label>
+            <input type="date" class="form-input"
               [(ngModel)]="filtroFechaFin" (change)="aplicarFiltros()"
-              [min]="minDate" [max]="maxDate"
-              placeholder="dd/mm/aaaa">
+              [min]="filtroFechaInicio || ''"
+              [max]="maxDate">
           </div>
 
-          <select class="form-select especie-select"
-            [(ngModel)]="filtroEspecie" (change)="aplicarFiltros()">
-            <option value="">Todas las especies</option>
-            <option *ngFor="let e of especiesDisponibles" [value]="e">{{ e }}</option>
-          </select>
+          <div class="filter-group especie-select">
+            <label class="filter-label">Especie</label>
+            <select class="form-select"
+              [(ngModel)]="filtroEspecie" (change)="aplicarFiltros()">
+              <option value="">Todas las especies</option>
+              <option *ngFor="let e of especiesDisponibles" [value]="e">{{ e }}</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -87,14 +92,22 @@
                 <div class="detalle-row" *ngIf="r.peso">
                   <span class="det-label">Peso:</span>
                   <span class="det-val">{{ r.peso }} kg</span>
+                  <span class="vital-chip" *ngIf="evalPeso(r.peso) as v" [style.color]="v.color">{{ v.emoji }} {{ v.label }}</span>
                 </div>
                 <div class="detalle-row" *ngIf="r.temperatura">
                   <span class="det-label">Temperatura:</span>
                   <span class="det-val">{{ r.temperatura }} °C</span>
+                  <span class="vital-chip" *ngIf="evalTemp(r.temperatura) as v" [style.color]="v.color">{{ v.emoji }} {{ v.label }}</span>
                 </div>
                 <div class="detalle-row" *ngIf="r.frecuenciaCardiaca">
                   <span class="det-label">Frec. cardíaca:</span>
                   <span class="det-val">{{ r.frecuenciaCardiaca }} lpm</span>
+                  <span class="vital-chip" *ngIf="evalFC(r.frecuenciaCardiaca) as v" [style.color]="v.color">{{ v.emoji }} {{ v.label }}</span>
+                </div>
+                <div class="detalle-row" *ngIf="r.frecuenciaRespiratoria">
+                  <span class="det-label">Frec. respiratoria:</span>
+                  <span class="det-val">{{ r.frecuenciaRespiratoria }} rpm</span>
+                  <span class="vital-chip" *ngIf="evalFR(r.frecuenciaRespiratoria) as v" [style.color]="v.color">{{ v.emoji }} {{ v.label }}</span>
                 </div>
                 <div class="detalle-row" *ngIf="r.observacionesGenerales">
                   <span class="det-label">Observaciones:</span>
@@ -114,20 +127,38 @@
                   <span class="det-val">{{ r.diagnosticoSecundario }}</span>
                 </div>
                 <div class="detalle-row" *ngIf="r.notasClinicas">
-                  <span class="det-label">Notas:</span>
+                  <span class="det-label">Notas clínicas:</span>
                   <span class="det-val">{{ r.notasClinicas }}</span>
                 </div>
               </div>
 
-              <!-- Medicamentos -->
-              <div class="detalle-seccion" *ngIf="r.medicamentos">
-                <div class="detalle-titulo">💊 Medicamentos</div>
+              <!-- Medicamentos y Vacunas Aplicados (procedimiento) -->
+              <div class="detalle-seccion full-width" *ngIf="r.medicamentos && parseMedicamentos(r.medicamentos).length > 0">
+                <div class="detalle-titulo">💉 Medicamentos y Vacunas Aplicados</div>
                 <div class="med-tag" *ngFor="let med of parseMedicamentos(r.medicamentos)">
-                  <strong>{{ med.nombre }}</strong> — {{ med.dosisValor }} {{ med.dosisUnidad }} ({{ med.via }})
+                  <strong>{{ med.nombre }}</strong>
+                  <span *ngIf="med.dosisValor"> — {{ med.dosisValor }} {{ med.dosisUnidad }}</span>
+                  <span *ngIf="med.via"> ({{ med.via }})</span>
                 </div>
                 <div class="detalle-row" *ngIf="r.indicaciones">
                   <span class="det-label">Indicaciones:</span>
                   <span class="det-val">{{ r.indicaciones }}</span>
+                </div>
+              </div>
+
+              <!-- Medicamentos y Vacunas Recetados (para casa) -->
+              <div class="detalle-seccion full-width" *ngIf="r.medicamentosRecetados && parseMedicamentos(r.medicamentosRecetados).length > 0">
+                <div class="detalle-titulo">🏠 Medicamentos y Vacunas Recetados</div>
+                <div class="med-tag recetado" *ngFor="let med of parseMedicamentos(r.medicamentosRecetados)">
+                  <strong>{{ med.nombre }}</strong>
+                  <span *ngIf="med.dosisValor"> — {{ med.dosisValor }} {{ med.dosisUnidad }}</span>
+                  <span *ngIf="med.via"> ({{ med.via }})</span>
+                  <span *ngIf="med.frecuencia"> · {{ med.frecuencia }}</span>
+                  <span *ngIf="med.duracion"> · {{ med.duracion }}</span>
+                </div>
+                <div class="detalle-row" *ngIf="r.indicacionesCliente">
+                  <span class="det-label">Indicaciones para el propietario:</span>
+                  <span class="det-val">{{ r.indicacionesCliente }}</span>
                 </div>
               </div>
 
@@ -141,6 +172,16 @@
                 <div class="detalle-row" *ngIf="r.proximoControlMotivo">
                   <span class="det-label">Motivo:</span>
                   <span class="det-val">{{ r.proximoControlMotivo }}</span>
+                </div>
+              </div>
+
+              <!-- Fotos adjuntas -->
+              <div class="detalle-seccion full-width" *ngIf="r.fotosAdjuntas && parseFotos(r.fotosAdjuntas).length > 0">
+                <div class="detalle-titulo">🔬 Estudios y Evidencia Clínica</div>
+                <div class="fotos-grid">
+                  <img *ngFor="let foto of parseFotos(r.fotosAdjuntas)"
+                     [src]="foto" alt="Imagen del registro" class="foto-thumb"
+                     (click)="abrirFoto(foto)">
                 </div>
               </div>
 
@@ -158,4 +199,12 @@
       </div>
     </div>
   </main>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox-overlay" *ngIf="fotoSeleccionada" (click)="cerrarFoto()">
+  <div class="lightbox-content" (click)="$event.stopPropagation()">
+    <button class="lightbox-close" (click)="cerrarFoto()" aria-label="Cerrar">✕</button>
+    <img [src]="fotoSeleccionada" alt="Imagen ampliada" class="lightbox-img">
+  </div>
 </div>

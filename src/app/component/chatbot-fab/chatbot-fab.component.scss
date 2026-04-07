@@ -267,6 +267,24 @@
   &:active { transform: scale(0.94); }
 }
 
+@media (max-width: 768px) {
+  .fab-btn {
+    width: 44px;
+    height: 44px;
+    bottom: 130px;
+    right: 12px;
+    box-shadow: 0 3px 12px rgba(16, 185, 129, 0.4);
+    opacity: 0.85;
+  }
+
+  .chat-window {
+    bottom: 182px;
+    right: 8px;
+    width: calc(100vw - 16px);
+    max-width: 340px;
+  }
+}
+
 .fab-icon, .fab-close {
   display: flex;
   align-items: center;

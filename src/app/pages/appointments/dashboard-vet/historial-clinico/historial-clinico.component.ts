@@ -3,6 +3,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AppSidebarComponent } from 'src/app/share/components/app-sidebar/app-sidebar.component';
 import { MedicalRecordService, MedicalRecordResponse, Medicamento, VacunaControl } from 'src/app/services/medical-record.service';
+import {
+  evaluarPeso, evaluarTemperatura, evaluarFrecuenciaCardiaca, evaluarFrecuenciaRespiratoria,
+  VitalResult
+} from 'src/app/utils/vital-signs.util';
 
 @Component({
   selector: 'app-historial-clinico',
@@ -66,6 +70,14 @@ export class HistorialClinicoComponent implements OnInit {
     });
   }
 
+  onFechaInicioChange(): void {
+    // Si "hasta" es anterior a "desde", limpiarla
+    if (this.filtroFechaFin && this.filtroFechaInicio && this.filtroFechaFin < this.filtroFechaInicio) {
+      this.filtroFechaFin = '';
+    }
+    this.aplicarFiltros();
+  }
+
   aplicarFiltros(): void {
     const search = this.searchText.toLowerCase();
 
@@ -96,12 +108,29 @@ export class HistorialClinicoComponent implements OnInit {
     return this.expandidos.has(id);
   }
 
-  parseMedicamentos(json: string): Medicamento[] {
+  fotoSeleccionada: string | null = null;
+
+  abrirFoto(url: string): void {
+    this.fotoSeleccionada = url;
+  }
+
+  cerrarFoto(): void {
+    this.fotoSeleccionada = null;
+  }
+
+  parseMedicamentos(json: string): any[] {
     try { return JSON.parse(json) || []; } catch { return []; }
   }
 
-  parseVacunas(json: string): VacunaControl[] {
+  parseVacunas(json: string): any[] {
     try { return JSON.parse(json) || []; } catch { return []; }
+  }
+
+  parseFotos(json: string): string[] {
+    try {
+      const parsed = JSON.parse(json);
+      return Array.isArray(parsed) ? parsed.filter(f => !!f) : [];
+    } catch { return []; }
   }
 
   getEmojiBySpecies(species: string): string {
@@ -116,4 +145,9 @@ export class HistorialClinicoComponent implements OnInit {
     const [y, m, d] = date.split('-');
     return `${d}/${m}/${y}`;
   }
+
+  evalPeso(v: number | null):  VitalResult | null { return evaluarPeso(v); }
+  evalTemp(v: number | null):  VitalResult | null { return evaluarTemperatura(v); }
+  evalFC(v: number | null):    VitalResult | null { return evaluarFrecuenciaCardiaca(v); }
+  evalFR(v: number | null):    VitalResult | null { return evaluarFrecuenciaRespiratoria(v); }
 }

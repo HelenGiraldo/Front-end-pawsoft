@@ -1,0 +1,193 @@
+<div class="dashboard-layout">
+  <app-sidebar [userRole]="userRole" [userName]="userName"></app-sidebar>
+
+  <main class="main-content">
+
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">📋 Historial de Citas</div>
+        <div class="topbar-sub">Todas tus citas — sin importar el estado</div>
+      </div>
+    </div>
+
+    <div class="content-area">
+
+      <!-- FILTROS -->
+      <div class="filters-card">
+        <div class="filters-row">
+          <div class="filter-group search-group">
+            <label class="filter-label">Buscar</label>
+            <input type="text" class="form-input"
+              placeholder="Mascota, veterinario o motivo..."
+              [(ngModel)]="filtroTexto" (input)="aplicarFiltros()">
+          </div>
+          <div class="filter-group estado-group">
+            <label class="filter-label">Estado</label>
+            <select class="form-select"
+              [(ngModel)]="filtroEstado" (change)="aplicarFiltros()">
+              <option *ngFor="let e of ESTADOS" [value]="e.value">{{ e.label }}</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- ERROR -->
+      <div class="error-card" *ngIf="errorMsg">
+        <span>⚠️ {{ errorMsg }}</span>
+        <button class="btn-retry" (click)="cargarDatos()">Reintentar</button>
+      </div>
+
+      <!-- LOADING -->
+      <div class="loading-wrap" *ngIf="isLoading">
+        <div class="spinner"></div>
+        <span>Cargando citas...</span>
+      </div>
+
+      <!-- LISTA -->
+      <div class="citas-list" *ngIf="!isLoading && !errorMsg">
+
+        <div class="cita-card" *ngFor="let c of citasFiltradas"
+          [class.cancelled]="c.status === 'cancelled'"
+          [class.noshow]="c.status === 'no_show'">
+
+          <div class="cita-header">
+            <div class="cita-avatar">
+              <img *ngIf="c.petPhotoUrl" [src]="c.petPhotoUrl" [alt]="c.petName">
+              <span *ngIf="!c.petPhotoUrl">{{ c.petEmoji }}</span>
+            </div>
+            <div class="cita-info">
+              <div class="cita-pet">{{ c.petName }}</div>
+              <div class="cita-meta">{{ c.date }} · {{ c.time }}</div>
+              <div class="cita-reason">{{ c.reason }}</div>
+              <div class="cita-vet">🩺 {{ c.vetName }}</div>
+            </div>
+            <div class="cita-right">
+              <span class="status-badge" [ngClass]="getStatusClass(c.status)">
+                {{ getStatusLabel(c.status) }}
+              </span>
+              <button class="btn-ver-resumen"
+                *ngIf="c.status === 'completed' && c.medicalRecord"
+                (click)="toggleResumen(c)">
+                {{ c.showingRecord ? '▲ Ocultar resumen' : '▼ Ver resumen' }}
+              </button>
+              <span class="sin-resumen" *ngIf="c.status === 'completed' && !c.medicalRecord">
+                Sin resumen disponible
+              </span>
+            </div>
+          </div>
+
+          <!-- RESUMEN MÉDICO -->
+          <div class="resumen-medico" *ngIf="c.showingRecord && c.medicalRecord">
+
+            <!-- Signos vitales -->
+            <div class="resumen-seccion" *ngIf="c.medicalRecord.peso || c.medicalRecord.temperatura || c.medicalRecord.frecuenciaCardiaca || c.medicalRecord.frecuenciaRespiratoria">
+              <div class="resumen-titulo">🔬 Estado General de tu Mascota</div>
+              <div class="vitales-grid">
+                <div class="vital-item" *ngIf="c.medicalRecord.peso">
+                  <span class="vital-label">Peso</span>
+                  <span class="vital-val">{{ c.medicalRecord.peso }} kg</span>
+                </div>
+                <div class="vital-item" *ngIf="c.medicalRecord.temperatura">
+                  <span class="vital-label">Temperatura</span>
+                  <span class="vital-val">{{ c.medicalRecord.temperatura }} °C</span>
+                </div>
+                <div class="vital-item" *ngIf="c.medicalRecord.frecuenciaCardiaca">
+                  <span class="vital-label">Latidos</span>
+                  <span class="vital-val">{{ c.medicalRecord.frecuenciaCardiaca }} lpm</span>
+                </div>
+                <div class="vital-item" *ngIf="c.medicalRecord.frecuenciaRespiratoria">
+                  <span class="vital-label">Respiración</span>
+                  <span class="vital-val">{{ c.medicalRecord.frecuenciaRespiratoria }} rpm</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Diagnóstico -->
+            <div class="resumen-seccion">
+              <div class="resumen-titulo">📋 Diagnóstico</div>
+              <p class="resumen-texto">{{ c.medicalRecord.diagnosticoCliente || 'No especificado' }}</p>
+            </div>
+
+            <!-- Medicamentos aplicados durante el procedimiento -->
+            <div class="resumen-seccion" *ngIf="parseMeds(c.medicalRecord.medicamentos).length > 0">
+              <div class="resumen-titulo">💉 Medicamentos Aplicados en Consulta</div>
+              <div class="med-list">
+                <div class="med-item aplicado" *ngFor="let med of parseMeds(c.medicalRecord.medicamentos)">
+                  <div class="med-nombre">{{ med.nombre }}</div>
+                  <div class="med-detalle-grid">
+                    <span *ngIf="med.dosisValor"><strong>Dosis:</strong> {{ med.dosisValor }} {{ med.dosisUnidad }}</span>
+                    <span *ngIf="med.via"><strong>Vía:</strong> {{ med.via }}</span>
+                    <span *ngIf="med.frecuencia"><strong>Frecuencia:</strong> {{ med.frecuencia }}</span>
+                    <span *ngIf="med.duracion"><strong>Duración:</strong> {{ med.duracion }}</span>
+                  </div>
+                  <div class="med-meta">
+                    <span>📅 {{ c.date }}</span>
+                    <span>👨‍⚕️ {{ c.medicalRecord.vetName }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Medicamentos recetados para casa -->
+            <div class="resumen-seccion" *ngIf="parseMeds(c.medicalRecord.medicamentosRecetados).length > 0">
+              <div class="resumen-titulo">💊 Medicamentos Recetados para Casa</div>
+              <div class="med-list">
+                <div class="med-item recetado" *ngFor="let med of parseMeds(c.medicalRecord.medicamentosRecetados)">
+                  <div class="med-nombre">{{ med.nombre }}</div>
+                  <div class="med-detalle-grid">
+                    <span *ngIf="med.dosisValor"><strong>Dosis:</strong> {{ med.dosisValor }} {{ med.dosisUnidad }}</span>
+                    <span *ngIf="med.via"><strong>Vía:</strong> {{ med.via }}</span>
+                    <span *ngIf="med.frecuencia"><strong>Frecuencia:</strong> {{ med.frecuencia }}</span>
+                    <span *ngIf="med.duracion"><strong>Duración:</strong> {{ med.duracion }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Indicaciones en casa -->
+            <div class="resumen-seccion" *ngIf="c.medicalRecord.indicacionesCliente">
+              <div class="resumen-titulo">🏠 Cuidados en Casa</div>
+              <p class="resumen-texto">{{ c.medicalRecord.indicacionesCliente }}</p>
+            </div>
+
+            <!-- Próximo control -->
+            <div class="resumen-seccion" *ngIf="c.medicalRecord.proximoControlFecha">
+              <div class="resumen-titulo">📅 Próximo Control</div>
+              <p class="resumen-texto">
+                <strong>{{ c.medicalRecord.proximoControlFecha }}</strong>
+                <span *ngIf="c.medicalRecord.proximoControlMotivo"> · {{ c.medicalRecord.proximoControlMotivo }}</span>
+              </p>
+            </div>
+
+            <!-- Fotos -->
+            <div class="resumen-seccion" *ngIf="parseFotos(c.medicalRecord.fotosAdjuntas).length > 0">
+              <div class="resumen-titulo">🔬 Estudios y Evidencia Clínica</div>
+              <div class="fotos-grid">
+                <img *ngFor="let foto of parseFotos(c.medicalRecord.fotosAdjuntas)"
+                  [src]="foto" alt="Imagen" class="foto-thumb"
+                  (click)="abrirFoto(foto)">
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- VACÍO -->
+        <div class="empty-state" *ngIf="citasFiltradas.length === 0">
+          <div class="empty-icon">📋</div>
+          <div class="empty-title">No hay citas</div>
+          <div class="empty-sub">No se encontraron citas con los filtros seleccionados</div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox-overlay" *ngIf="fotoSeleccionada" (click)="cerrarFoto()">
+  <div class="lightbox-content" (click)="$event.stopPropagation()">
+    <button class="lightbox-close" (click)="cerrarFoto()" aria-label="Cerrar">✕</button>
+    <img [src]="fotoSeleccionada" alt="Imagen ampliada" class="lightbox-img">
+  </div>
+</div>
