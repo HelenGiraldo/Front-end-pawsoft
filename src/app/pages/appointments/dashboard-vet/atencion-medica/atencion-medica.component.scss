@@ -134,8 +134,8 @@
   font-family: 'Manrope', sans-serif; transition: background .15s, transform .1s;
   &:active { transform: scale(.97); }
 }
-.btn-iniciar  { 
-  background: #22A06B; color: #fff; 
+.btn-iniciar  {
+  background: #22A06B; color: #fff;
   &:hover { background: #1b7f56; }
   &:disabled {
     background: #C8E6D4;

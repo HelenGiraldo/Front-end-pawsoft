@@ -23,7 +23,7 @@ type EstadoGuardado = 'sin_cambios' | 'guardando' | 'guardado' | 'error';
 
 /**
  * Componente para el formulario de consulta médica veterinaria.
- * 
+ *
  * Funcionalidad:
  * - Registro de examen físico (peso, temperatura, frecuencia cardíaca)
  * - Diagnóstico y notas clínicas (interno)
@@ -34,7 +34,7 @@ type EstadoGuardado = 'sin_cambios' | 'guardando' | 'guardado' | 'error';
  * - Adjuntar fotos (radiografías, análisis)
  * - Guardado automático de borrador cada 30 segundos
  * - Validación de campos obligatorios antes de cerrar atención
- * 
+ *
  * Flujo:
  * 1. Veterinario completa sección interna (examen, diagnóstico, tratamiento)
  * 2. Sistema valida campos obligatorios antes de permitir continuar
@@ -279,8 +279,8 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
     this.validarDiagnosticoPrincipal();
     this.validarNotasClinicas();
     this.validarMedicamentos();
-    
-    const hayErroresInternos = 
+
+    const hayErroresInternos =
       this.errores.peso ||
       this.errores.temperatura ||
       this.errores.frecuenciaCardiaca ||
@@ -289,12 +289,12 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
       this.errores.diagnosticoPrincipal ||
       this.errores.notasClinicas ||
       this.errores.medicamentos.some(e => e);
-    
+
     if (hayErroresInternos) {
       this.errorMsg = 'Por favor completa todos los campos obligatorios de la información clínica';
       return;
     }
-    
+
     this.errorMsg = '';
     this.seccionActiva = 'cliente';
   }
@@ -330,16 +330,16 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
   }
 
   validarTemperatura(): void {
-      if (this.temperatura === null || this.temperatura === undefined || String(this.temperatura).trim() === '') {
-        this.errores.temperatura = 'La temperatura es obligatoria';
-      } else if (this.temperatura <= 0) {
-        this.errores.temperatura = 'La temperatura debe ser mayor a 0°C';
-      } else if (this.temperatura > 45) {
-        this.errores.temperatura = 'La temperatura no puede superar 45°C';
-      } else {
-        this.errores.temperatura = '';
-      }
+    if (this.temperatura === null || this.temperatura === undefined || String(this.temperatura).trim() === '') {
+      this.errores.temperatura = 'La temperatura es obligatoria';
+    } else if (this.temperatura <= 0) {
+      this.errores.temperatura = 'La temperatura debe ser mayor a 0°C';
+    } else if (this.temperatura > 45) {
+      this.errores.temperatura = 'La temperatura no puede superar 45°C';
+    } else {
+      this.errores.temperatura = '';
     }
+  }
 
 
   validarFrecuenciaCardiaca(): void {
@@ -436,7 +436,7 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
     if (!input.files || input.files.length === 0) return;
 
     const file = input.files[0];
-    
+
     if (!file.type.startsWith('image/')) {
       this.errorMsg = 'Solo se permiten archivos de imagen';
       return;
@@ -493,7 +493,7 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
         }
       }
       if (!med.via) errores.push('vía de administración');
-      
+
       if (errores.length > 0) {
         this.errores.medicamentos[i] = `Falta: ${errores.join(', ')}`;
       } else {
@@ -522,7 +522,7 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
       }
       if (!med.frecuencia) errores.push('frecuencia');
       if (!med.duracion) errores.push('duración');
-      
+
       if (errores.length > 0) {
         this.errores.medicamentosRecetados[i] = `Falta: ${errores.join(', ')}`;
       } else {
@@ -557,27 +557,27 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
 
   cerrarAtencion(): void {
     if (!this.atencion || this.isSubmitting) return;
-    
+
     // Validar solo campos realmente obligatorios
     this.validarDiagnosticoPrincipal();
     this.validarDiagnosticoCliente();
     this.validarProximoControl();
     this.validarMedicamentos();
     this.validarMedicamentosRecetados();
-    
-    const hayErrores = 
+
+    const hayErrores =
       this.errores.diagnosticoPrincipal ||
       this.errores.diagnosticoCliente ||
       this.errores.proximoControlFecha ||
       this.errores.proximoControlMotivo ||
       this.errores.medicamentos.some(e => e) ||
       this.errores.medicamentosRecetados.some(e => e);
-    
+
     if (hayErrores) {
       this.errorMsg = 'Por favor completa todos los campos obligatorios y verifica los medicamentos';
       return;
     }
-    
+
     this.isSubmitting = true;
     this.errorMsg = '';
 

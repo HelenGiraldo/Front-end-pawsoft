@@ -58,66 +58,66 @@
           <div class="form-grid">
             <div class="form-group">
               <label>Peso (kg)</label>
-              <input type="number" class="form-input" 
-                [class.input-error]="errores.peso"
-                [(ngModel)]="peso"
-                (input)="limitarPeso()"
-                (ngModelChange)="onFormChange()"
-                (blur)="validarPeso()"
-                placeholder="Ej: 12.5"
-                min="0.02" max="999" step="0.1"
-                oninput="if(this.value > 999) this.value = 999; if(this.value <= 0 && this.value !== '') this.value = 0.02;">
+              <input type="number" class="form-input"
+                     [class.input-error]="errores.peso"
+                     [(ngModel)]="peso"
+                     (input)="limitarPeso()"
+                     (ngModelChange)="onFormChange()"
+                     (blur)="validarPeso()"
+                     placeholder="Ej: 12.5"
+                     min="0.02" max="999" step="0.1"
+                     oninput="if(this.value > 999) this.value = 999; if(this.value <= 0 && this.value !== '') this.value = 0.02;">
               <div class="field-error" *ngIf="errores.peso">{{ errores.peso }}</div>
             </div>
             <div class="form-group">
               <label>Temperatura (°C)</label>
-              <input type="number" class="form-input" 
-                [class.input-error]="errores.temperatura"
-                [(ngModel)]="temperatura"
-                (input)="limitarTemperatura()"
-                (ngModelChange)="onFormChange()"
-                (blur)="validarTemperatura()"
-                placeholder="Ej: 38.5"
-                min="0.1" max="45" step="0.1"
-                oninput="if(this.value > 45) this.value = 45; if(this.value <= 0 && this.value !== '') this.value = 0.1;">
+              <input type="number" class="form-input"
+                     [class.input-error]="errores.temperatura"
+                     [(ngModel)]="temperatura"
+                     (input)="limitarTemperatura()"
+                     (ngModelChange)="onFormChange()"
+                     (blur)="validarTemperatura()"
+                     placeholder="Ej: 38.5"
+                     min="0.1" max="45" step="0.1"
+                     oninput="if(this.value > 45) this.value = 45; if(this.value <= 0 && this.value !== '') this.value = 0.1;">
               <div class="field-error" *ngIf="errores.temperatura">{{ errores.temperatura }}</div>
             </div>
             <div class="form-group">
               <label>Frec. cardíaca (lpm)</label>
-              <input type="number" class="form-input" 
-                [class.input-error]="errores.frecuenciaCardiaca"
-                [(ngModel)]="frecuenciaCardiaca"
-                (input)="limitarFrecuenciaCardiaca()"
-                (ngModelChange)="onFormChange()"
-                (blur)="validarFrecuenciaCardiaca()"
-                placeholder="Ej: 80"
-                min="1" max="999" step="1"
-                oninput="if(this.value > 999) this.value = 999; if(this.value <= 0 && this.value !== '') this.value = 1;">
+              <input type="number" class="form-input"
+                     [class.input-error]="errores.frecuenciaCardiaca"
+                     [(ngModel)]="frecuenciaCardiaca"
+                     (input)="limitarFrecuenciaCardiaca()"
+                     (ngModelChange)="onFormChange()"
+                     (blur)="validarFrecuenciaCardiaca()"
+                     placeholder="Ej: 80"
+                     min="1" max="999" step="1"
+                     oninput="if(this.value > 999) this.value = 999; if(this.value <= 0 && this.value !== '') this.value = 1;">
               <div class="field-error" *ngIf="errores.frecuenciaCardiaca">{{ errores.frecuenciaCardiaca }}</div>
             </div>
             <div class="form-group">
               <label>Frec. respiratoria (rpm)</label>
               <input type="number" class="form-input"
-                [class.input-error]="errores.frecuenciaRespiratoria"
-                [(ngModel)]="frecuenciaRespiratoria"
-                (input)="limitarFrecuenciaRespiratoria()"
-                (ngModelChange)="onFormChange()"
-                (blur)="validarFrecuenciaRespiratoria()"
-                placeholder="Ej: 20"
-                min="1" max="999" step="1"
-                oninput="if(this.value > 999) this.value = 999; if(this.value <= 0 && this.value !== '') this.value = 1;">
+                     [class.input-error]="errores.frecuenciaRespiratoria"
+                     [(ngModel)]="frecuenciaRespiratoria"
+                     (input)="limitarFrecuenciaRespiratoria()"
+                     (ngModelChange)="onFormChange()"
+                     (blur)="validarFrecuenciaRespiratoria()"
+                     placeholder="Ej: 20"
+                     min="1" max="999" step="1"
+                     oninput="if(this.value > 999) this.value = 999; if(this.value <= 0 && this.value !== '') this.value = 1;">
               <div class="field-error" *ngIf="errores.frecuenciaRespiratoria">{{ errores.frecuenciaRespiratoria }}</div>
             </div>
           </div>
           <div class="form-group">
             <label>Observaciones generales <span class="char-hint">máx. 500 caracteres</span></label>
-            <textarea class="form-textarea" 
-              [class.input-error]="errores.observacionesGenerales"
-              [(ngModel)]="observacionesGenerales"
-              (ngModelChange)="onFormChange()"
-              (blur)="validarObservacionesGenerales()"
-              rows="3"
-              placeholder="Observaciones del examen físico..." maxlength="500"></textarea>
+            <textarea class="form-textarea"
+                      [class.input-error]="errores.observacionesGenerales"
+                      [(ngModel)]="observacionesGenerales"
+                      (ngModelChange)="onFormChange()"
+                      (blur)="validarObservacionesGenerales()"
+                      rows="3"
+                      placeholder="Observaciones del examen físico..." maxlength="500"></textarea>
             <div class="field-error" *ngIf="errores.observacionesGenerales">{{ errores.observacionesGenerales }}</div>
           </div>
         </div>
@@ -127,28 +127,28 @@
           <div class="seccion-title">🩺 Diagnóstico Clínico</div>
           <div class="form-group">
             <label>Diagnóstico principal <span class="required">*</span></label>
-            <input type="text" class="form-input" 
-              [class.input-error]="errores.diagnosticoPrincipal"
-              [(ngModel)]="diagnosticoPrincipal"
-              (ngModelChange)="onFormChange()" 
-              (blur)="validarDiagnosticoPrincipal()"
-              placeholder="Diagnóstico principal" maxlength="200">
+            <input type="text" class="form-input"
+                   [class.input-error]="errores.diagnosticoPrincipal"
+                   [(ngModel)]="diagnosticoPrincipal"
+                   (ngModelChange)="onFormChange()"
+                   (blur)="validarDiagnosticoPrincipal()"
+                   placeholder="Diagnóstico principal" maxlength="200">
             <div class="field-error" *ngIf="errores.diagnosticoPrincipal">{{ errores.diagnosticoPrincipal }}</div>
           </div>
           <div class="form-group">
             <label>Diagnóstico secundario <span class="optional">(opcional)</span></label>
             <input type="text" class="form-input" [(ngModel)]="diagnosticoSecundario"
-              (ngModelChange)="onFormChange()" placeholder="Diagnóstico secundario" maxlength="200">
+                   (ngModelChange)="onFormChange()" placeholder="Diagnóstico secundario" maxlength="200">
           </div>
           <div class="form-group">
             <label>Notas clínicas internas <span class="char-hint">máx. 500 caracteres</span></label>
-            <textarea class="form-textarea" 
-              [class.input-error]="errores.notasClinicas"
-              [(ngModel)]="notasClinicas"
-              (ngModelChange)="onFormChange()"
-              (blur)="validarNotasClinicas()"
-              rows="3"
-              placeholder="Notas internas del veterinario..." maxlength="500"></textarea>
+            <textarea class="form-textarea"
+                      [class.input-error]="errores.notasClinicas"
+                      [(ngModel)]="notasClinicas"
+                      (ngModelChange)="onFormChange()"
+                      (blur)="validarNotasClinicas()"
+                      rows="3"
+                      placeholder="Notas internas del veterinario..." maxlength="500"></textarea>
             <div class="field-error" *ngIf="errores.notasClinicas">{{ errores.notasClinicas }}</div>
           </div>
         </div>
@@ -164,8 +164,8 @@
                 <div class="med-fields">
                   <div class="form-group">
                     <label>Medicamento</label>
-                    <select class="form-select" [(ngModel)]="med.nombre" 
-                      (ngModelChange)="onFormChange(); validarMedicamentos()">
+                    <select class="form-select" [(ngModel)]="med.nombre"
+                            (ngModelChange)="onFormChange(); validarMedicamentos()">
                       <option value="">Seleccionar...</option>
                       <option *ngFor="let m of MEDICAMENTOS_CATALOGO" [value]="m">{{ m }}</option>
                     </select>
@@ -173,23 +173,23 @@
                   <div class="form-group">
                     <label>Dosis</label>
                     <input type="number" class="form-input" [(ngModel)]="med.dosisValor"
-                      (input)="limitarDosis(med)"
-                      (ngModelChange)="onFormChange(); validarMedicamentos()" 
-                      placeholder="Ej: 25"
-                      min="0.01" max="9999" step="0.01"
-                      oninput="if(this.value > 9999) this.value = 9999; if(this.value < 0 && this.value !== '') this.value = 0.01;">
+                           (input)="limitarDosis(med)"
+                           (ngModelChange)="onFormChange(); validarMedicamentos()"
+                           placeholder="Ej: 25"
+                           min="0.01" max="9999" step="0.01"
+                           oninput="if(this.value > 9999) this.value = 9999; if(this.value < 0 && this.value !== '') this.value = 0.01;">
                   </div>
                   <div class="form-group">
                     <label>Unidad</label>
-                    <select class="form-select" [(ngModel)]="med.dosisUnidad" 
-                      (ngModelChange)="onFormChange(); validarMedicamentos()">
+                    <select class="form-select" [(ngModel)]="med.dosisUnidad"
+                            (ngModelChange)="onFormChange(); validarMedicamentos()">
                       <option *ngFor="let u of UNIDADES_DOSIS" [value]="u">{{ u }}</option>
                     </select>
                   </div>
                   <div class="form-group">
                     <label>Vía</label>
-                    <select class="form-select" [(ngModel)]="med.via" 
-                      (ngModelChange)="onFormChange(); validarMedicamentos()">
+                    <select class="form-select" [(ngModel)]="med.via"
+                            (ngModelChange)="onFormChange(); validarMedicamentos()">
                       <option value="">Seleccionar...</option>
                       <option *ngFor="let v of VIAS_ADMINISTRACION" [value]="v">{{ v }}</option>
                     </select>
@@ -215,13 +215,13 @@
           <p class="seccion-hint">Explicación en lenguaje simple para el propietario</p>
           <div class="form-group">
             <label>Diagnóstico <span class="required">*</span></label>
-            <textarea class="form-textarea" 
-              [class.input-error]="errores.diagnosticoCliente"
-              [(ngModel)]="diagnosticoCliente"
-              (ngModelChange)="onFormChange()" 
-              (blur)="validarDiagnosticoCliente()"
-              rows="3"
-              placeholder="Explica el diagnóstico en términos simples para el propietario..." maxlength="500"></textarea>
+            <textarea class="form-textarea"
+                      [class.input-error]="errores.diagnosticoCliente"
+                      [(ngModel)]="diagnosticoCliente"
+                      (ngModelChange)="onFormChange()"
+                      (blur)="validarDiagnosticoCliente()"
+                      rows="3"
+                      placeholder="Explica el diagnóstico en términos simples para el propietario..." maxlength="500"></textarea>
             <div class="field-error" *ngIf="errores.diagnosticoCliente">{{ errores.diagnosticoCliente }}</div>
           </div>
         </div>
@@ -237,8 +237,8 @@
                 <div class="med-fields-recetado">
                   <div class="form-group">
                     <label>Medicamento</label>
-                    <select class="form-select" [(ngModel)]="med.nombre" 
-                      (ngModelChange)="onFormChange(); validarMedicamentosRecetados()">
+                    <select class="form-select" [(ngModel)]="med.nombre"
+                            (ngModelChange)="onFormChange(); validarMedicamentosRecetados()">
                       <option value="">Seleccionar...</option>
                       <option *ngFor="let m of MEDICAMENTOS_CATALOGO" [value]="m">{{ m }}</option>
                     </select>
@@ -246,30 +246,30 @@
                   <div class="form-group">
                     <label>Dosis</label>
                     <input type="number" class="form-input" [(ngModel)]="med.dosisValor"
-                      (input)="limitarDosis(med)"
-                      (ngModelChange)="onFormChange(); validarMedicamentosRecetados()" 
-                      placeholder="Ej: 25"
-                      min="0.01" max="9999" step="0.01"
-                      oninput="if(this.value > 9999) this.value = 9999; if(this.value < 0 && this.value !== '') this.value = 0.01;">
+                           (input)="limitarDosis(med)"
+                           (ngModelChange)="onFormChange(); validarMedicamentosRecetados()"
+                           placeholder="Ej: 25"
+                           min="0.01" max="9999" step="0.01"
+                           oninput="if(this.value > 9999) this.value = 9999; if(this.value < 0 && this.value !== '') this.value = 0.01;">
                   </div>
                   <div class="form-group">
                     <label>Unidad</label>
-                    <select class="form-select" [(ngModel)]="med.dosisUnidad" 
-                      (ngModelChange)="onFormChange(); validarMedicamentosRecetados()">
+                    <select class="form-select" [(ngModel)]="med.dosisUnidad"
+                            (ngModelChange)="onFormChange(); validarMedicamentosRecetados()">
                       <option *ngFor="let u of UNIDADES_DOSIS" [value]="u">{{ u }}</option>
                     </select>
                   </div>
                   <div class="form-group">
                     <label>Frecuencia</label>
                     <input type="text" class="form-input" [(ngModel)]="med.frecuencia"
-                      (ngModelChange)="onFormChange(); validarMedicamentosRecetados()" 
-                      placeholder="Ej: Cada 8 horas" maxlength="50">
+                           (ngModelChange)="onFormChange(); validarMedicamentosRecetados()"
+                           placeholder="Ej: Cada 8 horas" maxlength="50">
                   </div>
                   <div class="form-group">
                     <label>Duración</label>
                     <input type="text" class="form-input" [(ngModel)]="med.duracion"
-                      (ngModelChange)="onFormChange(); validarMedicamentosRecetados()" 
-                      placeholder="Ej: 7 días" maxlength="30">
+                           (ngModelChange)="onFormChange(); validarMedicamentosRecetados()"
+                           placeholder="Ej: 7 días" maxlength="30">
                   </div>
                 </div>
                 <button class="btn-eliminar" (click)="eliminarMedicamentoRecetado(i)" title="Eliminar">✕</button>
@@ -286,13 +286,13 @@
           <div class="seccion-title">🏠 Indicaciones de Cuidado en Casa</div>
           <div class="form-group">
             <label>Instrucciones para el propietario <span class="char-hint">máx. 500 caracteres</span></label>
-            <textarea class="form-textarea" 
-              [class.input-error]="errores.indicacionesCliente"
-              [(ngModel)]="indicacionesCliente"
-              (ngModelChange)="onFormChange()"
-              (blur)="validarIndicacionesCliente()"
-              rows="4"
-              placeholder="Instrucciones de cuidado en casa, alimentación, restricciones..." maxlength="500"></textarea>
+            <textarea class="form-textarea"
+                      [class.input-error]="errores.indicacionesCliente"
+                      [(ngModel)]="indicacionesCliente"
+                      (ngModelChange)="onFormChange()"
+                      (blur)="validarIndicacionesCliente()"
+                      rows="4"
+                      placeholder="Instrucciones de cuidado en casa, alimentación, restricciones..." maxlength="500"></textarea>
             <div class="field-error" *ngIf="errores.indicacionesCliente">{{ errores.indicacionesCliente }}</div>
           </div>
         </div>
@@ -300,11 +300,11 @@
         <!-- Próximo control -->
         <div class="seccion-card">
           <div class="seccion-title">📅 Próximo Control</div>
-          
+
           <div class="form-group">
             <label class="checkbox-label">
               <input type="checkbox" class="form-checkbox" [(ngModel)]="requiereProximoControl"
-                (ngModelChange)="onRequiereProximoControlChange()">
+                     (ngModelChange)="onRequiereProximoControlChange()">
               <span>Requiere próximo control</span>
             </label>
           </div>
@@ -313,22 +313,22 @@
             <div class="form-group">
               <label>Fecha del próximo control <span class="required">*</span></label>
               <input type="date" class="form-input date-field"
-                [class.input-error]="errores.proximoControlFecha"
-                [(ngModel)]="proximoControlFecha"
-                (ngModelChange)="onFormChange()"
-                (blur)="validarProximoControl()"
-                [min]="minFechaControl"
-                onkeydown="return false">
+                     [class.input-error]="errores.proximoControlFecha"
+                     [(ngModel)]="proximoControlFecha"
+                     (ngModelChange)="onFormChange()"
+                     (blur)="validarProximoControl()"
+                     [min]="minFechaControl"
+                     onkeydown="return false">
               <div class="field-error" *ngIf="errores.proximoControlFecha">{{ errores.proximoControlFecha }}</div>
             </div>
             <div class="form-group" style="grid-column: span 2;">
               <label>Motivo <span class="required">*</span></label>
-              <input type="text" class="form-input" 
-                [class.input-error]="errores.proximoControlMotivo"
-                [(ngModel)]="proximoControlMotivo"
-                (ngModelChange)="onFormChange()" 
-                (blur)="validarProximoControl()"
-                placeholder="Control de seguimiento..." maxlength="150">
+              <input type="text" class="form-input"
+                     [class.input-error]="errores.proximoControlMotivo"
+                     [(ngModel)]="proximoControlMotivo"
+                     (ngModelChange)="onFormChange()"
+                     (blur)="validarProximoControl()"
+                     placeholder="Control de seguimiento..." maxlength="150">
               <div class="field-error" *ngIf="errores.proximoControlMotivo">{{ errores.proximoControlMotivo }}</div>
             </div>
           </div>
@@ -338,17 +338,17 @@
         <div class="seccion-card">
           <div class="seccion-title">📸 Archivos Adjuntos</div>
           <p class="seccion-hint">Radiografías, análisis de laboratorio u otras imágenes relevantes</p>
-          
+
           <div class="form-group">
             <label class="checkbox-label">
               <input type="checkbox" class="form-checkbox" [(ngModel)]="adjuntarFotos"
-                (ngModelChange)="onAdjuntarFotosChange()">
+                     (ngModelChange)="onAdjuntarFotosChange()">
               <span>Adjuntar fotos o documentos</span>
             </label>
           </div>
 
           <div *ngIf="adjuntarFotos" class="fotos-section">
-            
+
             <div class="fotos-grid" *ngIf="fotosAdjuntas.length > 0">
               <div class="foto-item" *ngFor="let foto of fotosAdjuntas; let i = index">
                 <img [src]="foto" [alt]="'Foto ' + (i + 1)">

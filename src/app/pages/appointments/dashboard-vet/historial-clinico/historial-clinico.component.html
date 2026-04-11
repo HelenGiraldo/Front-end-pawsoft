@@ -19,29 +19,29 @@
           <div class="filter-group search-input">
             <label class="filter-label">Buscar</label>
             <input type="text" class="form-input"
-              placeholder="Mascota o propietario..."
-              [(ngModel)]="searchText" (input)="aplicarFiltros()">
+                   placeholder="Mascota o propietario..."
+                   [(ngModel)]="searchText" (input)="aplicarFiltros()">
           </div>
 
           <div class="filter-group date-input">
             <label class="filter-label">Desde</label>
             <input type="date" class="form-input"
-              [(ngModel)]="filtroFechaInicio" (change)="onFechaInicioChange()"
-              [max]="maxDate">
+                   [(ngModel)]="filtroFechaInicio" (change)="onFechaInicioChange()"
+                   [max]="maxDate">
           </div>
 
           <div class="filter-group date-input">
             <label class="filter-label">Hasta</label>
             <input type="date" class="form-input"
-              [(ngModel)]="filtroFechaFin" (change)="aplicarFiltros()"
-              [min]="filtroFechaInicio || ''"
-              [max]="maxDate">
+                   [(ngModel)]="filtroFechaFin" (change)="aplicarFiltros()"
+                   [min]="filtroFechaInicio || ''"
+                   [max]="maxDate">
           </div>
 
           <div class="filter-group especie-select">
             <label class="filter-label">Especie</label>
             <select class="form-select"
-              [(ngModel)]="filtroEspecie" (change)="aplicarFiltros()">
+                    [(ngModel)]="filtroEspecie" (change)="aplicarFiltros()">
               <option value="">Todas las especies</option>
               <option *ngFor="let e of especiesDisponibles" [value]="e">{{ e }}</option>
             </select>
@@ -180,8 +180,8 @@
                 <div class="detalle-titulo">🔬 Estudios y Evidencia Clínica</div>
                 <div class="fotos-grid">
                   <img *ngFor="let foto of parseFotos(r.fotosAdjuntas)"
-                     [src]="foto" alt="Imagen del registro" class="foto-thumb"
-                     (click)="abrirFoto(foto)">
+                       [src]="foto" alt="Imagen del registro" class="foto-thumb"
+                       (click)="abrirFoto(foto)">
                 </div>
               </div>
 

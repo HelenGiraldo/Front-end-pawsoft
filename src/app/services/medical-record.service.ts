@@ -242,7 +242,7 @@ export class MedicalRecordService {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('upload_preset', environment.cloudinary.uploadPreset);
-    
+
     return this.http.post<{ secure_url: string }>(
       `https://api.cloudinary.com/v1_1/${environment.cloudinary.cloudName}/image/upload`,
       formData

@@ -125,16 +125,16 @@
   @media (max-width: 800px) { grid-template-columns: repeat(2, 1fr); }
   @media (max-width: 500px) { grid-template-columns: 1fr; }
 }
-.form-group { 
-  display: flex; 
-  flex-direction: column; 
-  gap: 6px; 
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
   min-width: 0;
 }
 .form-group.full-width { grid-column: 1 / -1; }
-label { 
-  font-size: .8rem; 
-  font-weight: 700; 
+label {
+  font-size: .8rem;
+  font-weight: 700;
   color: #5F7F71;
 }
 .required { color: #e53935; }
@@ -145,12 +145,12 @@ label {
   padding: 10px 14px; border: 1.5px solid #DCEAE2; border-radius: 9px;
   font-size: .875rem; color: #163A2B; background: #FAFCFB;
   font-family: 'Manrope', sans-serif; transition: border-color .15s, box-shadow .15s;
-  width: 100%; 
+  width: 100%;
   min-width: 0;
   box-sizing: border-box;
   &:focus { outline: none; border-color: #22A06B; box-shadow: 0 0 0 3px rgba(34,160,107,.1); }
   &::placeholder { color: #9AAFA6; }
-  
+
   &.input-error {
     border-color: #e53935;
     background: #FFF8F8;
@@ -282,7 +282,7 @@ label {
   overflow: hidden;
   border: 1.5px solid #DCEAE2;
   background: #F8FBF9;
-  
+
   img {
     width: 100%;
     height: 100%;
@@ -306,7 +306,7 @@ label {
   align-items: center;
   justify-content: center;
   transition: background 0.2s;
-  
+
   &:hover {
     background: rgba(176, 48, 48, 1);
   }
@@ -334,11 +334,11 @@ label {
   cursor: pointer;
   font-family: 'Manrope', sans-serif;
   transition: background 0.2s;
-  
+
   &:hover:not(:disabled) {
     background: #D4EDE0;
   }
-  
+
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
@@ -444,7 +444,7 @@ label {
   font-size: 0.95rem;
   color: #5F7F71;
   line-height: 1.5;
-  
+
   strong {
     color: #163A2B;
     font-weight: 700;
@@ -470,11 +470,11 @@ label {
   cursor: pointer;
   font-family: 'Manrope', sans-serif;
   transition: background 0.2s;
-  
+
   &:hover:not(:disabled) {
     background: #D4EDE0;
   }
-  
+
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
@@ -493,11 +493,11 @@ label {
   cursor: pointer;
   font-family: 'Manrope', sans-serif;
   transition: background 0.2s;
-  
+
   &:hover:not(:disabled) {
     background: #8f2626;
   }
-  
+
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
@@ -531,7 +531,7 @@ label {
     background: rgba(244, 67, 54, 0.15) !important;
     border-color: rgba(244, 67, 54, 0.3) !important;
     color: #ff8a80 !important;
-    &:hover:not(:disabled) { 
+    &:hover:not(:disabled) {
       background: rgba(244, 67, 54, 0.25) !important;
       border-color: rgba(244, 67, 54, 0.4) !important;
     }
@@ -604,7 +604,7 @@ label {
       box-shadow: 0 0 0 3px rgba(26, 122, 76, 0.2) !important;
     }
     &::placeholder { color: rgba(255, 255, 255, 0.4) !important; }
-    
+
     &.input-error {
       border-color: #ff5252 !important;
       background: rgba(244, 67, 54, 0.08) !important;
@@ -631,7 +631,7 @@ label {
     background: rgba(244, 67, 54, 0.15) !important;
     border-color: rgba(244, 67, 54, 0.3) !important;
     color: #ff8a80 !important;
-    &:hover { 
+    &:hover {
       background: rgba(244, 67, 54, 0.25) !important;
       border-color: rgba(244, 67, 54, 0.4) !important;
     }
@@ -732,7 +732,7 @@ label {
 
   .modal-message {
     color: #b8c5be !important;
-    
+
     strong {
       color: #ffffff !important;
     }
@@ -742,7 +742,7 @@ label {
     background: #0f1412 !important;
     border-color: rgba(255, 255, 255, 0.15) !important;
     color: #b8c5be !important;
-    
+
     &:hover:not(:disabled) {
       background: rgba(26, 122, 76, 0.15) !important;
     }
@@ -750,7 +750,7 @@ label {
 
   .modal-btn-danger {
     background: #c93a3a !important;
-    
+
     &:hover:not(:disabled) {
       background: #a02f2f !important;
     }

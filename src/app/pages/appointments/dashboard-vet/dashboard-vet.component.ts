@@ -90,19 +90,19 @@ export class DashboardVetComponent implements OnInit {
     this.appointmentService.getVetAppointments().subscribe({
       next: (data: RecepAppointmentResponse[]) => {
         const mapped = data.map((a: RecepAppointmentResponse) => this.mapToLocal(a));
-        
+
         // Citas de hoy: UPCOMING, CONFIRMED, IN_PROGRESS (las que puedes atender o estás atendiendo)
-        this.todayAppointments = mapped.filter((a: Appointment) => 
-          a.date === this.todayStr && 
+        this.todayAppointments = mapped.filter((a: Appointment) =>
+          a.date === this.todayStr &&
           (a.status === 'UPCOMING' || a.status === 'CONFIRMED' || a.status === 'IN_PROGRESS')
         );
-        
+
         // Próximas citas: fecha > hoy, solo UPCOMING y CONFIRMED (las que van a ocurrir)
-        this.upcomingAppointments = mapped.filter((a: Appointment) => 
-          a.date > this.todayStr && 
+        this.upcomingAppointments = mapped.filter((a: Appointment) =>
+          a.date > this.todayStr &&
           (a.status === 'UPCOMING' || a.status === 'CONFIRMED')
         );
-        
+
         this.filteredTodayAppointments = [...this.todayAppointments];
         this.filteredUpcomingAppointments = [...this.upcomingAppointments];
         this.buildStats();

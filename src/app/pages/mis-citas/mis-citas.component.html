@@ -18,13 +18,13 @@
           <div class="filter-group search-group">
             <label class="filter-label">Buscar</label>
             <input type="text" class="form-input"
-              placeholder="Mascota, veterinario o motivo..."
-              [(ngModel)]="filtroTexto" (input)="aplicarFiltros()">
+                   placeholder="Mascota, veterinario o motivo..."
+                   [(ngModel)]="filtroTexto" (input)="aplicarFiltros()">
           </div>
           <div class="filter-group estado-group">
             <label class="filter-label">Estado</label>
             <select class="form-select"
-              [(ngModel)]="filtroEstado" (change)="aplicarFiltros()">
+                    [(ngModel)]="filtroEstado" (change)="aplicarFiltros()">
               <option *ngFor="let e of ESTADOS" [value]="e.value">{{ e.label }}</option>
             </select>
           </div>
@@ -47,8 +47,8 @@
       <div class="citas-list" *ngIf="!isLoading && !errorMsg">
 
         <div class="cita-card" *ngFor="let c of citasFiltradas"
-          [class.cancelled]="c.status === 'cancelled'"
-          [class.noshow]="c.status === 'no_show'">
+             [class.cancelled]="c.status === 'cancelled'"
+             [class.noshow]="c.status === 'no_show'">
 
           <div class="cita-header">
             <div class="cita-avatar">
@@ -66,8 +66,8 @@
                 {{ getStatusLabel(c.status) }}
               </span>
               <button class="btn-ver-resumen"
-                *ngIf="c.status === 'completed' && c.medicalRecord"
-                (click)="toggleResumen(c)">
+                      *ngIf="c.status === 'completed' && c.medicalRecord"
+                      (click)="toggleResumen(c)">
                 {{ c.showingRecord ? '▲ Ocultar resumen' : '▼ Ver resumen' }}
               </button>
               <span class="sin-resumen" *ngIf="c.status === 'completed' && !c.medicalRecord">
@@ -164,8 +164,8 @@
               <div class="resumen-titulo">🔬 Estudios y Evidencia Clínica</div>
               <div class="fotos-grid">
                 <img *ngFor="let foto of parseFotos(c.medicalRecord.fotosAdjuntas)"
-                  [src]="foto" alt="Imagen" class="foto-thumb"
-                  (click)="abrirFoto(foto)">
+                     [src]="foto" alt="Imagen" class="foto-thumb"
+                     (click)="abrirFoto(foto)">
               </div>
             </div>
 

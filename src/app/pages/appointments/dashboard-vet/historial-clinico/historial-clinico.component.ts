@@ -40,7 +40,7 @@ export class HistorialClinicoComponent implements OnInit {
     // Calcular fechas límite: hace 20 años hasta hoy
     const today = new Date();
     this.maxDate = today.toISOString().split('T')[0];
-    
+
     const twentyYearsAgo = new Date();
     twentyYearsAgo.setFullYear(today.getFullYear() - 20);
     this.minDate = twentyYearsAgo.toISOString().split('T')[0];
