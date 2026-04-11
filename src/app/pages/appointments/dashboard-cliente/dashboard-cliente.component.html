@@ -47,6 +47,7 @@
                        *ngIf="appt.status !== 'cancelled' && appt.status !== 'upcoming'">
                     <span *ngIf="appt.status === 'completed'">Completada</span>
                     <span *ngIf="appt.status === 'confirmed'">Confirmada</span>
+                    <span *ngIf="appt.status === 'in_progress'">En progreso</span>
                     <span *ngIf="appt.status === 'no_show'">No asistió</span>
                   </div>
                 </div>
@@ -97,6 +98,7 @@
                        *ngIf="appt.status !== 'cancelled' && appt.status !== 'upcoming'">
                     <span *ngIf="appt.status === 'completed'">Completada</span>
                     <span *ngIf="appt.status === 'confirmed'">Confirmada</span>
+                    <span *ngIf="appt.status === 'in_progress'">En progreso</span>
                     <span *ngIf="appt.status === 'no_show'">No asistió</span>
                   </div>
                   <button class="btn-view-record" 

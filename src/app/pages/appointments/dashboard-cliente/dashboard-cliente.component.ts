@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormBuilder } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AppSidebarComponent } from 'src/app/share/components/app-sidebar/app-sidebar.component';
 import { AppointmentService, AppointmentRequest, AppointmentResponse } from 'src/app/services/appointment.service';
@@ -24,7 +24,7 @@ interface TimeSlot { time: string; status: 'available' | 'taken' | 'selected'; }
 interface AppointmentView {
   id: string; petName: string; petEmoji: string; petPhotoUrl?: string;
   date: string; time: string; reason: string; vetName: string;
-  status: 'upcoming' | 'completed' | 'cancelled' | 'confirmed' | 'no_show'; canCancel: boolean;
+  status: 'upcoming' | 'completed' | 'cancelled' | 'confirmed' | 'no_show' | 'in_progress'; canCancel: boolean;
   rawDate: string; rawTime: string; sortTimestamp: number; isPast: boolean;
   medicalRecord?: MedicalRecordResponse;
   showingMedicalRecord?: boolean;
@@ -111,7 +111,6 @@ export class DashboardClienteComponent implements OnInit, OnDestroy {
   private toastTimer: any;
 
   constructor(
-    private readonly fb: FormBuilder,
     readonly router: Router,
     private readonly appointmentService: AppointmentService,
     private readonly petService: PetService,
@@ -215,13 +214,15 @@ export class DashboardClienteComponent implements OnInit, OnDestroy {
           };
         });
 
-        // Separar en próximas (hoy y futuras) y pasadas
+        // Separar en próximas (hoy y futuras, o en progreso) y pasadas
+        // Las citas IN_PROGRESS deben aparecer en "Mis Citas" aunque sean del pasado
         this.upcomingAppointments = allMapped
-          .filter(a => !a.isPast)
+          .filter(a => !a.isPast || a.status === 'in_progress' || a.status === 'confirmed')
           .sort((a, b) => a.sortTimestamp - b.sortTimestamp);
 
+        // Historial: solo citas pasadas que estén completadas, canceladas o no_show
         this.pastAppointments = allMapped
-          .filter(a => a.isPast)
+          .filter(a => a.isPast && a.status !== 'in_progress' && a.status !== 'confirmed' && a.status !== 'upcoming')
           .sort((a, b) => b.sortTimestamp - a.sortTimestamp); // Más recientes primero
       },
       error: () => {}
