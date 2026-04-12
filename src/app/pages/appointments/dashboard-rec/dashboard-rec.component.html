@@ -76,7 +76,7 @@
                   <div class="action-btns">
                     <button class="btn-action confirm"    *ngIf="apt.status === 'UPCOMING'"  (click)="confirmAppointment(apt)">Confirmar</button>
                     <button class="btn-action no-show"    *ngIf="apt.status === 'CONFIRMED'" (click)="markNoShow(apt)">No asistió</button>
-                    <button class="btn-action cobrar"     *ngIf="apt.status === 'CONFIRMED' && !getPaymentForApt(apt.id)" (click)="openPaymentModal(apt)">💳 Cobrar</button>
+                    <button class="btn-action cobrar"     *ngIf="apt.status === 'COMPLETED' && !getPaymentForApt(apt.id)" (click)="openPaymentModal(apt)">💳 Cobrar</button>
                     <button class="btn-action edit"                                           (click)="openEditAppointmentModal(apt)">Editar</button>
                     <button class="btn-action deactivate" *ngIf="apt.status !== 'CANCELLED'" (click)="openCancelModal(apt)">Cancelar</button>
                   </div>
@@ -494,7 +494,7 @@
                   <div class="action-btns">
                     <button class="btn-action confirm"    *ngIf="apt.status === 'UPCOMING'"  (click)="confirmAppointment(apt)">Confirmar</button>
                     <button class="btn-action no-show"    *ngIf="apt.status === 'CONFIRMED'" (click)="markNoShow(apt)">No asistió</button>
-                    <button class="btn-action cobrar"     *ngIf="apt.status === 'CONFIRMED' && !getPaymentForApt(apt.id)" (click)="openPaymentModal(apt)">💳 Cobrar</button>
+                    <button class="btn-action cobrar"     *ngIf="apt.status === 'COMPLETED' && !getPaymentForApt(apt.id)" (click)="openPaymentModal(apt)">💳 Cobrar</button>
                     <button class="btn-action edit"                                           (click)="openEditAppointmentModal(apt)">Editar</button>
                     <button class="btn-action deactivate" *ngIf="apt.status !== 'CANCELLED'" (click)="openCancelModal(apt)">Cancelar</button>
                   </div>
