@@ -2,15 +2,20 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
 import { AppSidebarComponent } from 'src/app/share/components/app-sidebar/app-sidebar.component';
 import {
   MedicalRecordService,
   AtencionActiva,
   Medicamento,
   VacunaControl,
-  RegistroMedico
+  RegistroMedico,
+  MedicalRecordResponse
 } from 'src/app/services/medical-record.service';
 import { AppointmentService } from 'src/app/services/appointment.service';
+import { MedicalProfileService } from 'src/app/services/medical-profile.service';
+import { HospitalizationService } from 'src/app/services/hospitalization.service';
+import { PetMedicalProfileDTO, UpdateMedicalProfileRequest } from 'src/app/models/medical-profile.model';
 import {
   evaluarTemperatura,
   evaluarFrecuenciaCardiaca,
@@ -58,6 +63,29 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
   isSubmitting = false;
   errorMsg = '';
 
+  // Hoja médica maestra (prellenada)
+  medicalProfile: PetMedicalProfileDTO | null = null;
+  loadingMedicalProfile = false;
+  medicalProfileError = '';
+
+  // Últimas atenciones
+  ultimasAtenciones: MedicalRecordResponse[] = [];
+  loadingUltimasAtenciones = false;
+
+  // Antecedentes médicos (prellenados, editables)
+  alergias = '';
+  condicionesCronicas = '';
+  medicamentosActuales = '';
+  antecedenteQuirurgico = '';
+  tipoSangre = '';
+
+  // Nuevos descubrimientos en consulta
+  alergiasEncontradas = '';
+  condicionesEncontradas = '';
+  notaQuirurgica = '';
+  medicamentosNuevos = '';
+  tipoSangreNuevo = '';
+
   // Formulario — Examen físico
   peso: number | null = null;
   temperatura: number | null = null;
@@ -89,6 +117,17 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
   adjuntarFotos = false;
   fotosAdjuntas: string[] = [];
   uploadingPhoto = false;
+  uploadError = '';
+
+  // Hospitalización
+  requiereHospitalizacion = false;
+  hospitalizacionMotivo = '';
+  hospitalizacionObservaciones = '';
+  hospitalizacionTarifa = 50000;
+
+  // Fallecimiento durante la atención
+  fallecioEnAtencion = false;
+  causaMuerteAtencion = '';
 
   // Control de secciones
   seccionActiva: 'interno' | 'cliente' = 'interno';
@@ -109,6 +148,8 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
     observacionesGenerales: '',
     notasClinicas: '',
     indicacionesCliente: '',
+    hospitalizacionMotivo: '',
+    causaMuerteAtencion: '',
     medicamentos: [] as string[],
     medicamentosRecetados: [] as string[]
   };
@@ -164,6 +205,8 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
     private readonly router: Router,
     private readonly medicalRecordService: MedicalRecordService,
     private readonly appointmentService: AppointmentService,
+    private readonly medicalProfileService: MedicalProfileService,
+    private readonly hospitalizationService: HospitalizationService,
   ) {}
 
   ngOnInit(): void {
@@ -176,6 +219,12 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
       this.router.navigate(['/veterinario/atencion-medica']);
       return;
     }
+
+    // Cargar hoja médica maestra
+    this.loadMedicalProfile();
+
+    // Cargar últimas atenciones
+    this.loadUltimasAtenciones();
 
     // Cargar catálogo de medicamentos con precios
     this.medicalRecordService.obtenerCatalogoMedicamentos().subscribe({
@@ -216,6 +265,115 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     clearTimeout(this.debounceTimer);
+  }
+
+  /**
+   * Carga la hoja médica maestra de la mascota
+   */
+  loadMedicalProfile(): void {
+    if (!this.atencion?.petId) return;
+
+    this.loadingMedicalProfile = true;
+    this.medicalProfileError = '';
+
+    this.medicalProfileService.getMedicalProfile(this.atencion.petId).subscribe({
+      next: (profile) => {
+        this.medicalProfile = profile;
+        this.alergias = profile.knownAllergies || '';
+        this.condicionesCronicas = profile.chronicConditions || '';
+        this.medicamentosActuales = profile.currentMedications || '';
+        this.antecedenteQuirurgico = profile.surgicalHistory || '';
+        this.tipoSangre = profile.bloodType || '';
+        this.loadingMedicalProfile = false;
+      },
+      error: (err) => {
+        console.error('Error cargando hoja médica:', err);
+        this.medicalProfile = null;
+        this.alergias = '';
+        this.condicionesCronicas = '';
+        this.medicamentosActuales = '';
+        this.antecedenteQuirurgico = '';
+        this.tipoSangre = '';
+        this.loadingMedicalProfile = false;
+      }
+    });
+  }
+
+  /**
+   * Carga las últimas 2 atenciones de la mascota
+   */
+  loadUltimasAtenciones(): void {
+    if (!this.atencion?.petId) return;
+
+    this.loadingUltimasAtenciones = true;
+
+    this.medicalRecordService.obtenerHistorialPorMascota(this.atencion.petId).subscribe({
+      next: (records) => {
+        // Ordenar por fecha más reciente y tomar las últimas 2
+        this.ultimasAtenciones = records
+          .sort((a, b) => new Date(b.creadoEn).getTime() - new Date(a.creadoEn).getTime())
+          .slice(0, 2);
+        this.loadingUltimasAtenciones = false;
+      },
+      error: (err) => {
+        console.error('Error cargando últimas atenciones:', err);
+        this.ultimasAtenciones = [];
+        this.loadingUltimasAtenciones = false;
+      }
+    });
+  }
+
+  /**
+   * Actualiza la hoja médica maestra con nuevos descubrimientos
+   */
+  updateMedicalProfile(): Observable<boolean> {
+    if (!this.atencion?.petId) {
+      return new Observable(observer => {
+        observer.next(false);
+        observer.complete();
+      });
+    }
+
+    const updateData: UpdateMedicalProfileRequest = {};
+
+    // Solo enviar campos que tienen nuevos descubrimientos
+    if (this.alergiasEncontradas.trim()) {
+      updateData.allergiesFound = this.alergiasEncontradas.trim();
+    }
+    if (this.condicionesEncontradas.trim()) {
+      updateData.conditionsFound = this.condicionesEncontradas.trim();
+    }
+    if (this.notaQuirurgica.trim()) {
+      updateData.surgicalNote = this.notaQuirurgica.trim();
+    }
+    if (this.medicamentosNuevos.trim()) {
+      updateData.currentMeds = this.medicamentosNuevos.trim();
+    }
+    if (this.tipoSangreNuevo.trim()) {
+      updateData.bloodType = this.tipoSangreNuevo.trim();
+    }
+
+    // Si no hay cambios, no hacer la llamada
+    if (Object.keys(updateData).length === 0) {
+      return new Observable(observer => {
+        observer.next(true);
+        observer.complete();
+      });
+    }
+
+    return new Observable(observer => {
+      this.medicalProfileService.updateMedicalProfile(this.atencion!.petId, updateData).subscribe({
+        next: () => {
+          observer.next(true);
+          observer.complete();
+        },
+        error: (err) => {
+          console.error('Error actualizando hoja médica:', err);
+          observer.next(false);
+          observer.complete();
+        }
+      });
+    });
   }
 
   onFormChange(): void {
@@ -293,6 +451,11 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
   }
 
   cambiarSeccion(seccion: 'interno' | 'cliente'): void {
+    // Si cambias a cliente desde interno, valida los campos internos
+    if (seccion === 'cliente' && this.seccionActiva === 'interno') {
+      this.continuarACliente();
+      return;
+    }
     this.seccionActiva = seccion;
   }
 
@@ -324,6 +487,13 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
 
     if (hayErroresInternos) {
       this.errorMsg = 'Por favor completa todos los campos obligatorios de la información clínica';
+      // Scroll al primer error
+      setTimeout(() => {
+        const firstError = document.querySelector('.input-error');
+        if (firstError) {
+          firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
       return;
     }
 
@@ -458,6 +628,34 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
     this.onFormChange();
   }
 
+  onRequiereHospitalizacionChange(): void {
+    if (this.requiereHospitalizacion) {
+      // Mutuamente excluyente con fallecimiento
+      this.fallecioEnAtencion = false;
+      this.causaMuerteAtencion = '';
+      this.errores.causaMuerteAtencion = '';
+    } else {
+      this.hospitalizacionMotivo = '';
+      this.hospitalizacionObservaciones = '';
+      this.errores.hospitalizacionMotivo = '';
+    }
+    this.onFormChange();
+  }
+
+  onFallecioEnAtencionChange(): void {
+    if (this.fallecioEnAtencion) {
+      // Mutuamente excluyente con hospitalización
+      this.requiereHospitalizacion = false;
+      this.hospitalizacionMotivo = '';
+      this.hospitalizacionObservaciones = '';
+      this.errores.hospitalizacionMotivo = '';
+    } else {
+      this.causaMuerteAtencion = '';
+      this.errores.causaMuerteAtencion = '';
+    }
+    this.onFormChange();
+  }
+
   /**
    * Maneja la selección de archivo de foto para adjuntar al registro médico.
    * Valida tipo de archivo (solo imágenes) y tamaño (máximo 2MB).
@@ -468,19 +666,24 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
     if (!input.files || input.files.length === 0) return;
 
     const file = input.files[0];
+    this.uploadError = '';
 
-    if (!file.type.startsWith('image/')) {
-      this.errorMsg = 'Solo se permiten archivos de imagen';
+    const isImage = file.type.startsWith('image/');
+    const isPdf = file.type === 'application/pdf';
+
+    if (!isImage && !isPdf) {
+      this.uploadError = 'Solo se permiten imágenes (JPG, PNG, WEBP) o archivos PDF';
+      input.value = '';
       return;
     }
 
     if (file.size > 2 * 1024 * 1024) {
-      this.errorMsg = 'La imagen no debe superar 2MB';
+      this.uploadError = 'El archivo no debe superar 2MB';
+      input.value = '';
       return;
     }
 
     this.uploadingPhoto = true;
-    this.errorMsg = '';
 
     this.medicalRecordService.uploadPhoto(file).subscribe({
       next: (res) => {
@@ -490,12 +693,16 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
         input.value = '';
       },
       error: (err) => {
-        console.error('Error subiendo foto:', err);
-        this.errorMsg = 'Error al subir la foto. Intenta de nuevo.';
+        console.error('Error subiendo archivo:', err);
+        this.uploadError = 'Error al subir el archivo. Intenta de nuevo.';
         this.uploadingPhoto = false;
         input.value = '';
       }
     });
+  }
+
+  esPdf(url: string): boolean {
+    return url.toLowerCase().includes('.pdf') || url.toLowerCase().includes('/raw/');
   }
 
   /**
@@ -597,11 +804,27 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
     this.validarMedicamentos();
     this.validarMedicamentosRecetados();
 
+    // Validar hospitalización si está marcada
+    if (this.requiereHospitalizacion && !this.hospitalizacionMotivo.trim()) {
+      this.errores.hospitalizacionMotivo = 'El motivo de hospitalización es obligatorio';
+    } else {
+      this.errores.hospitalizacionMotivo = '';
+    }
+
+    // Validar fallecimiento si está marcado
+    if (this.fallecioEnAtencion && !this.causaMuerteAtencion.trim()) {
+      this.errores.causaMuerteAtencion = 'La causa de muerte es obligatoria';
+    } else {
+      this.errores.causaMuerteAtencion = '';
+    }
+
     const hayErrores =
       this.errores.diagnosticoPrincipal ||
       this.errores.diagnosticoCliente ||
       this.errores.proximoControlFecha ||
       this.errores.proximoControlMotivo ||
+      this.errores.hospitalizacionMotivo ||
+      this.errores.causaMuerteAtencion ||
       this.errores.medicamentos.some(e => e) ||
       this.errores.medicamentosRecetados.some(e => e);
 
@@ -613,7 +836,78 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
     this.isSubmitting = true;
     this.errorMsg = '';
 
-    this.medicalRecordService.guardar(this.buildRegistro(), true).subscribe({
+    // 1. Actualizar hoja médica maestra si hay nuevos descubrimientos
+    this.updateMedicalProfile().subscribe({
+      next: (medicalProfileUpdated) => {
+        if (!medicalProfileUpdated) {
+          this.errorMsg = 'Error al actualizar la hoja médica. Intenta de nuevo.';
+          this.isSubmitting = false;
+          return;
+        }
+
+        // 2. Guardar el registro médico
+        this.medicalRecordService.guardar(this.buildRegistro(), true).subscribe({
+          next: () => {
+            // 3. Si requiere hospitalización o falleció, registrarlo
+            if ((this.requiereHospitalizacion || this.fallecioEnAtencion) && this.atencion) {
+              const motivo = this.requiereHospitalizacion
+                ? this.hospitalizacionMotivo.trim()
+                : `Fallecimiento durante atención: ${this.causaMuerteAtencion.trim()}`;
+
+              this.hospitalizationService.create({
+                petId: this.atencion.petId,
+                appointmentId: this.atencion.appointmentId,
+                reason: motivo,
+                initialObservations: this.hospitalizacionObservaciones.trim() || undefined,
+                hourlyRate: this.hospitalizacionTarifa || 50000
+              }).subscribe({
+                next: (hosp) => {
+                  // Si falleció, registrar el fallecimiento inmediatamente
+                  if (this.fallecioEnAtencion) {
+                    this.hospitalizationService.recordDeceased(hosp.id, this.causaMuerteAtencion.trim()).subscribe({
+                      next: () => this.finalizarCierre(),
+                      error: () => this.finalizarCierre()
+                    });
+                  } else {
+                    this.finalizarCierre();
+                  }
+                },
+                error: (err) => {
+                  console.error('Error al crear hospitalización:', err);
+                  this.errorMsg = 'Atención cerrada, pero hubo un error al registrar la hospitalización. Hazlo manualmente.';
+                  this.isSubmitting = false;
+                  setTimeout(() => this.finalizarCierre(), 3000);
+                }
+              });
+            } else {
+              this.finalizarCierre();
+            }
+          },
+          error: (err) => {
+            console.error('Error al cerrar atención:', err);
+            if (err.status === 403) {
+              this.errorMsg = 'Error de permisos (403). Verifica que tu sesión no haya expirado.';
+            } else if (err.status === 400) {
+              this.errorMsg = 'Datos inválidos (400). Verifica que todos los campos estén correctos.';
+            } else {
+              this.errorMsg = `Error al cerrar la atención (${err.status}). Intenta de nuevo.`;
+            }
+            this.isSubmitting = false;
+          }
+        });
+      },
+      error: () => {
+        this.errorMsg = 'Error al actualizar la hoja médica. Intenta de nuevo.';
+        this.isSubmitting = false;
+      }
+    });
+  }
+
+  private finalizarCierre(): void {
+    if (!this.atencion) return;
+
+    // Llamar al backend para marcar la cita como COMPLETED
+    this.appointmentService.completeAppointment(this.atencion.appointmentId).subscribe({
       next: () => {
         this.medicalRecordService.eliminarBorrador(this.atencion!.appointmentId);
         this.medicalRecordService.cerrarAtencion();
@@ -621,21 +915,18 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
         this.router.navigate(['/veterinario/atencion-medica']);
       },
       error: (err) => {
-        console.error('Error al cerrar atención:', err);
-        if (err.status === 403) {
-          this.errorMsg = 'Error de permisos (403). Verifica que tu sesión no haya expirado.';
-        } else if (err.status === 400) {
-          this.errorMsg = 'Datos inválidos (400). Verifica que todos los campos estén correctos.';
-        } else {
-          this.errorMsg = `Error al cerrar la atención (${err.status}). Intenta de nuevo.`;
-        }
+        console.error('Error al completar la cita:', err);
+        // Aún así cerrar la atención localmente
+        this.medicalRecordService.eliminarBorrador(this.atencion!.appointmentId);
+        this.medicalRecordService.cerrarAtencion();
         this.isSubmitting = false;
+        this.router.navigate(['/veterinario/atencion-medica']);
       }
     });
   }
 
   volver(): void {
-    this.router.navigate(['/veterinario/atencion-medica']);
+    this.abrirModalCancelar();
   }
 
   abrirModalCancelar(): void {
@@ -661,8 +952,15 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         console.error('Error al cancelar atención:', err);
-        this.errorMsg = 'Error al cancelar la atención. Intenta de nuevo.';
-        this.isSubmitting = false;
+        // Si el backend dice 400 (cita ya no está IN_PROGRESS), limpiar estado local igual
+        if (err.status === 400 || err.status === 404) {
+          this.medicalRecordService.cerrarAtencion();
+          this.isSubmitting = false;
+          this.router.navigate(['/veterinario/atencion-medica']);
+        } else {
+          this.errorMsg = 'Error al cancelar la atención. Intenta de nuevo.';
+          this.isSubmitting = false;
+        }
       }
     });
   }
@@ -675,19 +973,6 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
       error:       '⚠️ Error al guardar',
     };
     return map[this.estadoGuardado];
-  }
-
-  calcularEdad(birthDate: string | null): string {
-    if (!birthDate) return '—';
-    const partes = birthDate.split('-');
-    if (partes.length !== 3) return '—';
-    const hoy = new Date();
-    const nac = new Date(+partes[0], +partes[1] - 1, +partes[2]);
-    let años = hoy.getFullYear() - nac.getFullYear();
-    let meses = hoy.getMonth() - nac.getMonth();
-    if (meses < 0) { años--; meses += 12; }
-    if (años === 0) return `${meses} mes${meses !== 1 ? 'es' : ''}`;
-    return `${años} año${años !== 1 ? 's' : ''}`;
   }
 
   getEmojiBySpecies(species: string): string {
@@ -741,4 +1026,33 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
   tieneMedicamentosRecetadosIncompletos(): boolean {
     return this.errores.medicamentosRecetados.some(e => e);
   }
+
+  formatDateTime(dateString: string): string {
+    if (!dateString) return '';
+    const d = new Date(dateString);
+    const day = d.getDate().toString().padStart(2, '0');
+    const month = (d.getMonth() + 1).toString().padStart(2, '0');
+    const year = d.getFullYear();
+    const hours = d.getHours().toString().padStart(2, '0');
+    const mins = d.getMinutes().toString().padStart(2, '0');
+    return `${day}/${month}/${year} ${hours}:${mins}`;
+  }
+
+  calcularEdad(birthDate: string | null): string {
+    if (!birthDate) return '—';
+    const partes = birthDate.split('-');
+    if (partes.length !== 3) return '—';
+    const hoy        = new Date();
+    const nacimiento = new Date(
+      parseInt(partes[0], 10),
+      parseInt(partes[1], 10) - 1,
+      parseInt(partes[2], 10)
+    );
+    let años  = hoy.getFullYear() - nacimiento.getFullYear();
+    let meses = hoy.getMonth()    - nacimiento.getMonth();
+    if (meses < 0) { años--; meses += 12; }
+    if (años === 0) return `${meses} mes${meses !== 1 ? 'es' : ''}`;
+    return `${años} año${años !== 1 ? 's' : ''}`;
+  }
 }
+
