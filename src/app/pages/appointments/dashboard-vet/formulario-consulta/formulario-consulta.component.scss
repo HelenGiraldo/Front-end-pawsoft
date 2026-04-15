@@ -75,23 +75,106 @@
 
 /* Tabs */
 .tabs-container {
-  display: flex; gap: 8px; background: #F8FBF9; padding: 6px;
-  border-radius: 12px; border: 1px solid #E8EFE9;
+  display: flex;
+  gap: 0;
+  background: #fff;
+  border-radius: 12px;
+  border: 1.5px solid #E8EFE9;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(18,38,30,.06);
+  position: sticky;
+  top: 0;
+  z-index: 5;
 }
+
 .tab-btn {
-  flex: 1; padding: 12px 16px; border: none; background: transparent;
-  color: #5F7F71; font-size: .875rem; font-weight: 700; border-radius: 8px;
-  cursor: pointer; font-family: 'Manrope', sans-serif; transition: all .2s;
-  &:hover { background: rgba(34,160,107,.08); }
+  flex: 1;
+  padding: 16px 20px;
+  border: none;
+  background: #F8FBF9;
+  color: #7A9A8C;
+  font-size: .9rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Manrope', sans-serif;
+  transition: all .2s;
+  border-right: 1.5px solid #E8EFE9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  &:last-child { border-right: none; }
+
+  &:hover:not(.active) { background: #EAF5EE; color: #163A2B; }
+
   &.active {
-    background: #fff; color: #22A06B;
-    box-shadow: 0 2px 8px rgba(18,38,30,.08);
+    background: #fff;
+    color: #163A2B;
+    font-size: .95rem;
+    border-bottom: 3px solid #22A06B;
+    box-shadow: inset 0 -3px 0 #22A06B;
+  }
+
+  &.active-cliente {
+    border-bottom-color: #3b82f6;
+    box-shadow: inset 0 -3px 0 #3b82f6;
+    color: #1d4ed8;
+  }
+}
+
+.tab-step {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  font-size: .75rem;
+  font-weight: 800;
+  background: #E8EFE9;
+  color: #5F7F71;
+
+  .active & {
+    background: #22A06B;
+    color: #fff;
+  }
+
+  .active-cliente & {
+    background: #3b82f6;
+    color: #fff;
   }
 }
 
 .seccion-content {
   display: flex; flex-direction: column; gap: 20px;
 }
+
+/* Banner de sección activa */
+.seccion-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: .9rem;
+
+  &.banner-interno {
+    background: #EAF5EE;
+    border: 1.5px solid #C8E6D4;
+    color: #145C42;
+  }
+
+  &.banner-cliente {
+    background: #eff6ff;
+    border: 1.5px solid #bfdbfe;
+    color: #1d4ed8;
+  }
+}
+
+.banner-icon { font-size: 1.2rem; }
+.banner-desc { font-size: .8rem; font-weight: 500; opacity: .8; margin-top: 1px; }
 
 /* Secciones */
 .seccion-card {
@@ -567,7 +650,9 @@ label {
   }
 
   .tab-btn {
+    background: #0f1412 !important;
     color: #b8c5be !important;
+    border-right-color: rgba(255,255,255,.1) !important;
     &:hover { background: rgba(26, 122, 76, 0.1) !important; }
     &.active {
       background: #0f1412 !important;
@@ -755,6 +840,59 @@ label {
       background: #a02f2f !important;
     }
   }
+
+  /* Medical Profile Dark Mode */
+  .medical-profile-card {
+    background: linear-gradient(135deg, #0f1412 0%, #1a1f1d 100%) !important;
+    border-left-color: #1A7A4C !important;
+  }
+
+  .loading-state {
+    color: #b8c5be !important;
+  }
+
+  .loading-spinner {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    border-top-color: #1A7A4C !important;
+  }
+
+  .error-state {
+    color: #ff8a80 !important;
+    background: rgba(244, 67, 54, 0.08) !important;
+    border-color: rgba(244, 67, 54, 0.3) !important;
+  }
+
+  .antecedentes-section h4,
+  .descubrimientos-section h4 {
+    color: #ffffff !important;
+    border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .section-hint {
+    color: #8a9a92 !important;
+  }
+
+  .medical-field {
+    background: #0f1412 !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    color: #ffffff !important;
+  }
+
+  .discovery-field {
+    background: #0f1412 !important;
+    border-color: rgba(26, 122, 76, 0.4) !important;
+    border-left-color: #1A7A4C !important;
+    color: #ffffff !important;
+  }
+
+  .last-update-info {
+    background: #0f1412 !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    
+    small {
+      color: #b8c5be !important;
+    }
+  }
 }
 
 /* Precio por medicamento */
@@ -793,4 +931,323 @@ label {
   font-weight: 800;
   font-size: .95rem;
   color: #145C42;
+}
+
+/* Medical Profile Styles */
+.medical-profile-card {
+  border-left: 4px solid #22A06B;
+  background: linear-gradient(135deg, #F8FBF9 0%, #FFFFFF 100%);
+}
+
+.loading-state {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+  color: #5F7F71;
+  font-size: 0.875rem;
+}
+
+.loading-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #E8EFE9;
+  border-top: 2px solid #22A06B;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-state {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+  color: #b03030;
+  font-size: 0.875rem;
+  background: #FFF8F8;
+  border-radius: 8px;
+  border: 1px solid #FFCDD2;
+}
+
+.error-icon {
+  font-size: 1.2rem;
+}
+
+.medical-profile-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.antecedentes-section,
+.descubrimientos-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.antecedentes-section h4 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #163A2B;
+  margin: 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #E8EFE9;
+}
+
+.descubrimientos-section h4 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #145C42;
+  margin: 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #C8E6D4;
+}
+
+.section-hint {
+  font-size: 0.8rem;
+  color: #7A9488;
+  margin: -8px 0 8px;
+  font-style: italic;
+}
+
+.medical-field {
+  background: #FAFCFB;
+  border-color: #DCEAE2;
+}
+
+.discovery-field {
+  background: #F8FBF9;
+  border-color: #C8E6D4;
+  border-left: 3px solid #22A06B;
+}
+
+.last-update-info {
+  padding: 12px 16px;
+  background: #F4F8F6;
+  border-radius: 8px;
+  border: 1px solid #E8EFE9;
+  
+  small {
+    color: #5F7F71;
+    font-size: 0.75rem;
+  }
+}
+
+// ── Hospitalización ──────────────────────────────────────────────────────────
+.hosp-card-form {
+  border-left: 4px solid #f59e0b;
+}
+
+.hosp-fields {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.hosp-aviso {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.8rem;
+  color: #92400e;
+  line-height: 1.4;
+}
+
+// ── Fallecimiento durante atención ──────────────────────────────────────────
+.checkbox-label-danger span {
+  color: #b03030;
+  font-weight: 600;
+}
+
+.hosp-fields-danger .form-textarea {
+  border-color: #FFCDD2;
+  &:focus { border-color: #b03030; box-shadow: 0 0 0 3px rgba(176,48,48,.1); }
+}
+
+.hosp-aviso-danger {
+  background: #FFF3F3;
+  border: 1px solid #FFCDD2;
+  color: #b03030;
+}
+
+// ── Campos solo lectura en hoja maestra ─────────────────────────────────────
+.readonly-field {
+  background: #F4F8F6;
+  border: 1.5px solid #DCEAE2;
+  border-radius: 9px;
+  padding: 10px 14px;
+  font-size: 0.875rem;
+  color: #163A2B;
+  min-height: 44px;
+  white-space: pre-wrap;
+  line-height: 1.5;
+  font-family: 'Manrope', sans-serif;
+
+  &.empty-field {
+    color: #9AAFA6;
+    font-style: italic;
+  }
+}
+
+// ── PDF adjunto ──────────────────────────────────────────────────────────────
+.pdf-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 80px;
+  height: 80px;
+  background: #FFF3F3;
+  border: 1.5px solid #FFCDD2;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #b03030;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  &:hover { background: #FFCDD2; }
+}
+
+.pdf-icon { font-size: 1.5rem; }
+.pdf-label { font-size: 0.7rem; }
+
+.upload-error {
+  margin-top: 6px;
+  font-size: 0.8rem;
+  color: #b03030;
+  background: #FFF3F3;
+  border: 1px solid #FFCDD2;
+  border-radius: 6px;
+  padding: 6px 10px;
+}
+
+
+// ── Últimas Atenciones ──────────────────────────────────────────────────────
+.ultimas-atenciones-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 2px 12px rgba(18, 38, 30, 0.05);
+  border: 1px solid #E8EFE9;
+}
+
+.ultimas-atenciones-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.atencion-item {
+  background: #F8FBF9;
+  border: 1.5px solid #E8EFE9;
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: all 0.15s ease;
+
+  &:hover {
+    border-color: #C8E6D4;
+    box-shadow: 0 2px 8px rgba(34, 160, 107, 0.1);
+  }
+}
+
+.atencion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #E8EFE9;
+}
+
+.atencion-date {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #163A2B;
+}
+
+.atencion-vet {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #5F7F71;
+  background: #EAF5EE;
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+.atencion-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 0.85rem;
+}
+
+.atencion-reason,
+.atencion-diagnosis,
+.atencion-observations {
+  color: #4E6B5F;
+  line-height: 1.4;
+
+  strong {
+    color: #163A2B;
+    font-weight: 700;
+  }
+}
+
+// ── Dark mode ───────────────────────────────────────────────────────────────
+:host-context(body.theme-dark) {
+  .ultimas-atenciones-card {
+    background: #1a1f1d !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4) !important;
+  }
+
+  .atencion-item {
+    background: #0f1412 !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+
+    &:hover {
+      border-color: #1A7A4C !important;
+      box-shadow: 0 2px 8px rgba(26, 122, 76, 0.2) !important;
+    }
+  }
+
+  .atencion-header {
+    border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .atencion-date {
+    color: #ffffff !important;
+  }
+
+  .atencion-vet {
+    background: rgba(26, 122, 76, 0.15) !important;
+    color: #7dd3a3 !important;
+  }
+
+  .atencion-reason,
+  .atencion-diagnosis,
+  .atencion-observations {
+    color: #b8c5be !important;
+
+    strong {
+      color: #ffffff !important;
+    }
+  }
 }

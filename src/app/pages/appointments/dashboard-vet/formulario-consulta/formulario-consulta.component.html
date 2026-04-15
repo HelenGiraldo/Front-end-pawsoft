@@ -39,14 +39,196 @@
       <!-- ERROR -->
       <div class="error-card" *ngIf="errorMsg">⚠️ {{ errorMsg }}</div>
 
+      <!-- RESUMEN CLÍNICO -->
+      <div class="seccion-card medical-profile-card">
+        <div class="seccion-title">📋 Resumen Clínico</div>
+        
+        <!-- Loading state -->
+        <div *ngIf="loadingMedicalProfile" class="loading-state">
+          <div class="loading-spinner"></div>
+          <span>Cargando información médica...</span>
+        </div>
+
+        <!-- Medical profile content -->
+        <div *ngIf="!loadingMedicalProfile" class="medical-profile-content">
+          
+          <!-- Antecedentes existentes (solo lectura) -->
+          <div class="antecedentes-section">
+            <h4>📚 Antecedentes Médicos (Información Existente)</h4>
+            <p class="section-hint">Información acumulada de atenciones anteriores — solo lectura. Agrega nuevos hallazgos en la sección de abajo.</p>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label>⚠️ Alergias conocidas</label>
+                <div class="readonly-field" [class.empty-field]="!alergias">
+                  {{ alergias || 'Sin alergias registradas' }}
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>🏥 Condiciones crónicas</label>
+                <div class="readonly-field" [class.empty-field]="!condicionesCronicas">
+                  {{ condicionesCronicas || 'Sin condiciones registradas' }}
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>💊 Medicamentos actuales</label>
+                <div class="readonly-field" [class.empty-field]="!medicamentosActuales">
+                  {{ medicamentosActuales || 'Sin medicamentos registrados' }}
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>🔪 Antecedentes quirúrgicos</label>
+                <div class="readonly-field" [class.empty-field]="!antecedenteQuirurgico">
+                  {{ antecedenteQuirurgico || 'Sin antecedentes quirúrgicos' }}
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>🩸 Tipo de sangre</label>
+                <div class="readonly-field" [class.empty-field]="!tipoSangre">
+                  {{ tipoSangre || 'No registrado' }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Nuevos descubrimientos en consulta -->
+          <div class="descubrimientos-section">
+            <h4>🔍 Nuevos Descubrimientos en Esta Consulta</h4>
+            <p class="section-hint">Información nueva descubierta durante esta consulta (se agregará a la hoja médica)</p>
+            
+            <div class="form-grid">
+              <div class="form-group">
+                <label>⚠️ Nuevas alergias encontradas</label>
+                <textarea class="form-textarea discovery-field"
+                          [(ngModel)]="alergiasEncontradas"
+                          (ngModelChange)="onFormChange()"
+                          rows="2"
+                          placeholder="Nuevas alergias descubiertas en esta consulta..."
+                          maxlength="500"></textarea>
+              </div>
+              
+              <div class="form-group">
+                <label>🏥 Nuevas condiciones encontradas</label>
+                <textarea class="form-textarea discovery-field"
+                          [(ngModel)]="condicionesEncontradas"
+                          (ngModelChange)="onFormChange()"
+                          rows="2"
+                          placeholder="Nuevas condiciones diagnosticadas..."
+                          maxlength="500"></textarea>
+              </div>
+              
+              <div class="form-group">
+                <label>🔪 Nota quirúrgica</label>
+                <textarea class="form-textarea discovery-field"
+                          [(ngModel)]="notaQuirurgica"
+                          (ngModelChange)="onFormChange()"
+                          rows="2"
+                          placeholder="Procedimiento quirúrgico realizado hoy..."
+                          maxlength="500"></textarea>
+              </div>
+              
+              <div class="form-group">
+                <label>💊 Cambios en medicamentos</label>
+                <textarea class="form-textarea discovery-field"
+                          [(ngModel)]="medicamentosNuevos"
+                          (ngModelChange)="onFormChange()"
+                          rows="2"
+                          placeholder="Nuevos medicamentos o cambios en medicación actual..."
+                          maxlength="500"></textarea>
+              </div>
+              
+              <div class="form-group">
+                <label>🩸 Actualización tipo de sangre</label>
+                <input type="text" class="form-input discovery-field"
+                       [(ngModel)]="tipoSangreNuevo"
+                       (ngModelChange)="onFormChange()"
+                       placeholder="Si se determinó o cambió el tipo de sangre"
+                       maxlength="50">
+              </div>
+            </div>
+          </div>
+
+          <!-- Información de última actualización -->
+          <div *ngIf="medicalProfile" class="last-update-info">
+            <small>
+              📅 Última actualización: {{ medicalProfile.lastUpdatedAt | date:'dd/MM/yyyy HH:mm' }} 
+              por {{ medicalProfile.lastUpdatedByName }}
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <!-- ÚLTIMAS ATENCIONES -->
+      <div class="seccion-card ultimas-atenciones-card" *ngIf="ultimasAtenciones.length > 0">
+        <div class="seccion-title">📅 Últimas Atenciones</div>
+        
+        <!-- Loading state -->
+        <div *ngIf="loadingUltimasAtenciones" class="loading-state">
+          <div class="loading-spinner"></div>
+          <span>Cargando historial...</span>
+        </div>
+
+        <!-- Últimas atenciones list -->
+        <div *ngIf="!loadingUltimasAtenciones" class="ultimas-atenciones-list">
+          <div class="atencion-item" *ngFor="let atencion of ultimasAtenciones">
+            <div class="atencion-header">
+              <div class="atencion-date">
+                📅 {{ formatDateTime(atencion.appointmentDate + ' ' + atencion.appointmentTime) }}
+              </div>
+              <div class="atencion-vet">
+                👨‍⚕️ Dr. {{ atencion.vetName }}
+              </div>
+            </div>
+            <div class="atencion-body">
+              <div class="atencion-reason">
+                <strong>Motivo:</strong> {{ atencion.appointmentReason }}
+              </div>
+              <div class="atencion-diagnosis" *ngIf="atencion.diagnosticoCliente">
+                <strong>Diagnóstico:</strong> {{ atencion.diagnosticoCliente }}
+              </div>
+              <div class="atencion-observations" *ngIf="atencion.observacionesGenerales">
+                <strong>Observaciones:</strong> {{ atencion.observacionesGenerales }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- TABS DE SECCIONES -->
       <div class="tabs-container">
-        <button class="tab-btn" [class.active]="seccionActiva === 'interno'" (click)="cambiarSeccion('interno')">
-          🔬 Información Clínica (Interno)
+        <button class="tab-btn"
+                [class.active]="seccionActiva === 'interno'"
+                (click)="cambiarSeccion('interno')">
+          <span class="tab-step">1</span>
+          🔬 Información Clínica
         </button>
-        <button class="tab-btn" [class.active]="seccionActiva === 'cliente'" (click)="cambiarSeccion('cliente')">
+        <button class="tab-btn"
+                [class.active]="seccionActiva === 'cliente'"
+                [class.active-cliente]="seccionActiva === 'cliente'"
+                (click)="cambiarSeccion('cliente')">
+          <span class="tab-step">2</span>
           📋 Resumen para Cliente
         </button>
+      </div>
+
+      <!-- Banner de sección activa -->
+      <div class="seccion-banner banner-interno" *ngIf="seccionActiva === 'interno'">
+        <span class="banner-icon">🔬</span>
+        <div>
+          <div>Paso 1 — Información Clínica Interna</div>
+          <div class="banner-desc">Examen físico, diagnóstico y tratamiento · Solo visible para el equipo médico</div>
+        </div>
+      </div>
+      <div class="seccion-banner banner-cliente" *ngIf="seccionActiva === 'cliente'">
+        <span class="banner-icon">📋</span>
+        <div>
+          <div>Paso 2 — Resumen para el Propietario</div>
+          <div class="banner-desc">Diagnóstico simplificado, medicamentos recetados e indicaciones para casa</div>
+        </div>
       </div>
 
       <!-- SECCIÓN INTERNO -->
@@ -345,6 +527,83 @@
           </div>
         </div>
 
+        <!-- Hospitalización / Fallecimiento -->
+        <div class="seccion-card hosp-card-form">
+          <div class="seccion-title">🏥 Estado del Paciente al Cerrar</div>
+          <p class="seccion-hint">Indica qué ocurrió con el paciente durante o tras esta atención</p>
+
+          <!-- Opción 1: Hospitalización -->
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" class="form-checkbox" [(ngModel)]="requiereHospitalizacion"
+                     (ngModelChange)="onRequiereHospitalizacionChange()">
+              <span>El paciente requiere hospitalización</span>
+            </label>
+          </div>
+
+          <div *ngIf="requiereHospitalizacion" class="hosp-fields">
+            <div class="form-group">
+              <label>Motivo de hospitalización <span class="required">*</span></label>
+              <textarea class="form-textarea"
+                        [class.input-error]="errores.hospitalizacionMotivo"
+                        [(ngModel)]="hospitalizacionMotivo"
+                        (ngModelChange)="onFormChange()"
+                        rows="2"
+                        placeholder="Ej: Post-operatorio, observación por trauma, tratamiento intensivo..."
+                        maxlength="300"></textarea>
+              <div class="field-error" *ngIf="errores.hospitalizacionMotivo">{{ errores.hospitalizacionMotivo }}</div>
+            </div>
+            <div class="form-group">
+              <label>Observaciones iniciales</label>
+              <textarea class="form-textarea"
+                        [(ngModel)]="hospitalizacionObservaciones"
+                        (ngModelChange)="onFormChange()"
+                        rows="2"
+                        placeholder="Estado al ingreso, signos vitales relevantes, indicaciones especiales..."
+                        maxlength="500"></textarea>
+            </div>
+            <div class="form-group">
+              <label>Tarifa por hora (COP)</label>
+              <input type="number" class="form-input"
+                     [(ngModel)]="hospitalizacionTarifa"
+                     (ngModelChange)="onFormChange()"
+                     min="0" step="1000"
+                     placeholder="50000">
+            </div>
+            <div class="hosp-aviso">
+              <span>⚠️</span>
+              <span>Al cerrar la atención, la mascota quedará registrada como hospitalizada en el módulo de Hospitalizaciones.</span>
+            </div>
+          </div>
+
+          <!-- Opción 2: Fallecimiento durante la atención -->
+          <div class="form-group" style="margin-top: 0.75rem;">
+            <label class="checkbox-label checkbox-label-danger">
+              <input type="checkbox" class="form-checkbox" [(ngModel)]="fallecioEnAtencion"
+                     (ngModelChange)="onFallecioEnAtencionChange()">
+              <span>El paciente falleció durante esta atención</span>
+            </label>
+          </div>
+
+          <div *ngIf="fallecioEnAtencion" class="hosp-fields hosp-fields-danger">
+            <div class="form-group">
+              <label>Causa de muerte <span class="required">*</span></label>
+              <textarea class="form-textarea"
+                        [class.input-error]="errores.causaMuerteAtencion"
+                        [(ngModel)]="causaMuerteAtencion"
+                        (ngModelChange)="onFormChange()"
+                        rows="2"
+                        placeholder="Describe la causa del fallecimiento..."
+                        maxlength="500"></textarea>
+              <div class="field-error" *ngIf="errores.causaMuerteAtencion">{{ errores.causaMuerteAtencion }}</div>
+            </div>
+            <div class="hosp-aviso hosp-aviso-danger">
+              <span>🕊️</span>
+              <span>Se registrará el fallecimiento en el historial clínico de la mascota.</span>
+            </div>
+          </div>
+        </div>
+
         <!-- Fotos adjuntas -->
         <div class="seccion-card">
           <div class="seccion-title">📸 Archivos Adjuntos</div>
@@ -362,19 +621,26 @@
 
             <div class="fotos-grid" *ngIf="fotosAdjuntas.length > 0">
               <div class="foto-item" *ngFor="let foto of fotosAdjuntas; let i = index">
-                <img [src]="foto" [alt]="'Foto ' + (i + 1)">
+                <!-- PDF -->
+                <a *ngIf="esPdf(foto)" [href]="foto" target="_blank" class="pdf-item" rel="noopener">
+                  <span class="pdf-icon">📄</span>
+                  <span class="pdf-label">PDF {{ i + 1 }}</span>
+                </a>
+                <!-- Imagen -->
+                <img *ngIf="!esPdf(foto)" [src]="foto" [alt]="'Foto ' + (i + 1)">
                 <button class="btn-eliminar-foto" (click)="eliminarFoto(i)" title="Eliminar">✕</button>
               </div>
             </div>
 
             <div class="upload-area">
-              <input type="file" #fileInput accept="image/*" (change)="onFileSelected($event)" style="display: none;">
+              <input type="file" #fileInput accept="image/*,.pdf,application/pdf" (change)="onFileSelected($event)" style="display: none;">
               <button class="btn-subir-foto" (click)="fileInput.click()" [disabled]="uploadingPhoto">
-                <span *ngIf="!uploadingPhoto">📤 Subir imagen</span>
+                <span *ngIf="!uploadingPhoto">📤 Subir imagen o PDF</span>
                 <span *ngIf="uploadingPhoto">⏳ Subiendo...</span>
               </button>
-              <span class="upload-hint">Máx. 2MB · JPG, PNG, WEBP</span>
+              <span class="upload-hint">Máx. 2MB · JPG, PNG, WEBP, PDF</span>
             </div>
+            <div class="upload-error" *ngIf="uploadError">⚠️ {{ uploadError }}</div>
 
           </div>
         </div>
