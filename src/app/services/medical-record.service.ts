@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { BehaviorSubject, Observable, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { RecepAppointmentResponse } from './appointment.service';
 
@@ -9,6 +9,7 @@ import { RecepAppointmentResponse } from './appointment.service';
 
 export interface AtencionActiva {
   appointmentId: number;
+  petId: number;
   petName: string;
   petSpecies: string;
   petBirthday: string | null;
@@ -119,19 +120,55 @@ export class MedicalRecordService {
   private readonly apiUrl = `${environment.apiUrl}/api/vet/medical-records`;
 
   /** Estado de la atención activa, restaurado desde localStorage al iniciar. */
-  private readonly _atencionActiva$ = new BehaviorSubject<AtencionActiva | null>(
-    this.restoreAtencion()
-  );
+  private readonly _atencionActiva$ = new BehaviorSubject<AtencionActiva | null>(null);
 
   readonly atencionActiva$ = this._atencionActiva$.asObservable();
 
-  constructor(private readonly http: HttpClient) {}
+  constructor(private readonly http: HttpClient) {
+    // Restaurar estado de manera robusta
+    this.initializeState();
+  }
 
   // ── Estado activo ───────────────────────────────────────────────────────────
+
+  /**
+   * Inicializa el estado de manera robusta, con retry logic
+   */
+  private initializeState(): void {
+    try {
+      const restored = this.restoreAtencion();
+      this._atencionActiva$.next(restored);
+      
+      // Validar que el estado se propagó correctamente
+      setTimeout(() => {
+        if (restored && !this._atencionActiva$.getValue()) {
+          console.warn('Estado no se propagó correctamente, reintentando...');
+          this._atencionActiva$.next(restored);
+        }
+      }, 100);
+    } catch (error) {
+      console.error('Error al inicializar estado de atención:', error);
+      this._atencionActiva$.next(null);
+    }
+  }
+
+  /**
+   * Sincroniza el estado desde localStorage cuando sea necesario
+   */
+  syncStateFromStorage(): void {
+    const restored = this.restoreAtencion();
+    const current = this._atencionActiva$.getValue();
+    
+    // Solo actualizar si hay diferencias
+    if (JSON.stringify(restored) !== JSON.stringify(current)) {
+      this._atencionActiva$.next(restored);
+    }
+  }
 
   iniciarAtencion(appointment: RecepAppointmentResponse): void {
     const activa: AtencionActiva = {
       appointmentId:   appointment.id,
+      petId:           appointment.petId,
       petName:         appointment.petName,
       petSpecies:      appointment.petSpecies,
       petBirthday:     appointment.petBirthday,
@@ -223,7 +260,11 @@ export class MedicalRecordService {
   }
 
   obtenerHistorial(): Observable<MedicalRecordResponse[]> {
-    return this.http.get<MedicalRecordResponse[]>(this.apiUrl, { headers: this.headers() });
+    return this.http.get<MedicalRecordResponse[]>(`${this.apiUrl}/all`, { headers: this.headers() });
+  }
+
+  obtenerHistorialPorMascota(petId: number): Observable<MedicalRecordResponse[]> {
+    return this.http.get<MedicalRecordResponse[]>(`${this.apiUrl}/pet/${petId}`, { headers: this.headers() });
   }
 
   obtenerPorCita(appointmentId: number): Observable<MedicalRecordResponse> {
@@ -255,10 +296,13 @@ export class MedicalRecordService {
   }
 
   obtenerPrecioServicio(serviceType: string): Observable<number> {
-    return this.http.get<{ price: number }>(
+    return this.http.get<{ serviceType: string; price: number }>(
       `${environment.apiUrl}/api/recepcionista/payments/price?serviceType=${encodeURIComponent(serviceType)}`,
       { headers: this.headers() }
-    ).pipe(map((res: any) => res?.price ?? 0));
+    ).pipe(
+      map((res: any) => res?.price ?? 0),
+      catchError(() => of(0))
+    );
   }
 
   uploadPhoto(file: File): Observable<{ secure_url: string }> {
@@ -266,8 +310,11 @@ export class MedicalRecordService {
     formData.append('file', file);
     formData.append('upload_preset', environment.cloudinary.uploadPreset);
 
+    // PDFs y documentos van a /raw/upload, imágenes a /image/upload
+    const resourceType = file.type === 'application/pdf' ? 'raw' : 'image';
+
     return this.http.post<{ secure_url: string }>(
-      `https://api.cloudinary.com/v1_1/${environment.cloudinary.cloudName}/image/upload`,
+      `https://api.cloudinary.com/v1_1/${environment.cloudinary.cloudName}/${resourceType}/upload`,
       formData
     );
   }
@@ -280,7 +327,23 @@ export class MedicalRecordService {
   }
 
   private restoreAtencion(): AtencionActiva | null {
-    const raw = localStorage.getItem(KEY_ATENCION);
-    return raw ? JSON.parse(raw) : null;
+    try {
+      const raw = localStorage.getItem(KEY_ATENCION);
+      if (!raw) return null;
+      
+      const parsed = JSON.parse(raw);
+      
+      // Validar que el objeto tiene las propiedades necesarias
+      if (parsed && typeof parsed === 'object' && parsed.appointmentId) {
+        return parsed as AtencionActiva;
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('Error al restaurar atención desde localStorage:', error);
+      // Limpiar localStorage corrupto
+      localStorage.removeItem(KEY_ATENCION);
+      return null;
+    }
   }
 }
