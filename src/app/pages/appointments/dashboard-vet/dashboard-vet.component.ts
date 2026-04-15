@@ -4,9 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AppSidebarComponent } from 'src/app/share/components/app-sidebar/app-sidebar.component';
 import { AppointmentService, RecepAppointmentResponse } from 'src/app/services/appointment.service';
+import { MedicalRecordService } from 'src/app/services/medical-record.service';
+import { MedicalProfileModalComponent } from './medical-profile-modal/medical-profile-modal.component';
 
 interface Appointment {
   id: string;
+  petId: number;
   petName: string;
   petEmoji: string;
   petSpecies: string;
@@ -29,7 +32,7 @@ interface StatCard {
 @Component({
   selector: 'app-dashboard-vet',
   standalone: true,
-  imports: [CommonModule, FormsModule, AppSidebarComponent, DatePipe],
+  imports: [CommonModule, FormsModule, AppSidebarComponent, DatePipe, MedicalProfileModalComponent],
   templateUrl: './dashboard-vet.component.html',
   styleUrls: ['./dashboard-vet.component.scss']
 })
@@ -57,9 +60,16 @@ export class DashboardVetComponent implements OnInit {
   isLoading = false;
   errorMsg = '';
 
+  // Modal de hoja médica
+  showMedicalProfileModal = false;
+  selectedPetId: number | null = null;
+  selectedAppointmentId: string | null = null;
+  selectedAppointment: Appointment | null = null;
+
   constructor(
     private readonly router: Router,
-    private readonly appointmentService: AppointmentService
+    private readonly appointmentService: AppointmentService,
+    private readonly medicalRecordService: MedicalRecordService
   ) {}
 
   ngOnInit(): void {
@@ -91,10 +101,10 @@ export class DashboardVetComponent implements OnInit {
       next: (data: RecepAppointmentResponse[]) => {
         const mapped = data.map((a: RecepAppointmentResponse) => this.mapToLocal(a));
 
-        // Citas de hoy: UPCOMING, CONFIRMED, IN_PROGRESS (las que puedes atender o estás atendiendo)
+        // Citas de hoy: solo UPCOMING y CONFIRMED (las que puedes atender, no las que ya están en progreso)
         this.todayAppointments = mapped.filter((a: Appointment) =>
           a.date === this.todayStr &&
-          (a.status === 'UPCOMING' || a.status === 'CONFIRMED' || a.status === 'IN_PROGRESS')
+          (a.status === 'UPCOMING' || a.status === 'CONFIRMED')
         );
 
         // Próximas citas: fecha > hoy, solo UPCOMING y CONFIRMED (las que van a ocurrir)
@@ -119,6 +129,7 @@ export class DashboardVetComponent implements OnInit {
   private mapToLocal(a: RecepAppointmentResponse): Appointment {
     return {
       id:          String(a.id),
+      petId:       a.petId,
       petName:     a.petName,
       petEmoji:    this.getEmojiBySpecies(a.petSpecies),
       petSpecies:  a.petSpecies,
@@ -201,8 +212,8 @@ export class DashboardVetComponent implements OnInit {
   buildStats(): void {
     this.todayStats = [
       { icon: '📋', label: 'Total de hoy',  value: this.todayAppointments.length },
-      { icon: '🔄', label: 'En progreso',   value: this.todayAppointments.filter(a => a.status === 'IN_PROGRESS').length },
       { icon: '✅', label: 'Confirmadas',   value: this.todayAppointments.filter(a => a.status === 'CONFIRMED').length },
+      { icon: '⏳', label: 'Pendientes',    value: this.todayAppointments.filter(a => a.status === 'UPCOMING').length },
       { icon: '⏰', label: 'Próxima cita',  value: this.getNextAppointmentTime() }
     ];
 
@@ -218,7 +229,7 @@ export class DashboardVetComponent implements OnInit {
     const now    = new Date();
     const nowMin = now.getHours() * 60 + now.getMinutes();
     const pending = this.todayAppointments
-      .filter(a => a.status === 'CONFIRMED') // Solo confirmadas, no en progreso
+      .filter(a => a.status === 'CONFIRMED')
       .map(a => {
         const [timePart, mod] = a.time.split(' ');
         let [h, m] = timePart.split(':').map(Number);
@@ -258,5 +269,72 @@ export class DashboardVetComponent implements OnInit {
       'NO_SHOW':      'No asistió'
     };
     return map[status] || status;
+  }
+
+  openMedicalProfileModal(appointment: Appointment): void {
+    this.selectedPetId = appointment.petId;
+    this.selectedAppointmentId = appointment.id;
+    this.selectedAppointment = appointment;
+    this.showMedicalProfileModal = true;
+  }
+
+  closeMedicalProfileModal(): void {
+    this.showMedicalProfileModal = false;
+    this.selectedPetId = null;
+    this.selectedAppointmentId = null;
+    this.selectedAppointment = null;
+  }
+
+  continueWithAttention(apt: Appointment): void {
+    // Validar que hay una atención activa antes de navegar
+    const atencionActiva = this.medicalRecordService.getAtencionActiva();
+    if (!atencionActiva) {
+      this.errorMsg = 'No hay una atención activa para continuar.';
+      return;
+    }
+
+    // Verificar que la atención activa corresponde a esta cita
+    if (atencionActiva.appointmentId !== parseInt(apt.id)) {
+      this.errorMsg = 'La atención activa no corresponde a esta cita.';
+      return;
+    }
+
+    // Navegar al formulario de consulta
+    this.router.navigate(['/veterinario/formulario-consulta']);
+  }
+
+  canStartAttention(appointment: Appointment): boolean {
+    const hasActiveAttention = !!this.medicalRecordService.getAtencionActiva();
+    return (appointment.status === 'CONFIRMED' || appointment.status === 'UPCOMING') && !hasActiveAttention;
+  }
+
+  canShowDisabledButton(appointment: Appointment): boolean {
+    const hasActiveAttention = !!this.medicalRecordService.getAtencionActiva();
+    return (appointment.status === 'CONFIRMED' || appointment.status === 'UPCOMING') && hasActiveAttention;
+  }
+
+  canContinueAttention(appointment: Appointment): boolean {
+    return appointment.status === 'IN_PROGRESS';
+  }
+
+  hasActiveAttention(): boolean {
+    return !!this.medicalRecordService.getAtencionActiva();
+  }
+
+  cleanupInProgressAppointments(): void {
+    if (confirm('¿Estás seguro de que quieres limpiar todas las atenciones en progreso? Esto las regresará al estado "Confirmada".')) {
+      this.appointmentService.cleanupInProgressAppointments().subscribe({
+        next: () => {
+          // Limpiar también el localStorage
+          this.medicalRecordService.cerrarAtencion();
+          // Recargar las citas para reflejar los cambios
+          this.loadAppointments();
+        },
+        error: (err) => {
+          console.error('Error al limpiar atenciones:', err);
+          this.errorMsg = 'Error al limpiar las atenciones. Intenta de nuevo.';
+        }
+      });
+    }
   }
 }

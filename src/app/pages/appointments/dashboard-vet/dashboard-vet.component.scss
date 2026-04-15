@@ -441,6 +441,31 @@
   &::placeholder { color: #9AAFA6; }
 }
 
+.btn-limpiar-atencion {
+  padding: 8px 12px;
+  border: 1.5px solid #ff6b6b;
+  border-radius: 9px;
+  font-size: 0.8rem;
+  color: #d63031;
+  background: #fff5f5;
+  font-family: 'Manrope', sans-serif;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-weight: 600;
+  white-space: nowrap;
+
+  &:hover { 
+    background: #ffe0e0; 
+    border-color: #d63031; 
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(214, 48, 49, 0.2);
+  }
+
+  &:active { 
+    transform: translateY(0); 
+  }
+}
+
 /* ===============================
    RESPONSIVE
 ================================= */
@@ -542,6 +567,17 @@
     &::placeholder { color: rgba(255, 255, 255, 0.4) !important; }
   }
 
+  .btn-limpiar-atencion {
+    background: rgba(244, 67, 54, 0.1) !important;
+    border-color: rgba(244, 67, 54, 0.4) !important;
+    color: #ff8a80 !important;
+    &:hover {
+      background: rgba(244, 67, 54, 0.2) !important;
+      border-color: #ff8a80 !important;
+      box-shadow: 0 2px 8px rgba(244, 67, 54, 0.3) !important;
+    }
+  }
+
   .data-table {
     thead tr {
       background: #0f1412 !important;
@@ -590,5 +626,124 @@
       background: rgba(244, 67, 54, 0.15) !important;
       color: #ff8a80 !important;
     }
+  }
+
+  .btn-action {
+    &.btn-start {
+      background: #1A7A4C !important;
+      &:hover {
+        background: #145c3a !important;
+      }
+    }
+
+    &.btn-continue {
+      background: #2980B9 !important;
+      &:hover {
+        background: #1f5f8b !important;
+      }
+    }
+
+    &.btn-disabled {
+      background: rgba(255, 255, 255, 0.1) !important;
+      color: rgba(255, 255, 255, 0.4) !important;
+      &:hover {
+        background: rgba(255, 255, 255, 0.1) !important;
+      }
+    }
+  }
+
+  .no-action {
+    color: rgba(255, 255, 255, 0.4) !important;
+  }
+}
+
+/* ===============================
+   ACTION BUTTONS
+================================= */
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-action {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+
+  &.btn-start {
+    background: #1A7A4C;
+    color: white;
+
+    &:hover {
+      background: #0F4D2E;
+      transform: translateY(-1px);
+    }
+  }
+
+  &.btn-continue {
+    background: #3498DB;
+    color: white;
+
+    &:hover {
+      background: #2980B9;
+      transform: translateY(-1px);
+    }
+  }
+
+  &.btn-disabled {
+    background: #E0E0E0;
+    color: #A0A0A0;
+    cursor: not-allowed;
+
+    &:hover {
+      background: #E0E0E0;
+      transform: none;
+    }
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+.no-action {
+  color: #A0A0A0;
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 6px 12px;
+}
+
+/* ===============================
+   MOBILE RESPONSIVE
+================================= */
+
+@media (max-width: 768px) {
+  .action-buttons {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .btn-action {
+    padding: 5px 8px;
+    font-size: 0.75rem;
+    min-width: 70px;
+  }
+
+  .no-action {
+    font-size: 0.8rem;
+    padding: 4px 8px;
   }
 }

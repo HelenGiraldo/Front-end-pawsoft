@@ -55,6 +55,15 @@
               placeholder="Buscar por mascota o propietario..."
               [(ngModel)]="searchToday"
               (input)="filterTodayAppointments()">
+            
+            <!-- Botón para limpiar atenciones en progreso -->
+            <button
+              *ngIf="hasActiveAttention()"
+              class="btn-limpiar-atencion"
+              (click)="cleanupInProgressAppointments()"
+              title="Limpiar atenciones en progreso">
+              🗑️ Limpiar atenciones
+            </button>
           </div>
         </div>
 
@@ -69,6 +78,7 @@
                 <th>Hora</th>
                 <th>Motivo</th>
                 <th>Estado</th>
+                <th>Acciones</th>
               </tr>
               </thead>
               <tbody>
@@ -107,10 +117,47 @@
                     {{ getStatusLabel(apt.status) }}
                   </span>
                 </td>
+                <td>
+                  <div class="action-buttons">
+                    <!-- Botón Iniciar Atención -->
+                    <button 
+                      *ngIf="canStartAttention(apt)"
+                      class="btn-action btn-start"
+                      (click)="openMedicalProfileModal(apt)"
+                      title="Iniciar atención">
+                      🩺 Iniciar
+                    </button>
+                    
+                    <!-- Botón deshabilitado cuando hay atención activa -->
+                    <button 
+                      *ngIf="(apt.status === 'CONFIRMED' || apt.status === 'UPCOMING') && hasActiveAttention()"
+                      class="btn-action btn-disabled"
+                      disabled
+                      title="Ya hay una atención en progreso">
+                      🚫 Ocupado
+                    </button>
+                    
+                    <!-- Botón Continuar Atención -->
+                    <button 
+                      *ngIf="canContinueAttention(apt)"
+                      class="btn-action btn-continue"
+                      (click)="continueWithAttention(apt)"
+                      title="Continuar atención">
+                      ▶️ Continuar
+                    </button>
+                    
+                    <!-- Estado no accionable -->
+                    <span 
+                      *ngIf="!canStartAttention(apt) && !canContinueAttention(apt) && !(hasActiveAttention() && (apt.status === 'CONFIRMED' || apt.status === 'UPCOMING'))"
+                      class="no-action">
+                      —
+                    </span>
+                  </div>
+                </td>
               </tr>
 
               <tr *ngIf="filteredTodayAppointments.length === 0">
-                <td colspan="5" class="empty-row">No hay citas para hoy con esos filtros</td>
+                <td colspan="6" class="empty-row">No hay citas para hoy con esos filtros</td>
               </tr>
               </tbody>
             </table>
@@ -213,3 +260,11 @@
     </div>
   </main>
 </div>
+
+<!-- MODAL DE RESUMEN CLÍNICO -->
+<app-medical-profile-modal
+  [show]="showMedicalProfileModal"
+  [petId]="selectedPetId!"
+  (close)="closeMedicalProfileModal()"
+  (continue)="continueWithAttention(selectedAppointment!)">
+</app-medical-profile-modal>
