@@ -17,9 +17,9 @@ export interface SupportInfo {
 
 export const SUPPORT_INFO: SupportInfo = {
   whatsapp: {
-    number: '3219806868',
+    number: '3004040743',
     countryCode: '57',
-    displayFormat: '321 980 6868'
+    displayFormat: '300 404 0743'
   },
   schedule: {
     days: 'Lunes a Viernes',

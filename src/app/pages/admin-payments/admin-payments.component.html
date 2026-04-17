@@ -128,13 +128,17 @@
               </td>
 
               <td>
+                <button class="btn-action adjust"
+                        (click)="openAdjustmentModal(p)"
+                        title="Ajustar monto">
+                  Ajustar
+                </button>
                 <button class="btn-action revert"
                         *ngIf="p.status === 'PAID'"
                         (click)="revert(p)"
                         title="Revertir a pendiente">
                   Revertir
                 </button>
-                <span class="cell-sub" *ngIf="p.status === 'PENDING'">—</span>
               </td>
 
             </tr>

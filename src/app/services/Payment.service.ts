@@ -193,6 +193,15 @@ export class PaymentService {
     );
   }
 
+  /** Ajusta el monto de un pago */
+  adjustPayment(paymentId: number, adjustment: { adjustedAmount: number; reason: string }): Observable<PaymentResponse> {
+    return this.http.put<PaymentResponse>(
+      `${this.adminBase}/${paymentId}/adjust`,
+      adjustment,
+      { headers: this.headers() }
+    );
+  }
+
   /** Lista todos los precios configurados (admin) */
   getAllPrices(): Observable<ServicePrice[]> {
     return this.http.get<ServicePrice[]>(

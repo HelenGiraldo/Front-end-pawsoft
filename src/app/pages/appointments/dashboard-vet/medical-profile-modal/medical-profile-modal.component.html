@@ -1,0 +1,147 @@
+<!-- MODAL OVERLAY -->
+<div class="modal-overlay" *ngIf="show" (click)="onClose()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+
+    <!-- HEADER -->
+    <div class="modal-header">
+      <h3>📋 Resumen Clínico</h3>
+      <button class="modal-close" (click)="onClose()">✕</button>
+    </div>
+
+    <!-- BODY -->
+    <div class="modal-body">
+      
+      <!-- ERROR / LOADING -->
+      <div class="loading-state" *ngIf="loading">
+        <div class="loading-spinner"></div>
+        <p>Cargando información médica...</p>
+      </div>
+
+      <!-- PROFILE DATA (o vacío si no hay) -->
+      <div class="profile-content" *ngIf="!loading">
+        
+        <!-- PET INFO HEADER -->
+        <div class="pet-header" *ngIf="profile">
+          <div class="pet-avatar">
+            <span>{{ getSpeciesEmoji(profile.petSpecies) }}</span>
+          </div>
+          <div class="pet-info">
+            <h2>{{ profile.petName }}</h2>
+            <div class="pet-details">
+              <span>{{ profile.petSpecies }}</span>
+              <span *ngIf="profile.petBreed"> · {{ profile.petBreed }}</span>
+              <span *ngIf="profile.petAge"> · {{ profile.petAge }} años</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- MEDICAL INFO SECTIONS -->
+        <div class="medical-sections" *ngIf="profile">
+
+          <!-- ALERGIAS -->
+          <div class="medical-section" *ngIf="profile.knownAllergies">
+            <div class="section-header">
+              <span class="section-icon">⚠️</span>
+              <span class="section-title">ALERGIAS</span>
+            </div>
+            <div class="section-content allergies">{{ profile.knownAllergies }}</div>
+          </div>
+
+          <!-- CONDICIONES CRÓNICAS -->
+          <div class="medical-section" *ngIf="profile.chronicConditions">
+            <div class="section-header">
+              <span class="section-icon">🏥</span>
+              <span class="section-title">CONDICIONES CRÓNICAS</span>
+            </div>
+            <div class="section-content conditions">{{ profile.chronicConditions }}</div>
+          </div>
+
+          <!-- MEDICAMENTOS ACTUALES -->
+          <div class="medical-section" *ngIf="profile.currentMedications">
+            <div class="section-header">
+              <span class="section-icon">💊</span>
+              <span class="section-title">MEDICAMENTOS ACTUALES</span>
+            </div>
+            <div class="section-content medications">{{ profile.currentMedications }}</div>
+          </div>
+
+          <!-- ANTECEDENTES QUIRÚRGICOS -->
+          <div class="medical-section" *ngIf="profile.surgicalHistory">
+            <div class="section-header">
+              <span class="section-icon">🔪</span>
+              <span class="section-title">ANTECEDENTES QUIRÚRGICOS</span>
+            </div>
+            <div class="section-content surgical">{{ profile.surgicalHistory }}</div>
+          </div>
+
+          <!-- TIPO DE SANGRE -->
+          <div class="medical-section" *ngIf="profile.bloodType">
+            <div class="section-header">
+              <span class="section-icon">🩸</span>
+              <span class="section-title">TIPO DE SANGRE</span>
+            </div>
+            <div class="section-content blood-type">{{ profile.bloodType }}</div>
+          </div>
+
+          <!-- EMPTY STATE -->
+          <div class="empty-medical-info" *ngIf="!profile.knownAllergies && !profile.chronicConditions && !profile.currentMedications && !profile.surgicalHistory && !profile.bloodType">
+            <div class="empty-icon">📋</div>
+            <h4>Sin información médica previa</h4>
+            <p>Esta mascota no tiene información médica registrada. Podrás agregar información durante la consulta.</p>
+          </div>
+
+        </div>
+
+        <!-- ÚLTIMAS CITAS -->
+        <div class="medical-section recent-appointments" *ngIf="recentAppointments.length > 0">
+          <div class="section-header">
+            <span class="section-icon">📅</span>
+            <span class="section-title">ÚLTIMAS CITAS</span>
+          </div>
+          <div class="appointments-list">
+            <div class="appointment-item" *ngFor="let appointment of recentAppointments">
+              <div class="appointment-date">
+                {{ formatDateTime(appointment.appointmentDate + ' ' + appointment.appointmentTime) }}
+              </div>
+              <div class="appointment-reason">{{ appointment.appointmentReason }}</div>
+              <div class="appointment-diagnosis" *ngIf="appointment.diagnosticoCliente">
+                <strong>Diagnóstico:</strong> {{ appointment.diagnosticoCliente }}
+              </div>
+              <div class="appointment-vet">Dr. {{ appointment.vetName }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sin perfil aún -->
+        <div class="empty-medical-info" *ngIf="!profile">
+          <div class="empty-icon">📋</div>
+          <h4>Sin información médica previa</h4>
+          <p>Esta mascota no tiene información médica registrada. Podrás agregar información durante la consulta.</p>
+        </div>
+
+        <!-- LAST UPDATED INFO -->
+        <div class="last-updated" *ngIf="profile?.lastUpdatedByName && profile?.lastUpdatedAt">
+          <div class="updated-info">
+            <span class="updated-icon">👨‍⚕️</span>
+            <div class="updated-details">
+              <div class="updated-by">Última actualización por {{ getUpdatedByLabel(profile!) }}</div>
+              <div class="updated-date">{{ formatDateTime(profile!.lastUpdatedAt) }}</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="onClose()">Cancelar</button>
+      <button class="btn-primary" (click)="onContinue()" [disabled]="loading">
+        <span *ngIf="!loading">🩺 Continuar con la atención</span>
+        <span *ngIf="loading">Cargando...</span>
+      </button>
+    </div>
+
+  </div>
+</div>

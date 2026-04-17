@@ -1,0 +1,70 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Ajustar Monto del Pago</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()">
+        <ion-icon name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="modal-content">
+    <div class="info-section">
+      <ion-icon name="information-circle-outline"></ion-icon>
+      <p>El ajuste manual requiere un motivo obligatorio de al menos 10 caracteres para mantener la trazabilidad.</p>
+    </div>
+
+    <form [formGroup]="adjustmentForm">
+      <ion-item>
+        <ion-label position="stacked">Monto Actual</ion-label>
+        <ion-input
+          type="text"
+          [value]="formatCurrency(currentAmount)"
+          readonly
+          class="readonly-input">
+        </ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Nuevo Monto *</ion-label>
+        <ion-input
+          type="number"
+          formControlName="adjustedAmount"
+          placeholder="Ingrese el nuevo monto">
+        </ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Motivo del Ajuste * (mínimo 10 caracteres)</ion-label>
+        <ion-textarea
+          formControlName="reason"
+          rows="4"
+          placeholder="Explique el motivo del ajuste...">
+        </ion-textarea>
+      </ion-item>
+
+      <div class="error-message" *ngIf="reasonError">
+        <ion-icon name="alert-circle"></ion-icon>
+        {{ reasonError }}
+      </div>
+    </form>
+  </div>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <div class="footer-buttons">
+      <ion-button fill="outline" (click)="dismiss()">
+        Cancelar
+      </ion-button>
+      <ion-button
+        color="primary"
+        (click)="confirm()"
+        [disabled]="adjustmentForm.invalid">
+        Confirmar Ajuste
+      </ion-button>
+    </div>
+  </ion-toolbar>
+</ion-footer>

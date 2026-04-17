@@ -7,7 +7,7 @@
     <div class="topbar">
       <div>
         <div class="topbar-title">📁 Historial Clínico</div>
-        <div class="topbar-sub">Registros de atenciones completadas — solo lectura</div>
+        <div class="topbar-sub">Registros de todas las atenciones completadas · Visible para todos los veterinarios</div>
       </div>
     </div>
 
@@ -46,6 +46,15 @@
               <option *ngFor="let e of especiesDisponibles" [value]="e">{{ e }}</option>
             </select>
           </div>
+
+          <div class="filter-group especie-select">
+            <label class="filter-label">Veterinario</label>
+            <select class="form-select"
+                    [(ngModel)]="filtroVet" (change)="aplicarFiltros()">
+              <option value="">Todos los veterinarios</option>
+              <option *ngFor="let v of vetsDisponibles" [value]="v">{{ v }}</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -76,6 +85,7 @@
               <div class="reg-pet-name">{{ r.petName }}</div>
               <div class="reg-details">{{ r.petSpecies }} · {{ r.ownerName }}</div>
             </div>
+            <div class="reg-vet">👨‍⚕️ {{ r.vetName }}</div>
             <div class="reg-fecha">{{ formatDate(r.appointmentDate) }}</div>
             <div class="reg-diagnostico">{{ r.diagnosticoPrincipal || '—' }}</div>
             <div class="reg-costo" *ngIf="r.costoTotal && r.costoTotal > 0">
@@ -182,9 +192,16 @@
               <div class="detalle-seccion full-width" *ngIf="r.fotosAdjuntas && parseFotos(r.fotosAdjuntas).length > 0">
                 <div class="detalle-titulo">🔬 Estudios y Evidencia Clínica</div>
                 <div class="fotos-grid">
-                  <img *ngFor="let foto of parseFotos(r.fotosAdjuntas)"
-                       [src]="foto" alt="Imagen del registro" class="foto-thumb"
-                       (click)="abrirFoto(foto)">
+                  <ng-container *ngFor="let foto of parseFotos(r.fotosAdjuntas)">
+                    <!-- PDF -->
+                    <a *ngIf="esPdf(foto)" [href]="foto" target="_blank" rel="noopener" class="pdf-adjunto">
+                      📄 Ver PDF
+                    </a>
+                    <!-- Imagen -->
+                    <img *ngIf="!esPdf(foto)"
+                         [src]="foto" alt="Imagen del registro" class="foto-thumb"
+                         (click)="abrirFoto(foto)">
+                  </ng-container>
                 </div>
               </div>
 

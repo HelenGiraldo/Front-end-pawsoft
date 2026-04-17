@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { Router } from '@angular/router';
 import { ChatbotService } from '../../services/chatbot.service';
 import { UiStateService } from '../../services/ui-state.service';
 import { ChatMessage } from '../../pages/chat-bot/chatbot.model';
@@ -13,23 +14,34 @@ import { ChatMessage } from '../../pages/chat-bot/chatbot.model';
   standalone: true,
   imports: [CommonModule, FormsModule]
 })
-export class ChatbotFabComponent {
+export class ChatbotFabComponent implements OnInit {
   isOpen = false;
   messages: ChatMessage[] = [];
   inputText = '';
   isLoading = false;
   accessibilityPanelOpen = false;
+  isHidden = false;
 
   constructor(
     private chatbotService: ChatbotService,
     private sanitizer: DomSanitizer,
-    private uiStateService: UiStateService
+    private uiStateService: UiStateService,
+    private router: Router
   ) {
     this.uiStateService.accessibilityPanelOpen$.subscribe(isOpen => {
       this.accessibilityPanelOpen = isOpen;
       if (isOpen && this.isOpen) {
         this.isOpen = false;
       }
+    });
+  }
+
+  ngOnInit() {
+    this.router.events.subscribe(() => {
+      this.isHidden = this.router.url.includes('/login') || 
+                      this.router.url.includes('/register') ||
+                      this.router.url.includes('/reset-password') ||
+                      this.router.url.includes('/verify-email');
     });
   }
 

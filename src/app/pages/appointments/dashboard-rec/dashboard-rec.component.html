@@ -343,6 +343,43 @@
                     <span class="field-error" *ngIf="isPetFieldInvalid('gender')">Campo requerido</span>
                   </div>
                 </div>
+                
+                <!-- Sección de Información Médica Inicial (Opcional) -->
+                <div class="medical-section">
+                  <div class="medical-header" (click)="toggleMedicalSection()">
+                    <span class="medical-title">🩺 Información Médica Inicial (Opcional)</span>
+                    <span class="medical-toggle">{{ showMedicalSection ? '▼' : '▶' }}</span>
+                  </div>
+                  <div class="medical-content" *ngIf="showMedicalSection">
+                    <div class="medical-notice">
+                      ℹ️ Esta información ayudará al veterinario en caso de emergencia. Todos los campos son opcionales.
+                    </div>
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label class="form-label">🩸 Tipo de sangre</label>
+                        <input type="text" class="form-input" formControlName="bloodType" placeholder="Ej: A+, O-, etc.">
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label">⚠️ Alergias conocidas</label>
+                        <input type="text" class="form-input" formControlName="knownAllergies" placeholder="Ej: Penicilina, polen, etc.">
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label class="form-label">🏥 Condiciones crónicas</label>
+                        <input type="text" class="form-input" formControlName="chronicConditions" placeholder="Ej: Diabetes, artritis, etc.">
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label">💊 Medicamentos actuales</label>
+                        <input type="text" class="form-input" formControlName="currentMedications" placeholder="Ej: Insulina, antiinflamatorios, etc.">
+                      </div>
+                    </div>
+                    <div class="form-group full">
+                      <label class="form-label">📝 Notas adicionales</label>
+                      <textarea class="form-input" formControlName="additionalNotes" rows="3" placeholder="Cualquier información médica adicional relevante..."></textarea>
+                    </div>
+                  </div>
+                </div>
               </form>
             </div>
             <div class="step-footer">
@@ -731,7 +768,7 @@
     <div class="modal-footer">
       <button class="btn-secondary" (click)="closePaymentModal()">Cancelar</button>
       <button class="btn-primary" (click)="savePayment()"
-              [disabled]="savingPayment || paymentBaseAmount <= 0 || (paymentAjustarPrecio && !paymentNotes?.trim())">
+              [disabled]="savingPayment || paymentBaseAmount <= 0 || (paymentAjustarPrecio && !paymentNotes.trim())">>
         <span *ngIf="!savingPayment">💾 Registrar Pago</span><span *ngIf="savingPayment">Guardando...</span>
       </button>
     </div>

@@ -131,6 +131,15 @@ export const routes: Routes = [
   },
 
   {
+    path: 'dashboard-admin/auditoria',
+    canActivate: [authGuard, desktopOnlyGuard, roleGuard],
+    data: { roles: ['ROLE_ADMIN'] },
+    loadComponent: () =>
+      import('./pages/admin-audit/admin-audit.component')
+        .then(m => m.AdminAuditComponent),
+  },
+
+  {
     path: 'dashboard-vet',
     canActivate: [authGuard, desktopOnlyGuard, roleGuard],
     data: { roles: ['ROLE_VETERINARIO'] },
@@ -164,6 +173,15 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/appointments/dashboard-vet/historial-clinico/historial-clinico.component')
         .then(m => m.HistorialClinicoComponent),
+  },
+
+  {
+    path: 'veterinario/hospitalizaciones',
+    canActivate: [authGuard, desktopOnlyGuard, roleGuard],
+    data: { roles: ['ROLE_VETERINARIO'] },
+    loadComponent: () =>
+      import('./pages/appointments/dashboard-vet/hospitalizaciones/hospitalizaciones.component')
+        .then(m => m.HospitalizacionesComponent),
   },
 
   {

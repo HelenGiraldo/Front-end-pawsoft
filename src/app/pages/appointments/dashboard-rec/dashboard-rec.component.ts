@@ -125,6 +125,7 @@ export class DashboardRecComponent implements OnInit {
 
   showNewClientPw  = false;
   petPhotoPreview: string | null = null;
+  showMedicalSection = false;  // Nueva variable para controlar la sección médica
   savingApt        = false;
 
   showEditAptModal = false;
@@ -372,7 +373,7 @@ export class DashboardRecComponent implements OnInit {
           serviceType: s.serviceType,
           displayName: s.displayName,
           price: s.price,
-          description: s.description,
+          description: s.description || '',
           active: s.active
         }));
         this.loadingServices = false;
@@ -447,7 +448,7 @@ export class DashboardRecComponent implements OnInit {
 
   savePayment(): void {
     if (!this.paymentApt || this.paymentBaseAmount <= 0) return;
-    if (this.paymentAjustarPrecio && !this.paymentNotes?.trim()) return;
+    if (this.paymentAjustarPrecio && !this.paymentNotes.trim()) return;
 
     const montoFinal = this.paymentAjustarPrecio && this.paymentMontoAjustado > 0
       ? this.paymentMontoAjustado
@@ -773,24 +774,24 @@ export class DashboardRecComponent implements OnInit {
       if (new Date(`${a.date}T${a.time}`) < new Date()) status = 'NO_SHOW';
     }
     return {
-      id: String(a.id ?? ''), 
-      date: a.date ?? '', 
+      id: String(a.id ?? ''),
+      date: a.date ?? '',
       time: (a.time ?? '').substring(0, 5),
-      reason: a.reason ?? '', 
-      notes: a.notes ?? '', 
+      reason: a.reason ?? '',
+      notes: a.notes ?? '',
       status: status as Appointment['status'],
-      cancelReason: a.cancelReason, 
+      cancelReason: a.cancelReason,
       clientId: String(a.clientId ?? ''),
-      clientFirstName: clientParts[0] ?? '', 
+      clientFirstName: clientParts[0] ?? '',
       clientLastName: clientParts.slice(1).join(' ') ?? '',
-      clientEmail: a.clientEmail ?? '', 
-      petId: String(a.petId ?? ''), 
+      clientEmail: a.clientEmail ?? '',
+      petId: String(a.petId ?? ''),
       petName: a.petName ?? '',
-      petEmoji: this.getEmojiBySpecies(a.petSpecies ?? ''), 
+      petEmoji: this.getEmojiBySpecies(a.petSpecies ?? ''),
       petSpecies: a.petSpecies ?? '',
-      vetId: String(a.vetId ?? ''), 
-      vetFirstName: vetParts[0] ?? '', 
-      vetLastName: vetParts.slice(1).join(' ') ?? '', 
+      vetId: String(a.vetId ?? ''),
+      vetFirstName: vetParts[0] ?? '',
+      vetLastName: vetParts.slice(1).join(' ') ?? '',
       vetSpecialty: ''
     };
   }
@@ -843,7 +844,13 @@ export class DashboardRecComponent implements OnInit {
     this.newPetForm = this.fb.group({
       name:      ['', Validators.required], species: ['', Validators.required],
       breed:     ['', Validators.required], birthDate: ['', Validators.required],
-      gender:    ['', Validators.required], color: ['']
+      gender:    ['', Validators.required], color: [''],
+      // Información médica inicial (opcional)
+      bloodType: [''],
+      knownAllergies: [''],
+      chronicConditions: [''],
+      currentMedications: [''],
+      additionalNotes: ['']
     });
     this.newAptForm = this.fb.group({
       date: ['', Validators.required], time: ['', Validators.required],
@@ -1108,6 +1115,7 @@ export class DashboardRecComponent implements OnInit {
 
   resetNewAptFlow(): void {
     this.showCalendarApt = false; this.showCalendarPetBirth = false;
+    this.showMedicalSection = false;  // Resetear sección médica
     this.newAptStep = 1; this.clientMode = 'existing'; this.petMode = 'existing';
     this.clientSearchQuery = ''; this.clientSearchResults = []; this.clientSearchTouched = false;
     this.selectedExistingClient = null; this.selectedPet = null; this.petPhotoPreview = null;
@@ -1161,6 +1169,11 @@ export class DashboardRecComponent implements OnInit {
   }
 
   removePetPhoto():  void { this.petPhotoPreview = null; }
+  
+  toggleMedicalSection(): void { 
+    this.showMedicalSection = !this.showMedicalSection; 
+  }
+  
   onSpeciesChange(): void { /* reservado */ }
 
   getPetEmojiForSpecies(): string {
@@ -1235,11 +1248,22 @@ export class DashboardRecComponent implements OnInit {
 
   private crearMascotaYCita(clientEmail: string, aVal: any): void {
     const pv = this.newPetForm.value;
+    
+    // Preparar información médica inicial si se proporcionó
+    const medicalProfileInitial = (pv.bloodType || pv.knownAllergies || pv.chronicConditions || pv.currentMedications || pv.additionalNotes) ? {
+      bloodType: pv.bloodType?.trim() || undefined,
+      knownAllergies: pv.knownAllergies?.trim() || undefined,
+      chronicConditions: pv.chronicConditions?.trim() || undefined,
+      currentMedications: pv.currentMedications?.trim() || undefined,
+      additionalNotes: pv.additionalNotes?.trim() || undefined
+    } : undefined;
+    
     this.recepClientService.createPet({
       name: pv.name, species: pv.species, breed: pv.breed,
       sex: pv.gender, birthDate: pv.birthDate,
       photoUrl: this.petPhotoPreview ?? undefined,
-      ownerEmail: clientEmail
+      ownerEmail: clientEmail,
+      medicalProfileInitial
     }).subscribe({
       next: (createdPet) => {
         this.loadAllPets();
@@ -1306,7 +1330,7 @@ export class DashboardRecComponent implements OnInit {
     const selectedDate = new Date(input.value);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     if (selectedDate > today) {
       input.value = this.getTodayDate();
       this.paymentDateFilter = this.getTodayDate();

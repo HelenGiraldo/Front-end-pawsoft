@@ -85,6 +85,7 @@
 
 <!-- Botón FAB con robot SVG -->
 <button class="fab-btn" 
+        *ngIf="!isHidden"
         [class.hidden-by-accessibility]="accessibilityPanelOpen"
         (click)="toggleChat()" 
         [attr.aria-label]="isOpen ? 'Cerrar chat' : 'Abrir asistente virtual'">

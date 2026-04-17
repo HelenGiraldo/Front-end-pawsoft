@@ -438,6 +438,106 @@
   color: var(--texto-secundario);
 }
 
+/* ---------- Información Médica Inicial ---------- */
+
+.medical-section {
+  margin-bottom: 16px;
+  border: 1.5px solid var(--borde);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--blanco);
+}
+
+.medical-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: var(--verde-claro);
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  &:hover { background: var(--verde-hover); }
+}
+
+.medical-section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: var(--texto);
+  font-size: 0.9rem;
+}
+
+.medical-icon {
+  font-size: 1.1rem;
+}
+
+.medical-toggle {
+  font-size: 0.8rem;
+  color: var(--texto-secundario);
+  transition: transform 0.2s ease;
+
+  &.expanded { transform: rotate(180deg); }
+}
+
+.medical-section-subtitle {
+  padding: 0 16px 14px;
+  font-size: 0.8rem;
+  color: var(--texto-secundario);
+  font-style: italic;
+}
+
+.medical-fields {
+  padding: 16px;
+  border-top: 1px solid var(--borde);
+}
+
+.medical-info-box {
+  background: #E3F2FD;
+  border: 1px solid #BBDEFB;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 16px;
+  font-size: 0.85rem;
+
+  p {
+    margin: 0;
+    color: #1565C0;
+    line-height: 1.4;
+
+    &:first-child {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+  }
+}
+
+.form-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid var(--borde);
+  border-radius: 10px;
+  font-size: 0.9rem;
+  color: var(--texto);
+  background: var(--blanco);
+  font-family: inherit;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease;
+  resize: vertical;
+  min-height: 60px;
+
+  &:focus {
+    outline: none;
+    border-color: var(--verde);
+    box-shadow: 0 0 0 3px rgba(26, 122, 76, 0.1);
+  }
+
+  &::placeholder {
+    color: #aaa;
+  }
+}
+
 /* ---------- Errores de campo ---------- */
 
 .input-error {
@@ -731,7 +831,8 @@
 
   /* font-size 16px evita zoom automático de Safari */
   .form-input,
-  .form-select {
+  .form-select,
+  .form-textarea {
     font-size: max(1rem, 16px) !important;
     padding: 9px 10px !important;
     border-radius: 8px !important;
@@ -743,6 +844,29 @@
   }
 
   .cal-day { font-size: 0.72rem !important; }
+
+  /* Sección médica en móvil */
+  .medical-section-header {
+    padding: 12px 14px !important;
+  }
+
+  .medical-section-title {
+    font-size: 0.85rem !important;
+  }
+
+  .medical-fields {
+    padding: 14px !important;
+  }
+
+  .medical-info-box {
+    padding: 10px !important;
+    margin-bottom: 12px !important;
+    font-size: 0.8rem !important;
+  }
+
+  .form-textarea {
+    min-height: 50px !important;
+  }
 }
 
 * { cursor: inherit; }

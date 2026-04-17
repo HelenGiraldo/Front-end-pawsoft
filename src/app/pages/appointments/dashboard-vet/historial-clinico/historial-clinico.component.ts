@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AppSidebarComponent } from 'src/app/share/components/app-sidebar/app-sidebar.component';
-import { MedicalRecordService, MedicalRecordResponse, Medicamento, VacunaControl } from 'src/app/services/medical-record.service';
+import { MedicalRecordService, MedicalRecordResponse } from 'src/app/services/medical-record.service';
 import {
   evaluarPeso, evaluarTemperatura, evaluarFrecuenciaCardiaca, evaluarFrecuenciaRespiratoria,
   VitalResult
@@ -28,7 +28,9 @@ export class HistorialClinicoComponent implements OnInit {
   filtroFechaInicio = '';
   filtroFechaFin = '';
   filtroEspecie = '';
+  filtroVet = '';
   especiesDisponibles: string[] = [];
+  vetsDisponibles: string[] = [];
 
   minDate = '';
   maxDate = '';
@@ -37,10 +39,8 @@ export class HistorialClinicoComponent implements OnInit {
   errorMsg = '';
 
   constructor(private readonly medicalRecordService: MedicalRecordService) {
-    // Calcular fechas límite: hace 20 años hasta hoy
     const today = new Date();
     this.maxDate = today.toISOString().split('T')[0];
-
     const twentyYearsAgo = new Date();
     twentyYearsAgo.setFullYear(today.getFullYear() - 20);
     this.minDate = twentyYearsAgo.toISOString().split('T')[0];
@@ -56,10 +56,13 @@ export class HistorialClinicoComponent implements OnInit {
     this.isLoading = true;
     this.errorMsg = '';
 
+    // Carga el historial del vet autenticado — todos los registros donde participó
+    // Para ver historial de una mascota específica se usa el filtro de búsqueda
     this.medicalRecordService.obtenerHistorial().subscribe({
       next: (data) => {
         this.registros = data;
         this.especiesDisponibles = [...new Set(data.map(r => r.petSpecies).filter(Boolean))];
+        this.vetsDisponibles = [...new Set(data.map(r => r.vetName).filter(Boolean))];
         this.aplicarFiltros();
         this.isLoading = false;
       },
@@ -71,7 +74,6 @@ export class HistorialClinicoComponent implements OnInit {
   }
 
   onFechaInicioChange(): void {
-    // Si "hasta" es anterior a "desde", limpiarla
     if (this.filtroFechaFin && this.filtroFechaInicio && this.filtroFechaFin < this.filtroFechaInicio) {
       this.filtroFechaFin = '';
     }
@@ -84,39 +86,30 @@ export class HistorialClinicoComponent implements OnInit {
     this.registrosFiltrados = this.registros.filter(r => {
       const matchSearch = !search ||
         r.petName.toLowerCase().includes(search) ||
-        r.ownerName.toLowerCase().includes(search);
+        r.ownerName.toLowerCase().includes(search) ||
+        r.vetName?.toLowerCase().includes(search);
 
       const matchEspecie = !this.filtroEspecie || r.petSpecies === this.filtroEspecie;
+      const matchVet = !this.filtroVet || r.vetName === this.filtroVet;
 
       const fecha = r.appointmentDate;
       const matchFechaInicio = !this.filtroFechaInicio || fecha >= this.filtroFechaInicio;
       const matchFechaFin    = !this.filtroFechaFin    || fecha <= this.filtroFechaFin;
 
-      return matchSearch && matchEspecie && matchFechaInicio && matchFechaFin;
+      return matchSearch && matchEspecie && matchVet && matchFechaInicio && matchFechaFin;
     });
   }
 
   toggleExpand(id: number): void {
-    if (this.expandidos.has(id)) {
-      this.expandidos.delete(id);
-    } else {
-      this.expandidos.add(id);
-    }
+    if (this.expandidos.has(id)) this.expandidos.delete(id);
+    else this.expandidos.add(id);
   }
 
-  isExpanded(id: number): boolean {
-    return this.expandidos.has(id);
-  }
+  isExpanded(id: number): boolean { return this.expandidos.has(id); }
 
   fotoSeleccionada: string | null = null;
-
-  abrirFoto(url: string): void {
-    this.fotoSeleccionada = url;
-  }
-
-  cerrarFoto(): void {
-    this.fotoSeleccionada = null;
-  }
+  abrirFoto(url: string): void { this.fotoSeleccionada = url; }
+  cerrarFoto(): void { this.fotoSeleccionada = null; }
 
   parseMedicamentos(json: string): any[] {
     try { return JSON.parse(json) || []; } catch { return []; }
@@ -129,8 +122,12 @@ export class HistorialClinicoComponent implements OnInit {
   parseFotos(json: string): string[] {
     try {
       const parsed = JSON.parse(json);
-      return Array.isArray(parsed) ? parsed.filter(f => !!f) : [];
+      return Array.isArray(parsed) ? parsed.filter((f: string) => !!f) : [];
     } catch { return []; }
+  }
+
+  esPdf(url: string): boolean {
+    return url.toLowerCase().includes('.pdf') || url.toLowerCase().includes('/raw/');
   }
 
   getEmojiBySpecies(species: string): string {
@@ -146,8 +143,8 @@ export class HistorialClinicoComponent implements OnInit {
     return `${d}/${m}/${y}`;
   }
 
-  evalPeso(v: number | null):  VitalResult | null { return evaluarPeso(v); }
-  evalTemp(v: number | null):  VitalResult | null { return evaluarTemperatura(v); }
-  evalFC(v: number | null):    VitalResult | null { return evaluarFrecuenciaCardiaca(v); }
-  evalFR(v: number | null):    VitalResult | null { return evaluarFrecuenciaRespiratoria(v); }
+  evalPeso(v: number | null): VitalResult | null { return evaluarPeso(v); }
+  evalTemp(v: number | null): VitalResult | null { return evaluarTemperatura(v); }
+  evalFC(v: number | null):   VitalResult | null { return evaluarFrecuenciaCardiaca(v); }
+  evalFR(v: number | null):   VitalResult | null { return evaluarFrecuenciaRespiratoria(v); }
 }

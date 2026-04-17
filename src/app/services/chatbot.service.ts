@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { ChatMessage, ChatRequest, ChatResponse } from '../pages/chat-bot/chatbot.model';
 
@@ -15,6 +16,16 @@ export class ChatbotService {
       message,
       history: history.map(m => ({ role: m.role, text: m.text }))
     };
-    return this.http.post<ChatResponse>(this.apiUrl, payload);
+    
+    // El interceptor de token se encargará de agregar el Authorization header automáticamente
+    return this.http.post<ChatResponse>(this.apiUrl, payload).pipe(
+      catchError(error => {
+        console.error('Chatbot error:', error);
+        return of({
+          reply: 'El servicio de chat no está disponible en este momento. Intenta más tarde.',
+          success: false
+        } as ChatResponse);
+      })
+    );
   }
 }

@@ -4,6 +4,7 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, Validators, AbstractCont
 import { ActivatedRoute } from '@angular/router';
 import { AppSidebarComponent } from 'src/app/share/components/app-sidebar/app-sidebar.component';
 import { PetService } from 'src/app/services/pet.service';
+import { CreateMedicalProfileInitialRequest } from 'src/app/models/medical-profile.model';
 
 export interface Pet {
   id?: number;
@@ -14,6 +15,7 @@ export interface Pet {
   sex: string;
   ownerEmail?: string;
   photoUrl?: string;
+  medicalProfileInitial?: CreateMedicalProfileInitialRequest;
 }
 
 function fechaRangoValidator(control: AbstractControl): ValidationErrors | null {
@@ -55,6 +57,9 @@ export class PetComponent implements OnInit {
   calMonth = new Date().getMonth();
   calDays: number[] = [];
 
+  // ── Información médica inicial ──
+  showMedicalSection = false;
+
   meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
     'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
   years: number[] = [];
@@ -64,7 +69,13 @@ export class PetComponent implements OnInit {
     species:   ['', Validators.required],
     breed:     [''],
     sex:       ['', Validators.required],
-    birthDate: ['', fechaRangoValidator]
+    birthDate: ['', fechaRangoValidator],
+    // Información médica inicial (opcional)
+    bloodType: [''],
+    knownAllergies: [''],
+    chronicConditions: [''],
+    currentMedications: [''],
+    additionalNotes: ['']
   });
 
   constructor(
@@ -171,6 +182,7 @@ export class PetComponent implements OnInit {
     this.selectedFile = null;
     this.photoPreview = null;
     this.showCalendar = false;
+    this.showMedicalSection = false;
     this.calYear  = new Date().getFullYear();
     this.calMonth = new Date().getMonth();
     this.buildCalendar();
@@ -183,6 +195,7 @@ export class PetComponent implements OnInit {
     this.selectedFile = null;
     this.photoPreview = pet.photoUrl || null;
     this.showCalendar = false;
+    this.showMedicalSection = false;
     if (pet.birthDate) {
       const [y, m] = pet.birthDate.split('-');
       this.calYear  = +y;
@@ -190,8 +203,17 @@ export class PetComponent implements OnInit {
       this.buildCalendar();
     }
     this.petForm.patchValue({
-      name: pet.name, species: pet.species, breed: pet.breed,
-      sex: pet.sex, birthDate: pet.birthDate
+      name: pet.name, 
+      species: pet.species, 
+      breed: pet.breed,
+      sex: pet.sex, 
+      birthDate: pet.birthDate,
+      // Información médica inicial (si existe)
+      bloodType: pet.medicalProfileInitial?.bloodType || '',
+      knownAllergies: pet.medicalProfileInitial?.knownAllergies || '',
+      chronicConditions: pet.medicalProfileInitial?.chronicConditions || '',
+      currentMedications: pet.medicalProfileInitial?.currentMedications || '',
+      additionalNotes: pet.medicalProfileInitial?.additionalNotes || ''
     });
     this.showFormModal = true;
   }
@@ -202,6 +224,7 @@ export class PetComponent implements OnInit {
     this.selectedFile = null;
     this.photoPreview = null;
     this.showCalendar = false;
+    this.showMedicalSection = false;
     this.petForm.reset();
   }
 
@@ -222,6 +245,24 @@ export class PetComponent implements OnInit {
     if (this.petForm.invalid) return;
     this.saving = true;
     const guardar = (photoUrl?: string) => {
+      // Preparar información médica inicial si hay datos
+      let medicalProfileInitial: CreateMedicalProfileInitialRequest | undefined;
+      const bloodType = this.petForm.value.bloodType?.trim();
+      const knownAllergies = this.petForm.value.knownAllergies?.trim();
+      const chronicConditions = this.petForm.value.chronicConditions?.trim();
+      const currentMedications = this.petForm.value.currentMedications?.trim();
+      const additionalNotes = this.petForm.value.additionalNotes?.trim();
+
+      if (bloodType || knownAllergies || chronicConditions || currentMedications || additionalNotes) {
+        medicalProfileInitial = {
+          bloodType: bloodType || undefined,
+          knownAllergies: knownAllergies || undefined,
+          chronicConditions: chronicConditions || undefined,
+          currentMedications: currentMedications || undefined,
+          additionalNotes: additionalNotes || undefined
+        };
+      }
+
       const payload: Pet = {
         name:      this.petForm.value.name!,
         species:   this.petForm.value.species!,
@@ -229,7 +270,8 @@ export class PetComponent implements OnInit {
         sex:       this.petForm.value.sex!,
         birthDate: this.petForm.value.birthDate || '',
         ownerEmail: this.userName,
-        photoUrl:  photoUrl ?? this.editingPet?.photoUrl
+        photoUrl:  photoUrl ?? this.editingPet?.photoUrl,
+        medicalProfileInitial: medicalProfileInitial
       };
       const op = this.editingPet?.id
         ? this.petService.updatePet(this.editingPet.id, payload)
@@ -265,6 +307,10 @@ export class PetComponent implements OnInit {
   getEmoji(species: string): string {
     const map: Record<string, string> = { Perro:'🐕', Gato:'🐈', Conejo:'🐰', Hamster:'🐹', Ave:'🦜' };
     return map[species] || '🐾';
+  }
+
+  toggleMedicalSection(): void {
+    this.showMedicalSection = !this.showMedicalSection;
   }
 
   formatDate(date: string): string {

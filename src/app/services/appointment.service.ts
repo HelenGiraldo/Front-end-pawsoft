@@ -102,12 +102,24 @@ export class AppointmentService {
     return this.http.get<RecepAppointmentResponse[]>(this.vetUrl, { headers: this.headers() });
   }
 
+  getTodayAppointments(): Observable<RecepAppointmentResponse[]> {
+    return this.http.get<RecepAppointmentResponse[]>(`${this.vetUrl}/today`, { headers: this.headers() });
+  }
+
   startAppointment(id: number): Observable<void> {
     return this.http.post<void>(`${this.vetUrl}/${id}/start`, {}, { headers: this.headers() });
   }
 
   cancelStartedAppointment(id: number): Observable<void> {
     return this.http.post<void>(`${this.vetUrl}/${id}/cancel-start`, {}, { headers: this.headers() });
+  }
+
+  completeAppointment(id: number): Observable<void> {
+    return this.http.post<void>(`${this.vetUrl}/${id}/complete`, {}, { headers: this.headers() });
+  }
+
+  cleanupInProgressAppointments(): Observable<void> {
+    return this.http.post<void>(`${this.vetUrl}/cleanup/in-progress`, {}, { headers: this.headers() });
   }
 
   /** Todas las citas del cliente sin filtro de estado ni fecha */

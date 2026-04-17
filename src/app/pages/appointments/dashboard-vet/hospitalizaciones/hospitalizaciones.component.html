@@ -1,0 +1,178 @@
+<div class="dashboard-layout">
+  <app-sidebar [userRole]="userRole" [userName]="userName"></app-sidebar>
+
+  <main class="main-content">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">🏥 Hospitalizaciones</div>
+        <div class="topbar-sub">Mascotas bajo cuidado hospitalario · Las hospitalizaciones se registran al cerrar una atención médica</div>
+      </div>
+    </div>
+
+    <div class="content-area">
+
+      <!-- TABS -->
+      <div class="tabs-row">
+        <button class="tab-btn" [class.active]="tabActiva === 'activas'" (click)="tabActiva = 'activas'">
+          🏥 Hospitalizadas
+          <span class="tab-badge" *ngIf="hospitalizacionesActivas.length > 0">{{ hospitalizacionesActivas.length }}</span>
+        </button>
+        <button class="tab-btn" [class.active]="tabActiva === 'alta'" (click)="tabActiva = 'alta'">
+          ✅ Dadas de alta
+          <span class="tab-badge alta" *ngIf="hospitalizacionesAlta.length > 0">{{ hospitalizacionesAlta.length }}</span>
+        </button>
+        <button class="tab-btn" [class.active]="tabActiva === 'fallecidas'" (click)="tabActiva = 'fallecidas'">
+          🕊️ Fallecidas
+          <span class="tab-badge fallecida" *ngIf="hospitalizacionesFallecidas.length > 0">{{ hospitalizacionesFallecidas.length }}</span>
+        </button>
+      </div>
+
+      <div class="error-card" *ngIf="errorMsg">⚠️ {{ errorMsg }}</div>
+
+      <div class="loading-wrap" *ngIf="isLoading">
+        <div class="spinner"></div>
+        <span>Cargando hospitalizaciones...</span>
+      </div>
+
+      <!-- LISTA -->
+      <div class="hosp-grid" *ngIf="!isLoading">
+
+        <div class="empty-state" *ngIf="hospitalizacionesTab.length === 0">
+          <div class="empty-icon">
+            <span *ngIf="tabActiva === 'activas'">🏥</span>
+            <span *ngIf="tabActiva === 'alta'">✅</span>
+            <span *ngIf="tabActiva === 'fallecidas'">🕊️</span>
+          </div>
+          <div class="empty-title" *ngIf="tabActiva === 'activas'">No hay mascotas hospitalizadas</div>
+          <div class="empty-title" *ngIf="tabActiva === 'alta'">No hay mascotas dadas de alta</div>
+          <div class="empty-title" *ngIf="tabActiva === 'fallecidas'">No hay registros de fallecimiento</div>
+          <div class="empty-sub" *ngIf="tabActiva === 'activas'">Las hospitalizaciones se generan al cerrar una atención médica marcando "Requiere hospitalización"</div>
+        </div>
+
+        <div class="hosp-card"
+             *ngFor="let h of hospitalizacionesTab"
+             [class.card-alta]="h.status === 'DISCHARGED'"
+             [class.card-fallecida]="h.status === 'DECEASED'">
+
+          <!-- Header -->
+          <div class="card-header">
+            <div class="pet-avatar">{{ getEmojiBySpecies(h.petName) }}</div>
+            <div class="pet-info">
+              <div class="pet-name">{{ h.petName }}</div>
+              <div class="vet-name">👨‍⚕️ {{ h.vetName }}</div>
+            </div>
+            <div class="tiempo-badge" *ngIf="h.status === 'ACTIVE'">
+              ⏱️ {{ calcularTiempo(h.admissionDate) }}
+            </div>
+          </div>
+
+          <!-- Cuerpo -->
+          <div class="card-body">
+            <div class="info-row">
+              <span class="info-label">Motivo</span>
+              <span class="info-val">{{ h.reason }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Ingreso</span>
+              <span class="info-val">{{ formatDate(h.admissionDate) }}</span>
+            </div>
+            <div class="info-row" *ngIf="h.dischargeDate">
+              <span class="info-label">{{ h.status === 'DECEASED' ? 'Fallecimiento' : 'Alta' }}</span>
+              <span class="info-val">{{ formatDate(h.dischargeDate) }}</span>
+            </div>
+            <div class="info-row" *ngIf="h.causeOfDeath">
+              <span class="info-label">Causa</span>
+              <span class="info-val causa-muerte">{{ h.causeOfDeath }}</span>
+            </div>
+            <div class="info-row" *ngIf="h.initialObservations">
+              <span class="info-label">Observaciones</span>
+              <span class="info-val">{{ h.initialObservations }}</span>
+            </div>
+            <div class="info-row" *ngIf="h.totalHours !== null">
+              <span class="info-label">Total</span>
+              <span class="info-val">{{ h.totalHours }}h · {{ h.totalCost | currency:'COP':'symbol-narrow':'1.0-0' }}</span>
+            </div>
+          </div>
+
+          <!-- Notas de evolución -->
+          <div class="notas-section" *ngIf="h.notes && h.notes.length > 0">
+            <div class="notas-header">📝 Notas de evolución ({{ h.notes.length }})</div>
+            <div class="nota-item" *ngFor="let nota of h.notes">
+              <span class="nota-fecha">{{ formatDate(nota.createdAt) }}</span>
+              <span>{{ nota.note }}</span>
+            </div>
+          </div>
+
+          <!-- Acciones — solo para activas -->
+          <div class="card-actions" *ngIf="h.status === 'ACTIVE'">
+            <button class="btn-nota" (click)="abrirModalNota(h)">📝 Agregar nota</button>
+            <button class="btn-alta" (click)="abrirModalAlta(h)">✅ Dar de alta</button>
+            <button class="btn-fallecido" (click)="abrirModalFallecido(h)">🕊️ Registrar fallecimiento</button>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- ── Modal dar de alta ────────────────────────────────────────────────── -->
+<div class="modal-overlay" *ngIf="mostrarModalAlta" (click)="cerrarModalAlta()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-icon">✅</div>
+    <div class="modal-title">Dar de alta</div>
+    <div class="modal-message">
+      ¿Confirmas que <strong>{{ hospSeleccionada?.petName }}</strong> está listo para ser dado de alta?
+      Se registrará la fecha y hora actual como fecha de alta.
+    </div>
+    <div class="error-card" *ngIf="errorAlta">⚠️ {{ errorAlta }}</div>
+    <div class="modal-actions">
+      <button class="btn-secondary" (click)="cerrarModalAlta()" [disabled]="guardandoAlta">Cancelar</button>
+      <button class="btn-success" (click)="confirmarAlta()" [disabled]="guardandoAlta">
+        {{ guardandoAlta ? 'Procesando...' : '✅ Confirmar alta' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal fallecimiento ──────────────────────────────────────────────── -->
+<div class="modal-overlay" *ngIf="mostrarModalFallecido" (click)="cerrarModalFallecido()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-icon">🕊️</div>
+    <div class="modal-title">Registrar fallecimiento</div>
+    <p class="modal-message">Registrar el fallecimiento de <strong>{{ hospFallecida?.petName }}</strong>.</p>
+    <div class="form-group">
+      <label>Causa de muerte *</label>
+      <textarea class="form-textarea" [(ngModel)]="causaMuerte" rows="3"
+                placeholder="Describe la causa del fallecimiento..."></textarea>
+    </div>
+    <div class="error-card" *ngIf="errorFallecido">⚠️ {{ errorFallecido }}</div>
+    <div class="modal-actions">
+      <button class="btn-secondary" (click)="cerrarModalFallecido()" [disabled]="guardandoFallecido">Cancelar</button>
+      <button class="btn-danger" (click)="confirmarFallecido()" [disabled]="guardandoFallecido || !causaMuerte.trim()">
+        {{ guardandoFallecido ? 'Guardando...' : 'Registrar fallecimiento' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal nota ───────────────────────────────────────────────────────── -->
+<div class="modal-overlay" *ngIf="mostrarModalNota" (click)="cerrarModalNota()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-title">📝 Nota de evolución — {{ hospNota?.petName }}</div>
+    <div class="form-group">
+      <label>Nota *</label>
+      <textarea class="form-textarea" [(ngModel)]="notaTexto" rows="4"
+                placeholder="Describe la evolución del paciente, cambios en tratamiento, observaciones..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" (click)="cerrarModalNota()" [disabled]="guardandoNota">Cancelar</button>
+      <button class="btn-primary" (click)="guardarNota()" [disabled]="guardandoNota || !notaTexto.trim()">
+        {{ guardandoNota ? 'Guardando...' : 'Guardar nota' }}
+      </button>
+    </div>
+  </div>
+</div>

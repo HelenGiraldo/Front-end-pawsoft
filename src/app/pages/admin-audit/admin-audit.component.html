@@ -1,0 +1,57 @@
+<app-sidebar [userName]="userName" [userRole]="userRole"></app-sidebar>
+
+<ion-content class="admin-audit-content">
+  <div class="container">
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Auditoría de Ajustes de Pagos</ion-title>
+      </ion-toolbar>
+    </ion-header>
+
+    <div class="filters">
+      <ion-searchbar
+        [(ngModel)]="searchText"
+        (ionInput)="filter()"
+        placeholder="Buscar por recepcionista o motivo"
+        debounce="300">
+      </ion-searchbar>
+    </div>
+
+    <div *ngIf="loading" class="loading-container">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Cargando ajustes...</p>
+    </div>
+
+    <div *ngIf="!loading && filteredAdjustments.length === 0" class="empty-state">
+      <ion-icon name="document-text-outline"></ion-icon>
+      <p>No se encontraron ajustes de pagos</p>
+    </div>
+
+    <div *ngIf="!loading && filteredAdjustments.length > 0" class="table-container">
+      <table class="audit-table">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Recepcionista</th>
+            <th>Monto Original</th>
+            <th>Monto Ajustado</th>
+            <th>Diferencia</th>
+            <th>Motivo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let adj of filteredAdjustments">
+            <td>{{ formatDate(adj.adjustedAt) }}</td>
+            <td>{{ adj.adjustedByName }}</td>
+            <td>{{ formatCurrency(adj.originalAmount) }}</td>
+            <td>{{ formatCurrency(adj.adjustedAmount) }}</td>
+            <td [class]="getDifferenceClass(adj.difference)">
+              {{ formatCurrency(adj.difference) }}
+            </td>
+            <td class="reason-cell">{{ adj.reason }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</ion-content>

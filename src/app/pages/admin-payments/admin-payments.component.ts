@@ -1,13 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ModalController } from '@ionic/angular';
+import { IonicModule } from '@ionic/angular';
 import { AppSidebarComponent } from 'src/app/share/components/app-sidebar/app-sidebar.component';
 import { PaymentService, PaymentResponse, PaymentStats } from 'src/app/services/Payment.service';
+import { PaymentAdjustmentModalComponent } from 'src/app/components/payment-adjustment-modal/payment-adjustment-modal.component';
 
 @Component({
   selector: 'app-admin-payments',
   standalone: true,
-  imports: [CommonModule, FormsModule, AppSidebarComponent],
+  imports: [CommonModule, FormsModule, IonicModule, AppSidebarComponent],
   templateUrl: './admin-payments.component.html',
   styleUrls: ['./admin-payments.component.scss']
 })
@@ -24,7 +27,7 @@ export class AdminPaymentsComponent implements OnInit {
   statusFilter  = '';
   loading       = true;
 
-  constructor(private readonly paymentService: PaymentService) {}
+  constructor(private readonly paymentService: PaymentService, private modalCtrl: ModalController) {}
 
   ngOnInit(): void {
     this.userName = localStorage.getItem('email') || 'Admin';
@@ -99,5 +102,38 @@ export class AdminPaymentsComponent implements OnInit {
     return new Intl.NumberFormat('es-CO', {
       style: 'currency', currency: 'COP', minimumFractionDigits: 0
     }).format(amount);
+  }
+
+  async openAdjustmentModal(payment: PaymentResponse): Promise<void> {
+    const modal = await this.modalCtrl.create({
+      component: PaymentAdjustmentModalComponent,
+      componentProps: {
+        currentAmount: payment.amount,
+        paymentId: payment.id
+      }
+    });
+
+    await modal.present();
+
+    const { data, role } = await modal.onWillDismiss();
+
+    if (role === 'confirm' && data) {
+      this.paymentService.adjustPayment(payment.id, {
+        adjustedAmount: data.adjustedAmount,
+        reason: data.reason
+      }).subscribe({
+        next: (updated) => {
+          const idx = this.payments.findIndex(p => p.id === updated.id);
+          if (idx !== -1) this.payments[idx] = updated;
+          this.filter();
+          this.loadStats();
+          alert('Pago ajustado correctamente');
+        },
+        error: (err) => {
+          console.error('Error adjusting payment:', err);
+          alert('Error al ajustar el pago');
+        }
+      });
+    }
   }
 }

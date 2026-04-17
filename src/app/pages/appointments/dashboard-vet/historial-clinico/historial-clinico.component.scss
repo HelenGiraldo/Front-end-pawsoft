@@ -361,3 +361,18 @@
   font-weight: 800;
   color: #145C42;
 }
+
+.pdf-adjunto {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: #FFF3F3;
+  border: 1.5px solid #FFCDD2;
+  border-radius: 8px;
+  color: #b03030;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: none;
+  &:hover { background: #FFCDD2; }
+}

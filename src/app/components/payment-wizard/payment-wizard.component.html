@@ -1,0 +1,219 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Crear Pago con Medicamentos/Vacunas</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="cancel()">
+        <ion-icon name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+  
+  <!-- Progress indicator -->
+  <div class="progress-steps">
+    <div class="step" [class.active]="currentStep >= 1" [class.completed]="currentStep > 1">
+      <div class="step-number">1</div>
+      <div class="step-label">Información</div>
+    </div>
+    <div class="step-line" [class.completed]="currentStep > 1"></div>
+    <div class="step" [class.active]="currentStep >= 2" [class.completed]="currentStep > 2">
+      <div class="step-number">2</div>
+      <div class="step-label">Medicamentos/Vacunas</div>
+    </div>
+    <div class="step-line" [class.completed]="currentStep > 2"></div>
+    <div class="step" [class.active]="currentStep >= 3">
+      <div class="step-number">3</div>
+      <div class="step-label">Revisar</div>
+    </div>
+  </div>
+</ion-header>
+
+<ion-content>
+  <div class="wizard-content">
+    
+    <!-- Step 1: Appointment Information -->
+    <div *ngIf="currentStep === 1" class="step-content">
+      <h2>Información de la Cita</h2>
+      <form [formGroup]="appointmentForm">
+        <ion-item>
+          <ion-label position="stacked">ID de Cita *</ion-label>
+          <ion-input type="number" formControlName="appointmentId" placeholder="Ej: 123"></ion-input>
+        </ion-item>
+        
+        <ion-item>
+          <ion-label position="stacked">Nombre del Cliente *</ion-label>
+          <ion-input formControlName="clientName" placeholder="Ej: Juan Pérez"></ion-input>
+        </ion-item>
+        
+        <ion-item>
+          <ion-label position="stacked">Email del Cliente *</ion-label>
+          <ion-input type="email" formControlName="clientEmail" placeholder="Ej: juan@example.com"></ion-input>
+        </ion-item>
+        
+        <ion-item>
+          <ion-label position="stacked">Nombre de la Mascota *</ion-label>
+          <ion-input formControlName="petName" placeholder="Ej: Max"></ion-input>
+        </ion-item>
+        
+        <ion-item>
+          <ion-label position="stacked">Veterinario *</ion-label>
+          <ion-input formControlName="vetName" placeholder="Ej: Dra. María García"></ion-input>
+        </ion-item>
+        
+        <ion-item>
+          <ion-label position="stacked">Fecha de Cita *</ion-label>
+          <ion-input type="date" formControlName="appointmentDate"></ion-input>
+        </ion-item>
+        
+        <ion-item>
+          <ion-label position="stacked">Hora de Cita *</ion-label>
+          <ion-input type="time" formControlName="appointmentTime"></ion-input>
+        </ion-item>
+        
+        <ion-item>
+          <ion-label position="stacked">Concepto/Servicio *</ion-label>
+          <ion-input formControlName="concept" placeholder="Ej: Consulta general"></ion-input>
+        </ion-item>
+        
+        <ion-item>
+          <ion-label position="stacked">Monto Base del Servicio *</ion-label>
+          <ion-input type="number" formControlName="baseAmount" placeholder="0"></ion-input>
+        </ion-item>
+        
+        <ion-item>
+          <ion-label position="stacked">Notas (opcional)</ion-label>
+          <ion-textarea formControlName="notes" rows="3" placeholder="Observaciones adicionales"></ion-textarea>
+        </ion-item>
+      </form>
+    </div>
+
+    <!-- Step 2: Select Medications/Vaccines -->
+    <div *ngIf="currentStep === 2" class="step-content">
+      <h2>Medicamentos y Vacunas Aplicados</h2>
+      <p class="subtitle">Selecciona solo los medicamentos y vacunas aplicados durante el procedimiento</p>
+      
+      <ion-searchbar
+        [(ngModel)]="searchText"
+        placeholder="Buscar medicamento o vacuna"
+        debounce="300">
+      </ion-searchbar>
+
+      <div class="selected-items" *ngIf="selectedItems.length > 0">
+        <h3>Ítems Seleccionados ({{ selectedItems.length }})</h3>
+        <div class="selected-item" *ngFor="let item of selectedItems">
+          <div class="item-info">
+            <ion-icon [name]="getItemTypeIcon(item.type)"></ion-icon>
+            <div class="item-details">
+              <strong>{{ item.name }}</strong>
+              <span class="item-type">{{ getItemTypeLabel(item.type) }}</span>
+            </div>
+          </div>
+          <div class="item-controls">
+            <ion-button size="small" fill="clear" (click)="updateQuantity(item, item.quantity - 1)">
+              <ion-icon name="remove"></ion-icon>
+            </ion-button>
+            <span class="quantity">{{ item.quantity }} {{ item.unit }}</span>
+            <ion-button size="small" fill="clear" (click)="updateQuantity(item, item.quantity + 1)">
+              <ion-icon name="add"></ion-icon>
+            </ion-button>
+            <span class="subtotal">{{ formatCurrency(item.subtotal) }}</span>
+            <ion-button size="small" fill="clear" color="danger" (click)="removeItem(item)">
+              <ion-icon name="trash"></ion-icon>
+            </ion-button>
+          </div>
+        </div>
+      </div>
+
+      <div class="catalog-items">
+        <h3>Catálogo Disponible</h3>
+        <div *ngIf="loadingCatalog" class="loading">
+          <ion-spinner></ion-spinner>
+          <p>Cargando catálogo...</p>
+        </div>
+        
+        <div *ngIf="!loadingCatalog && filteredCatalog.length === 0" class="empty">
+          <ion-icon name="search-outline"></ion-icon>
+          <p>No se encontraron resultados</p>
+        </div>
+        
+        <div class="catalog-item" *ngFor="let item of filteredCatalog" (click)="addItem(item)">
+          <ion-icon [name]="getItemTypeIcon(item.type)"></ion-icon>
+          <div class="item-details">
+            <strong>{{ item.name }}</strong>
+            <p>{{ item.description }}</p>
+            <span class="item-type">{{ getItemTypeLabel(item.type) }}</span>
+          </div>
+          <div class="item-price">
+            <span class="price">{{ formatCurrency(item.price) }}</span>
+            <span class="unit">por {{ item.unit || 'unidad' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Review -->
+    <div *ngIf="currentStep === 3" class="step-content">
+      <h2>Revisar Pago</h2>
+      
+      <div class="review-section">
+        <h3>Información de la Cita</h3>
+        <div class="review-item">
+          <span class="label">Cliente:</span>
+          <span class="value">{{ appointmentForm.get('clientName')?.value }}</span>
+        </div>
+        <div class="review-item">
+          <span class="label">Mascota:</span>
+          <span class="value">{{ appointmentForm.get('petName')?.value }}</span>
+        </div>
+        <div class="review-item">
+          <span class="label">Fecha:</span>
+          <span class="value">{{ appointmentForm.get('appointmentDate')?.value }} {{ appointmentForm.get('appointmentTime')?.value }}</span>
+        </div>
+        <div class="review-item">
+          <span class="label">Concepto:</span>
+          <span class="value">{{ appointmentForm.get('concept')?.value }}</span>
+        </div>
+      </div>
+
+      <div class="review-section">
+        <h3>Desglose de Costos</h3>
+        <div class="review-item">
+          <span class="label">Servicio base:</span>
+          <span class="value">{{ formatCurrency(appointmentForm.get('baseAmount')?.value || 0) }}</span>
+        </div>
+        
+        <div class="items-breakdown" *ngIf="selectedItems.length > 0">
+          <div class="review-item" *ngFor="let item of selectedItems">
+            <span class="label">{{ item.name }} ({{ item.quantity }} {{ item.unit }})</span>
+            <span class="value">{{ formatCurrency(item.subtotal) }}</span>
+          </div>
+        </div>
+        
+        <div class="review-item total">
+          <span class="label">Total:</span>
+          <span class="value">{{ formatCurrency(totalAmount) }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <div class="footer-buttons">
+      <ion-button fill="outline" (click)="prevStep()" [disabled]="currentStep === 1 || saving">
+        <ion-icon name="arrow-back" slot="start"></ion-icon>
+        Anterior
+      </ion-button>
+      
+      <ion-button *ngIf="currentStep < 3" (click)="nextStep()" [disabled]="saving">
+        Siguiente
+        <ion-icon name="arrow-forward" slot="end"></ion-icon>
+      </ion-button>
+      
+      <ion-button *ngIf="currentStep === 3" (click)="confirm()" [disabled]="saving" color="success">
+        <ion-spinner *ngIf="saving" name="crescent"></ion-spinner>
+        <span *ngIf="!saving">Confirmar Pago</span>
+      </ion-button>
+    </div>
+  </ion-toolbar>
+</ion-footer>

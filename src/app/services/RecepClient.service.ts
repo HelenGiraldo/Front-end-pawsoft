@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { CreateMedicalProfileInitialRequest } from '../models/medical-profile.model';
 
 export interface RecepClient {
   id:        number;
@@ -45,6 +46,7 @@ export interface RecepPetRequest {
   birthDate:  string;
   photoUrl?:  string;
   ownerEmail: string;
+  medicalProfileInitial?: CreateMedicalProfileInitialRequest;
 }
 
 @Injectable({ providedIn: 'root' })

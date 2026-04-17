@@ -129,7 +129,8 @@ export class AppSidebarComponent implements OnInit, OnChanges, OnDestroy {
         this.menuItems = [
           { icon: '🏠', label: 'Dashboard',  route: '/dashboard-admin' },
           { icon: '🩺', label: 'Servicios',  route: '/dashboard-admin/servicios' },
-          { icon: '💰', label: 'Pagos',      route: 'dashboard-admin/pagos' },
+          { icon: '💰', label: 'Pagos',      route: '/dashboard-admin/pagos' },
+          { icon: '📊', label: 'Auditoría',  route: '/dashboard-admin/auditoria' },
         ];
         break;
 
@@ -157,6 +158,12 @@ export class AppSidebarComponent implements OnInit, OnChanges, OnDestroy {
         disabled: !activa,
         activeDot: !!activa,
         subLabel: activa ? activa.petName : undefined,
+      },
+      {
+        icon: '🏥',
+        label: 'Hospitalizaciones',
+        route: '/veterinario/hospitalizaciones',
+        disabled: false,
       },
       {
         icon: '📁',

@@ -173,6 +173,71 @@
           </span>
         </div>
 
+        <!-- INFORMACIÓN MÉDICA INICIAL (OPCIONAL) -->
+        <div class="medical-section">
+          <div class="medical-section-header" (click)="toggleMedicalSection()">
+            <div class="medical-section-title">
+              <span class="medical-icon">🏥</span>
+              <span>Información Médica Inicial (Opcional)</span>
+            </div>
+            <span class="medical-toggle" [class.expanded]="showMedicalSection">
+              {{ showMedicalSection ? '▲' : '▼' }}
+            </span>
+          </div>
+          
+          <div class="medical-section-subtitle" *ngIf="!showMedicalSection">
+            Útil para emergencias y mascotas de otras clínicas
+          </div>
+
+          <div class="medical-fields" *ngIf="showMedicalSection">
+            <div class="medical-info-box">
+              <p><strong>💡 ¿Por qué es importante?</strong></p>
+              <p>Esta información estará disponible inmediatamente para el veterinario en caso de emergencia, sin necesidad de esperar a la primera consulta.</p>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="bloodType">🩸 Tipo de Sangre</label>
+                <input id="bloodType" type="text" class="form-input" 
+                       formControlName="bloodType" 
+                       placeholder="Ej: DEA 1.1, DEA 1.2...">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="knownAllergies">⚠️ Alergias Conocidas</label>
+              <textarea id="knownAllergies" class="form-textarea" 
+                        formControlName="knownAllergies" 
+                        placeholder="Ej: Amoxicilina, Polen, Pollo..."
+                        rows="2"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="chronicConditions">🏥 Condiciones Crónicas</label>
+              <textarea id="chronicConditions" class="form-textarea" 
+                        formControlName="chronicConditions" 
+                        placeholder="Ej: Displasia de cadera, Diabetes..."
+                        rows="2"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="currentMedications">💊 Medicamentos Actuales</label>
+              <textarea id="currentMedications" class="form-textarea" 
+                        formControlName="currentMedications" 
+                        placeholder="Ej: Meloxicam 10mg, Insulina..."
+                        rows="2"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="additionalNotes">📝 Notas Adicionales</label>
+              <textarea id="additionalNotes" class="form-textarea" 
+                        formControlName="additionalNotes" 
+                        placeholder="Información adicional relevante..."
+                        rows="2"></textarea>
+            </div>
+          </div>
+        </div>
+
       </form>
     </div>
 

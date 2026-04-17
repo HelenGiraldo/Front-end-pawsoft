@@ -260,6 +260,13 @@
   font-family: 'Manrope', sans-serif;
   transition: all 0.14s ease;
   white-space: nowrap;
+  margin-right: 6px;
+
+  &.adjust:hover {
+    background: #E6F5EE;
+    border-color: #22A06B;
+    color: #145C42;
+  }
 
   &.revert:hover {
     background: #FFF2E0;

@@ -21,7 +21,7 @@ bootstrapApplication(AppComponent, {
     provideHttpClient(withInterceptors([tokenInterceptor, tokenRefreshInterceptor])),
     importProvidersFrom(
       TranslateModule.forRoot({
-        defaultLanguage: 'es',
+        fallbackLang: 'es',
         loader: {
           provide: TranslateLoader,
           useFactory: HttpLoaderFactory,
