@@ -3,6 +3,20 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
+/**
+ * Interfaz para la respuesta de ajustes de pagos
+ * 
+ * Proyecto: Pawsoft
+ * Universidad del Quindío
+ * Materia: Software III
+ * 
+ * Autoras:
+ * - Valentina Porras Salazar
+ * - Helen Xiomara Giraldo Libreros
+ * 
+ * Profesor:
+ * Raúl Yulbraynner Rivera Gálvez
+ */
 export interface PaymentAdjustmentResponse {
   id: number;
   originalAmount: number;
@@ -14,6 +28,24 @@ export interface PaymentAdjustmentResponse {
   adjustedAt: string;
 }
 
+/**
+ * Servicio para gestionar auditoría de ajustes de pagos.
+ * 
+ * Responsabilidades:
+ * - Obtener historial de ajustes de pagos realizados por administradores
+ * - Proporcionar información de auditoría para el panel administrativo
+ * 
+ * Proyecto: Pawsoft
+ * Universidad del Quindío
+ * Materia: Software III
+ * 
+ * Autoras:
+ * - Valentina Porras Salazar
+ * - Helen Xiomara Giraldo Libreros
+ * 
+ * Profesor:
+ * Raúl Yulbraynner Rivera Gálvez
+ */
 @Injectable({
   providedIn: 'root'
 })
@@ -22,6 +54,10 @@ export class AuditService {
 
   constructor(private http: HttpClient) {}
 
+  /**
+   * Obtiene todos los ajustes de pagos realizados
+   * @returns Observable con lista de ajustes de pagos
+   */
   getAllAdjustments(): Observable<PaymentAdjustmentResponse[]> {
     return this.http.get<PaymentAdjustmentResponse[]>(`${this.apiUrl}/adjustments`);
   }
