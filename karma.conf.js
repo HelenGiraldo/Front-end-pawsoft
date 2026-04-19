@@ -16,8 +16,8 @@ module.exports = function (config) {
       jasmine: {
         // you can add configuration options for Jasmine here
         // the possible options are listed at https://jasmine.github.io/api/edge/Configuration.html
-        // for example, you can disable the random execution with `random: false`
-        // or set a specific seed with `seed: 4321`
+        // for example, you can disable the random execution order
+        random: true
       },
       clearContext: false // leave Jasmine Spec Runner output visible in browser
     },
@@ -25,20 +25,66 @@ module.exports = function (config) {
       suppressAll: true // removes the duplicated traces
     },
     coverageReporter: {
-      dir: require('path').join(__dirname, './coverage/app'),
+      dir: require('path').join(__dirname, './coverage/pawsoft'),
       subdir: '.',
       reporters: [
         { type: 'html' },
-        { type: 'text-summary' }
-      ]
+        { type: 'text-summary' },
+        { type: 'lcov' }
+      ],
+      check: {
+        global: {
+          statements: 80,
+          branches: 70,
+          functions: 80,
+          lines: 80
+        }
+      }
     },
-    reporters: ['progress', 'kjhtml'],
+    reporters: ['progress', 'kjhtml', 'coverage'],
     port: 9876,
     colors: true,
     logLevel: config.LOG_INFO,
     autoWatch: true,
     browsers: ['Chrome'],
     singleRun: false,
-    restartOnFileChange: true
+    restartOnFileChange: true,
+    
+    // Configuración específica para pruebas funcionales de PawSoft
+    customLaunchers: {
+      ChromeHeadlessCI: {
+        base: 'ChromeHeadless',
+        flags: ['--no-sandbox', '--disable-web-security', '--disable-gpu', '--remote-debugging-port=9222']
+      }
+    },
+    
+    // Configuración de timeouts para pruebas funcionales
+    browserDisconnectTimeout: 10000,
+    browserDisconnectTolerance: 3,
+    browserNoActivityTimeout: 60000,
+    captureTimeout: 60000,
+    
+    // Configuración para pruebas de servicios HTTP
+    proxies: {
+      '/api/': 'http://localhost:8080/api/'
+    },
+    
+    // Archivos a incluir/excluir
+    files: [
+      // Incluir archivos de configuración global si es necesario
+    ],
+    
+    // Preprocesadores
+    preprocessors: {
+      // Configuración de coverage para archivos fuente
+      'src/**/*.ts': ['coverage']
+    }
   });
+  
+  // Configuración específica para CI/CD
+  if (process.env.CI) {
+    config.browsers = ['ChromeHeadlessCI'];
+    config.singleRun = true;
+    config.autoWatch = false;
+  }
 };
