@@ -6,6 +6,7 @@ import { Subscription } from 'rxjs';
 import { InactivityService } from './services/inactivity.service';
 import { AccessibilityWidgetComponent } from './share/components/accessibility-widget/accessibility-widget.component';
 import { ChatbotFabComponent } from './component/chatbot-fab/chatbot-fab.component';
+import { AuthChatbotComponent } from './component/auth-chatbot/auth-chatbot.component';
 import { CommonModule } from '@angular/common';
 
 /**
@@ -24,7 +25,7 @@ import { CommonModule } from '@angular/common';
   selector: 'app-root',
   templateUrl: 'app.component.html',
   standalone: true,
-  imports: [IonApp, IonRouterOutlet, AccessibilityWidgetComponent, ChatbotFabComponent, CommonModule],
+  imports: [IonApp, IonRouterOutlet, AccessibilityWidgetComponent, ChatbotFabComponent, AuthChatbotComponent, CommonModule],
 })
 export class AppComponent implements OnInit, OnDestroy {
 

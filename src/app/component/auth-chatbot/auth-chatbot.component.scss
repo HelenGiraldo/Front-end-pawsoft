@@ -1,0 +1,301 @@
+/* ── Chat Window ── */
+.chat-window {
+  position: fixed;
+  bottom: 170px;
+  right: 24px;
+  width: 340px;
+  height: 490px;
+  background: #ffffff;
+  border-radius: 22px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.18), 0 4px 16px rgba(0, 0, 0, 0.10);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 9999;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(20px) scale(0.94);
+  transition: opacity 0.28s ease, transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  &.open {
+    opacity: 1;
+    pointer-events: all;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ── Header ── */
+.chat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  flex-shrink: 0;
+}
+
+.header-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bot-avatar {
+  width: 42px;
+  height: 42px;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+}
+
+.bot-name {
+  font-weight: 700;
+  font-size: 14.5px;
+  letter-spacing: 0.1px;
+}
+
+.bot-status {
+  font-size: 11.5px;
+  opacity: 0.9;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 1px;
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  background: #4ade80;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px rgba(74, 222, 128, 0.3);
+  animation: pulse-dot 2s infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.close-btn {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+
+  &:hover { background: rgba(255, 255, 255, 0.28); }
+}
+
+/* ── Messages ── */
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #f2f4f8;
+
+  &::-webkit-scrollbar { width: 3px; }
+  &::-webkit-scrollbar-thumb { background: #c8c8c8; border-radius: 4px; }
+}
+
+.message {
+  display: flex;
+  align-items: flex-end;
+  gap: 7px;
+  animation: fadeUp 0.22s ease both;
+
+  &.user {
+    flex-direction: row-reverse;
+
+    .bubble {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      border-bottom-right-radius: 5px;
+    }
+  }
+
+  &.bot .bubble {
+    background: #ffffff;
+    color: #1a1a2e;
+    border-bottom-left-radius: 5px;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.07);
+  }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.avatar {
+  width: 30px;
+  height: 30px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.bubble {
+  max-width: 78%;
+  padding: 10px 14px;
+  border-radius: 18px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  word-break: break-word;
+
+  ::ng-deep {
+    p { margin: 0 0 6px; &:last-child { margin: 0; } }
+    strong { font-weight: 600; }
+    ol, ul { margin: 4px 0; padding-left: 18px; }
+    li { margin-bottom: 2px; }
+  }
+}
+
+/* Typing indicator */
+.typing {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 13px 16px;
+
+  span {
+    width: 7px;
+    height: 7px;
+    background: #b0b8cc;
+    border-radius: 50%;
+    animation: bounce 1.3s infinite ease-in-out;
+
+    &:nth-child(2) { animation-delay: 0.18s; }
+    &:nth-child(3) { animation-delay: 0.36s; }
+  }
+}
+
+@keyframes bounce {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-6px); }
+}
+
+/* ── Input ── */
+.chat-input {
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  border-top: 1px solid #e8eaf0;
+  background: #ffffff;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.input-field {
+  flex: 1;
+  border: 1.5px solid #e0e3ef;
+  border-radius: 20px;
+  padding: 9px 14px;
+  font-size: 13.5px;
+  outline: none;
+  background: #f2f4f8;
+  color: #1a1a2e;
+  transition: border-color 0.2s, background 0.2s;
+
+  &:focus {
+    border-color: #10b981;
+    background: #ffffff;
+  }
+  &::placeholder { color: #a8afc4; }
+}
+
+.send-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s, opacity 0.15s;
+  flex-shrink: 0;
+  box-shadow: 0 3px 10px rgba(16, 185, 129, 0.4);
+
+  &:hover:not(:disabled) { transform: scale(1.08); }
+  &:active:not(:disabled) { transform: scale(0.93); }
+  &:disabled { opacity: 0.35; cursor: not-allowed; box-shadow: none; }
+}
+
+/* ── FAB Button ── */
+.fab-btn {
+  position: fixed;
+  bottom: 100px;
+  right: 24px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s;
+
+  &:hover {
+    transform: scale(1.1);
+    box-shadow: 0 8px 24px rgba(16, 185, 129, 0.6);
+  }
+
+  &:active { transform: scale(0.94); }
+}
+
+@media (max-width: 768px) {
+  .fab-btn {
+    width: 44px;
+    height: 44px;
+    bottom: 130px;
+    right: 12px;
+    box-shadow: 0 3px 12px rgba(16, 185, 129, 0.4);
+    opacity: 0.85;
+  }
+
+  .chat-window {
+    bottom: 182px;
+    right: 8px;
+    width: calc(100vw - 16px);
+    max-width: 340px;
+  }
+}
+
+.fab-icon, .fab-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s, transform 0.2s;
+  position: absolute;
+
+  &.hidden {
+    opacity: 0;
+    transform: scale(0.6) rotate(20deg);
+    pointer-events: none;
+  }
+}
+
