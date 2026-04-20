@@ -1,354 +1,201 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Router } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { provideRouter } from '@angular/router';
 import { RegisterPage } from './register.page';
 import { AuthService } from '../../../services/auth';
+import { of, throwError } from 'rxjs';
 
-// Mock para RegisterPage (creamos una implementación básica)
-class MockRegisterPage {
-  name = '';
-  email = '';
-  password = '';
-  confirmPassword = '';
-  phone = '';
-  errorMsg = '';
-  successMsg = '';
-  cargando = false;
-  recaptchaToken = '';
-  mostrarPass = false;
-  mostrarConfirmPass = false;
-
-  constructor(
-    private authService: AuthService,
-    private router: Router
-  ) {}
-
-  register(): void {
-    if (!this.recaptchaToken) {
-      this.errorMsg = 'Por favor, completa el reCAPTCHA antes de continuar.';
-      return;
-    }
-
-    if (this.password !== this.confirmPassword) {
-      this.errorMsg = 'Las contraseñas no coinciden.';
-      return;
-    }
-
-    this.errorMsg = '';
-    this.successMsg = '';
-    this.cargando = true;
-
-    this.authService.register(
-      this.name,
-      this.email,
-      this.password,
-      this.phone,
-      this.recaptchaToken
-    ).subscribe({
-      next: () => {
-        this.cargando = false;
-        this.successMsg = 'Registro exitoso. Verifica tu email para activar tu cuenta.';
-        setTimeout(() => {
-          this.router.navigate(['/login']);
-        }, 2000);
-      },
-      error: (err: any) => {
-        this.cargando = false;
-        this.errorMsg = this.extraerMensajeError(err) ?? 'Error en el registro. Intenta nuevamente.';
-      }
-    });
-  }
-
-  irLogin(): void {
-    this.router.navigate(['/login']);
-  }
-
-  private extraerMensajeError(err: any): string | null {
-    if (err?.error?.message) return err.error.message;
-    if (err?.error && typeof err.error === 'string') return err.error;
-    if (err?.message) return err.message;
-    return null;
-  }
-}
-
-describe('RegisterPage - Pruebas Funcionales (FE-REG-01)', () => {
-  let component: MockRegisterPage;
-  let authService: jasmine.SpyObj<AuthService>;
-  let router: jasmine.SpyObj<Router>;
+describe('RegisterPage', () => {
+  let component: RegisterPage;
+  let fixture: ComponentFixture<RegisterPage>;
+  let authServiceSpy: jasmine.SpyObj<AuthService>;
 
   beforeEach(async () => {
-    const authSpy = jasmine.createSpyObj('AuthService', ['register']);
-    const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    authServiceSpy = jasmine.createSpyObj('AuthService', [
+      'register', 'resendVerificationEmail'
+    ]);
 
-    authService = authSpy;
-    router = routerSpy;
-    component = new MockRegisterPage(authService, router);
+    await TestBed.configureTestingModule({
+      imports: [RegisterPage],
+      providers: [
+        provideRouter([]),
+        { provide: AuthService, useValue: authServiceSpy }
+      ]
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(RegisterPage);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
   });
 
-  // ═══════════════════════════════════════════════════════════════
-  // FE-REG-01: Funcionalidad completa del componente de registro
-  // ═══════════════════════════════════════════════════════════════
-  describe('FE-REG-01: Funcionalidad completa del componente de registro', () => {
-    
-    it('debe inicializar correctamente el componente', () => {
-      expect(component).toBeTruthy();
-      expect(component.name).toBe('');
-      expect(component.email).toBe('');
-      expect(component.password).toBe('');
-      expect(component.confirmPassword).toBe('');
-      expect(component.phone).toBe('');
-      expect(component.errorMsg).toBe('');
-      expect(component.successMsg).toBe('');
-      expect(component.cargando).toBe(false);
-      expect(component.mostrarPass).toBe(false);
-      expect(component.mostrarConfirmPass).toBe(false);
-    });
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
 
-    it('debe requerir reCAPTCHA antes de registrar', () => {
-      component.name = 'Juan Pérez';
-      component.email = 'juan@test.com';
-      component.password = 'Test@1234';
-      component.confirmPassword = 'Test@1234';
-      component.phone = '3001234567';
-      component.recaptchaToken = '';
+  it('should initialize with empty fields', () => {
+    expect(component.nombre).toBe('');
+    expect(component.correo).toBe('');
+    expect(component.telefono).toBe('');
+    expect(component.contrasena).toBe('');
+    expect(component.verificacionPendiente).toBe(false);
+  });
 
-      component.register();
+  it('should validate nombre - empty', () => {
+    component.nombre = '';
+    component.validarNombre();
+    expect(component.errores.nombre).toBeTruthy();
+  });
 
-      expect(component.errorMsg).toBe('Por favor, completa el reCAPTCHA antes de continuar.');
-      expect(authService.register).not.toHaveBeenCalled();
-    });
+  it('should validate nombre - single word', () => {
+    component.nombre = 'Juan';
+    component.validarNombre();
+    expect(component.errores.nombre).toBeTruthy();
+  });
 
-    it('debe validar que las contraseñas coincidan', () => {
-      component.name = 'Juan Pérez';
-      component.email = 'juan@test.com';
-      component.password = 'Test@1234';
-      component.confirmPassword = 'Different@5678';
-      component.phone = '3001234567';
-      component.recaptchaToken = 'valid-token';
+  it('should validate nombre - valid', () => {
+    component.nombre = 'Juan Pérez';
+    component.validarNombre();
+    expect(component.errores.nombre).toBe('');
+  });
 
-      component.register();
+  it('should validate correo - invalid', () => {
+    component.correo = 'not-an-email';
+    component.validarCorreo();
+    expect(component.errores.correo).toBeTruthy();
+  });
 
-      expect(component.errorMsg).toBe('Las contraseñas no coinciden.');
-      expect(authService.register).not.toHaveBeenCalled();
-    });
+  it('should validate correo - valid', () => {
+    component.correo = 'test@example.com';
+    component.validarCorreo();
+    expect(component.errores.correo).toBe('');
+  });
 
-    it('debe registrar usuario exitosamente', () => {
-      component.name = 'Juan Pérez';
-      component.email = 'juan@test.com';
-      component.password = 'Test@1234';
-      component.confirmPassword = 'Test@1234';
-      component.phone = '3001234567';
-      component.recaptchaToken = 'valid-token';
+  it('should validate telefono - invalid (not starting with 3)', () => {
+    component.telefono = '1234567890';
+    component.validarTelefono();
+    expect(component.errores.telefono).toBeTruthy();
+  });
 
-      const mockResponse = {
-        message: 'Usuario registrado exitosamente',
-        userId: '123'
-      };
+  it('should validate telefono - valid', () => {
+    component.telefono = '3001234567';
+    component.validarTelefono();
+    expect(component.errores.telefono).toBe('');
+  });
 
-      authService.register.and.returnValue(of(mockResponse));
+  it('should validate contrasena - too short', () => {
+    component.contrasena = '123';
+    component.validarContrasena();
+    expect(component.errores.contrasena).toBeTruthy();
+  });
 
-      component.register();
+  it('should validate contrasena - valid', () => {
+    component.contrasena = 'Password1!';
+    component.validarContrasena();
+    expect(component.errores.contrasena).toBe('');
+  });
 
-      expect(authService.register).toHaveBeenCalledWith(
-        'Juan Pérez',
-        'juan@test.com',
-        'Test@1234',
-        '3001234567',
-        'valid-token'
-      );
-      expect(component.cargando).toBe(false);
-      expect(component.successMsg).toBe('Registro exitoso. Verifica tu email para activar tu cuenta.');
-    });
+  it('should not register when recaptchaToken is empty', () => {
+    component.nombre = 'Juan Pérez';
+    component.correo = 'test@example.com';
+    component.telefono = '3001234567';
+    component.contrasena = 'Password1!';
+    component.recaptchaToken = '';
 
-    it('debe redirigir al login después de registro exitoso', (done) => {
-      component.name = 'Juan Pérez';
-      component.email = 'juan@test.com';
-      component.password = 'Test@1234';
-      component.confirmPassword = 'Test@1234';
-      component.phone = '3001234567';
-      component.recaptchaToken = 'valid-token';
+    component.registrar();
 
-      authService.register.and.returnValue(of({ message: 'Success' }));
+    expect(authServiceSpy.register).not.toHaveBeenCalled();
+  });
 
-      component.register();
+  it('should call authService.register with correct params', () => {
+    component.nombre = 'Juan Pérez';
+    component.correo = 'test@example.com';
+    component.telefono = '3001234567';
+    component.contrasena = 'Password1!';
+    component.recaptchaToken = 'test-token';
 
-      setTimeout(() => {
-        expect(router.navigate).toHaveBeenCalledWith(['/login']);
-        done();
-      }, 2100);
-    });
+    authServiceSpy.register.and.returnValue(of({}));
 
-    it('debe manejar error de email duplicado', () => {
-      component.name = 'Juan Pérez';
-      component.email = 'existing@test.com';
-      component.password = 'Test@1234';
-      component.confirmPassword = 'Test@1234';
-      component.phone = '3001234567';
-      component.recaptchaToken = 'valid-token';
+    component.registrar();
 
-      const error = {
-        error: { message: 'El email ya está registrado' }
-      };
+    expect(authServiceSpy.register).toHaveBeenCalledWith(
+      'Juan Pérez',
+      'test@example.com',
+      'Password1!',
+      '3001234567',
+      'test-token'
+    );
+  });
 
-      authService.register.and.returnValue(throwError(() => error));
+  it('should show verificacionPendiente after successful register', () => {
+    component.nombre = 'Juan Pérez';
+    component.correo = 'test@example.com';
+    component.telefono = '3001234567';
+    component.contrasena = 'Password1!';
+    component.recaptchaToken = 'test-token';
 
-      component.register();
+    authServiceSpy.register.and.returnValue(of({}));
 
-      expect(component.cargando).toBe(false);
-      expect(component.errorMsg).toBe('El email ya está registrado');
-    });
+    component.registrar();
 
-    it('debe manejar error de contraseña débil', () => {
-      component.name = 'Juan Pérez';
-      component.email = 'juan@test.com';
-      component.password = '123';
-      component.confirmPassword = '123';
-      component.phone = '3001234567';
-      component.recaptchaToken = 'valid-token';
+    expect(component.verificacionPendiente).toBe(true);
+    expect(component.correoRegistrado).toBe('test@example.com');
+  });
 
-      const error = {
-        error: { message: 'La contraseña debe tener al menos 8 caracteres' }
-      };
+  it('should set error on register failure', () => {
+    component.nombre = 'Juan Pérez';
+    component.correo = 'test@example.com';
+    component.telefono = '3001234567';
+    component.contrasena = 'Password1!';
+    component.recaptchaToken = 'test-token';
 
-      authService.register.and.returnValue(throwError(() => error));
+    authServiceSpy.register.and.returnValue(throwError(() => ({
+      error: { message: 'El correo ya está registrado' }
+    })));
 
-      component.register();
+    component.registrar();
 
-      expect(component.errorMsg).toBe('La contraseña debe tener al menos 8 caracteres');
-    });
+    expect(component.mostrarError).toBe(true);
+    expect(component.mensajeError).toBe('El correo ya está registrado');
+  });
 
-    it('debe manejar error de formato de email inválido', () => {
-      component.name = 'Juan Pérez';
-      component.email = 'email-invalido';
-      component.password = 'Test@1234';
-      component.confirmPassword = 'Test@1234';
-      component.phone = '3001234567';
-      component.recaptchaToken = 'valid-token';
+  it('should return to form on volverEditar', () => {
+    component.verificacionPendiente = true;
+    component.volverEditar();
+    expect(component.verificacionPendiente).toBe(false);
+  });
 
-      const error = {
-        error: { message: 'Formato de email inválido' }
-      };
+  it('should call resendVerificationEmail on reenviarVerificacion', () => {
+    component.correoRegistrado = 'test@example.com';
+    authServiceSpy.resendVerificationEmail.and.returnValue(of({}));
 
-      authService.register.and.returnValue(throwError(() => error));
+    component.reenviarVerificacion();
 
-      component.register();
+    expect(authServiceSpy.resendVerificationEmail).toHaveBeenCalledWith('test@example.com');
+    expect(component.tipoReenvio).toBe('ok');
+  });
 
-      expect(component.errorMsg).toBe('Formato de email inválido');
-    });
+  it('should handle resend error', () => {
+    component.correoRegistrado = 'test@example.com';
+    authServiceSpy.resendVerificationEmail.and.returnValue(throwError(() => new Error('error')));
 
-    it('debe manejar error de conexión de red', () => {
-      component.name = 'Juan Pérez';
-      component.email = 'juan@test.com';
-      component.password = 'Test@1234';
-      component.confirmPassword = 'Test@1234';
-      component.phone = '3001234567';
-      component.recaptchaToken = 'valid-token';
+    component.reenviarVerificacion();
 
-      authService.register.and.returnValue(
-        throwError(() => new Error('Network error'))
-      );
+    expect(component.tipoReenvio).toBe('error');
+  });
 
-      component.register();
+  it('should compute fuerzaPct correctly', () => {
+    component.contrasena = '';
+    expect(component.fuerzaPct).toBe('0%');
 
-      expect(component.errorMsg).toBe('Error en el registro. Intenta nuevamente.');
-    });
+    component.contrasena = 'abc';
+    expect(component.fuerzaPct).toBe('25%');
 
-    it('debe navegar al login al hacer clic en "Ya tengo cuenta"', () => {
-      component.irLogin();
+    component.contrasena = 'Password1!';
+    expect(component.fuerzaPct).toBe('100%');
+  });
 
-      expect(router.navigate).toHaveBeenCalledWith(['/login']);
-    });
-
-    it('debe limpiar mensajes de error al iniciar nuevo registro', () => {
-      component.errorMsg = 'Error previo';
-      component.successMsg = 'Éxito previo';
-      component.name = 'Juan Pérez';
-      component.email = 'juan@test.com';
-      component.password = 'Test@1234';
-      component.confirmPassword = 'Test@1234';
-      component.phone = '3001234567';
-      component.recaptchaToken = 'valid-token';
-
-      authService.register.and.returnValue(of({ message: 'Success' }));
-
-      component.register();
-
-      expect(component.errorMsg).toBe('');
-      expect(component.successMsg).toBe('Registro exitoso. Verifica tu email para activar tu cuenta.');
-    });
-
-    it('debe establecer estado de carga durante el registro', () => {
-      component.name = 'Juan Pérez';
-      component.email = 'juan@test.com';
-      component.password = 'Test@1234';
-      component.confirmPassword = 'Test@1234';
-      component.phone = '3001234567';
-      component.recaptchaToken = 'valid-token';
-
-      authService.register.and.returnValue(of({ message: 'Success' }));
-
-      expect(component.cargando).toBe(false);
-      component.register();
-      expect(component.cargando).toBe(false); // Se resetea después de la respuesta
-    });
-
-    it('debe extraer mensaje de error de diferentes formatos', () => {
-      // Test con error.message
-      const error1 = { error: { message: 'Error específico' } };
-      expect((component as any).extraerMensajeError(error1)).toBe('Error específico');
-
-      // Test con error como string
-      const error2 = { error: 'Error como string' };
-      expect((component as any).extraerMensajeError(error2)).toBe('Error como string');
-
-      // Test con message directo
-      const error3 = { message: 'Mensaje directo' };
-      expect((component as any).extraerMensajeError(error3)).toBe('Mensaje directo');
-
-      // Test con error sin formato conocido
-      const error4 = { unknown: 'formato' };
-      expect((component as any).extraerMensajeError(error4)).toBeNull();
-    });
-
-    it('debe manejar registro sin teléfono', () => {
-      component.name = 'Juan Pérez';
-      component.email = 'juan@test.com';
-      component.password = 'Test@1234';
-      component.confirmPassword = 'Test@1234';
-      component.phone = ''; // Sin teléfono
-      component.recaptchaToken = 'valid-token';
-
-      authService.register.and.returnValue(of({ message: 'Success' }));
-
-      component.register();
-
-      expect(authService.register).toHaveBeenCalledWith(
-        'Juan Pérez',
-        'juan@test.com',
-        'Test@1234',
-        '',
-        'valid-token'
-      );
-    });
-
-    it('debe validar campos requeridos implícitamente', () => {
-      // Aunque no hay validación explícita en el mock,
-      // el backend debería rechazar campos vacíos
-      component.name = '';
-      component.email = '';
-      component.password = '';
-      component.confirmPassword = '';
-      component.recaptchaToken = 'valid-token';
-
-      const error = {
-        error: { message: 'Todos los campos son requeridos' }
-      };
-
-      authService.register.and.returnValue(throwError(() => error));
-
-      component.register();
-
-      expect(component.errorMsg).toBe('Todos los campos son requeridos');
-    });
+  it('should navigate to login on irLogin', () => {
+    const routerSpy = spyOn((component as any).router, 'navigate');
+    component.irLogin();
+    expect(routerSpy).toHaveBeenCalledWith(['/login']);
   });
 });

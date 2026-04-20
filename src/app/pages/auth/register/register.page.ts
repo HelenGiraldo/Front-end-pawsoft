@@ -11,6 +11,7 @@ import { eyeOutline, eyeOffOutline, alertCircleOutline, mailOutline, refreshOutl
 import { OtpModalComponent } from '../../../component/otp-modal/otp-modal.component';
 import { PoliticaModalComponent } from '../../../component/politica-modal/politica-modal.component';
 import { AuthService } from "../../../services/auth";
+import { AuthChatbotComponent } from '../../../component/auth-chatbot/auth-chatbot.component';
 
 declare const grecaptcha: any;
 
@@ -26,6 +27,7 @@ declare const grecaptcha: any;
     IonInput, IonButton, IonIcon, IonSpinner,
     OtpModalComponent,
     PoliticaModalComponent,
+    AuthChatbotComponent,
   ],
 })
 export class RegisterPage implements OnInit {

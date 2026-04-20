@@ -95,7 +95,7 @@
         <div class="form-row">
           <div class="form-group">
             <label class="form-label" for="petName">Nombre *</label>
-            <input id="petName" type="text" class="form-input" formControlName="name" placeholder="Ej: Rocky, Luna...">
+            <input id="petName" type="text" class="form-input" formControlName="name" placeholder="Ej: Rocky, Luna..." maxlength="50">
           </div>
           <div class="form-group">
             <label class="form-label" for="petSpecies">Especie *</label>
@@ -116,7 +116,7 @@
         <div class="form-row">
           <div class="form-group">
             <label class="form-label" for="petBreed">Raza</label>
-            <input id="petBreed" type="text" class="form-input" formControlName="breed" placeholder="Ej: Labrador...">
+            <input id="petBreed" type="text" class="form-input" formControlName="breed" placeholder="Ej: Labrador..." maxlength="50">
           </div>
           <div class="form-group">
             <label class="form-label" for="petSex">Sexo *</label>
@@ -212,7 +212,8 @@
                 <label class="form-label" for="bloodType">🩸 Tipo de Sangre</label>
                 <input id="bloodType" type="text" class="form-input" 
                        formControlName="bloodType" 
-                       placeholder="Ej: DEA 1.1, DEA 1.2...">
+                       placeholder="Ej: DEA 1.1, DEA 1.2..."
+                       maxlength="20">
               </div>
             </div>
 
@@ -221,6 +222,7 @@
               <textarea id="knownAllergies" class="form-textarea" 
                         formControlName="knownAllergies" 
                         placeholder="Ej: Amoxicilina, Polen, Pollo..."
+                        maxlength="300"
                         rows="2"></textarea>
             </div>
 
@@ -229,6 +231,7 @@
               <textarea id="chronicConditions" class="form-textarea" 
                         formControlName="chronicConditions" 
                         placeholder="Ej: Displasia de cadera, Diabetes..."
+                        maxlength="300"
                         rows="2"></textarea>
             </div>
 
@@ -237,6 +240,7 @@
               <textarea id="currentMedications" class="form-textarea" 
                         formControlName="currentMedications" 
                         placeholder="Ej: Meloxicam 10mg, Insulina..."
+                        maxlength="300"
                         rows="2"></textarea>
             </div>
 
@@ -245,6 +249,7 @@
               <textarea id="additionalNotes" class="form-textarea" 
                         formControlName="additionalNotes" 
                         placeholder="Información adicional relevante..."
+                        maxlength="500"
                         rows="2"></textarea>
             </div>
           </div>

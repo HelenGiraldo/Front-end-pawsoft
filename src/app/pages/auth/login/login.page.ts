@@ -19,6 +19,7 @@ import { eyeOutline, eyeOffOutline, refreshOutline, mailOutline, checkmarkCircle
 
 import { AuthService, LoginResponse } from '../../../services/auth';
 import { OtpModalComponent } from '../../../component/otp-modal/otp-modal.component';
+import { AuthChatbotComponent } from '../../../component/auth-chatbot/auth-chatbot.component';
 
 declare const grecaptcha: any;
 
@@ -38,6 +39,7 @@ declare const grecaptcha: any;
     IonIcon,
     IonSpinner,
     OtpModalComponent,
+    AuthChatbotComponent,
   ],
 })
 export class LoginPage implements OnInit, OnDestroy {

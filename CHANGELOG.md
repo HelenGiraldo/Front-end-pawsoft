@@ -4,6 +4,61 @@ Registro de cambios, correcciones y mejoras del frontend.
 
 ---
 
+## [2026-04-19] - 19 de abril de 2026
+
+### Correcciones
+
+#### Fix: Tests del Frontend — 95/95 pasando
+Reescritos todos los archivos `.spec.ts` para alinearse con las APIs reales. Ver CHANGELOG del backend para detalle completo.
+
+#### Fix: Botón "Descargar PDF" fuera del recuadro
+Eliminado `height: 140px` fijo en `.pdf-item-cliente` y `.pdf-item-historial`.
+
+#### Fix: Mascotas hospitalizadas en selector de citas (Recepcionista)
+Tarjetas deshabilitadas visualmente con badge "🏥 Hospitalizada". `selectPet()` bloquea selección.
+
+#### Fix: Autocompletado IA — solo medicamentos del catálogo
+`aplicarMedicamentosSugeridos()` filtra contra `catalogoMedicamentos` antes de agregar.
+
+#### Fix: Alineación columnas tabla de medicamentos
+`align-items: end` → `align-items: start` en `.med-fields`.
+
+#### Fix: Botón "Cobrar" solo en tab Inicio de Recepcionista
+Eliminado de tabs Pagos y Todas las Citas. `savePayment()` encadena `markAsPaid()` automáticamente.
+
+#### Fix: Mensaje de error específico al cerrar atención
+Lista exacta de campos faltantes con `white-space: pre-line`.
+
+#### Fix: Scroll en Login
+Eliminado `[scrollY]="false"` de `ion-content`.
+
+#### Fix: Nota de costos en historial veterinario
+Eliminado mensaje "ℹ️ Los costos mostrados son los originales..." del historial del veterinario.
+
+### Nuevas Funcionalidades
+
+#### Chatbot de Autenticación
+Nuevo `AuthChatbotComponent` en páginas públicas (login, register, forgot-password). System prompts restringidos por contexto. Montado en `app.component.html`.
+
+#### Directiva `autoResize`
+Textareas del formulario de consulta crecen automáticamente. Escucha `ngAfterViewInit` y `ngModelChange`.
+
+#### Regla: Cancelación con 24h de anticipación
+`puedeCancel()` en cliente y recepcionista. Botón Cancelar oculto si faltan menos de 24h.
+
+### Mejoras
+
+#### Colores de texto en botones
+`--color: #ffffff` en botones "Validar" (OTP) y "Continuar" (forgot-password).
+
+#### Límites longitudinales en campos
+`maxlength` coherentes en todos los formularios de autenticación y mascotas.
+
+#### Asteriscos en campos obligatorios
+`*` rojo en todos los campos requeridos de login, register y forgot-password.
+
+---
+
 ## [2026-04-15] - 15 de abril de 2026
 
 ### Nuevas Funcionalidades

@@ -78,7 +78,7 @@
                     <button class="btn-action no-show"    *ngIf="apt.status === 'UPCOMING'" (click)="markNoShow(apt)">No asistió</button>
                     <button class="btn-action cobrar"     *ngIf="apt.status === 'COMPLETED' && !getPaymentForApt(apt.id)" (click)="openPaymentModal(apt)">💳 Cobrar</button>
                     <button class="btn-action edit"       *ngIf="apt.status === 'UPCOMING'" (click)="openEditAppointmentModal(apt)">Editar</button>
-                    <button class="btn-action deactivate" *ngIf="apt.status === 'UPCOMING'" (click)="openCancelModal(apt)">Cancelar</button>
+                    <button class="btn-action deactivate" *ngIf="puedeCancel(apt)" (click)="openCancelModal(apt)">Cancelar</button>
                   </div>
                 </td>
               </tr>
@@ -244,11 +244,14 @@
               </div>
               <div *ngIf="petMode === 'existing'" class="pets-grid">
                 <div class="pet-select-card" *ngFor="let pet of selectedExistingClient.pets"
-                     [class.selected]="selectedPet?.id === pet.id" (click)="selectPet(pet)">
+                     [class.selected]="selectedPet?.id === pet.id"
+                     [class.pet-hospitalized]="pet.isHospitalized"
+                     (click)="selectPet(pet)">
                   <div class="pet-select-emoji">{{ pet.emoji }}</div>
                   <div class="pet-select-name">{{ pet.name }}</div>
                   <div class="pet-select-sub">{{ pet.species }} · {{ pet.breed }}</div>
-                  <div class="pet-select-check" *ngIf="selectedPet?.id === pet.id">✓</div>
+                  <div class="pet-hospitalized-badge" *ngIf="pet.isHospitalized">🏥 Hospitalizada</div>
+                  <div class="pet-select-check" *ngIf="selectedPet?.id === pet.id && !pet.isHospitalized">✓</div>
                 </div>
               </div>
             </div>
@@ -270,7 +273,7 @@
                 <div class="form-row">
                   <div class="form-group">
                     <label class="form-label">Nombre *</label>
-                    <input type="text" class="form-input" formControlName="name" placeholder="Ej: Rocky" [class.invalid]="isPetFieldInvalid('name')">
+                    <input type="text" class="form-input" formControlName="name" placeholder="Ej: Rocky" maxlength="50" [class.invalid]="isPetFieldInvalid('name')">
                     <span class="field-error" *ngIf="isPetFieldInvalid('name')">Campo requerido</span>
                   </div>
                   <div class="form-group">
@@ -286,7 +289,7 @@
                 <div class="form-row">
                   <div class="form-group">
                     <label class="form-label">Raza *</label>
-                    <input type="text" class="form-input" formControlName="breed" placeholder="Ej: Labrador" [class.invalid]="isPetFieldInvalid('breed')">
+                    <input type="text" class="form-input" formControlName="breed" placeholder="Ej: Labrador" maxlength="50" [class.invalid]="isPetFieldInvalid('breed')">
                     <span class="field-error" *ngIf="isPetFieldInvalid('breed')">Campo requerido</span>
                   </div>
                   <div class="form-group">
@@ -531,9 +534,8 @@
                   <div class="action-btns">
                     <button class="btn-action confirm"    *ngIf="apt.status === 'UPCOMING'"  (click)="confirmAppointment(apt)">Confirmar</button>
                     <button class="btn-action no-show"    *ngIf="apt.status === 'UPCOMING'" (click)="markNoShow(apt)">No asistió</button>
-                    <button class="btn-action cobrar"     *ngIf="apt.status === 'COMPLETED' && !getPaymentForApt(apt.id)" (click)="openPaymentModal(apt)">💳 Cobrar</button>
                     <button class="btn-action edit"       *ngIf="apt.status === 'UPCOMING'" (click)="openEditAppointmentModal(apt)">Editar</button>
-                    <button class="btn-action deactivate" *ngIf="apt.status === 'UPCOMING'" (click)="openCancelModal(apt)">Cancelar</button>
+                    <button class="btn-action deactivate" *ngIf="puedeCancel(apt)" (click)="openCancelModal(apt)">Cancelar</button>
                   </div>
                 </td>
               </tr>
@@ -591,7 +593,6 @@
                   </span>
                 </td>
                 <td>
-                  <button class="btn-action confirm" *ngIf="pay.status === 'PENDING'" (click)="confirmPaymentCash(pay)">✓ Cobrar</button>
                   <span *ngIf="pay.status === 'PAID'" style="font-size:0.78rem;color:#22A06B;font-weight:700">✓ Listo</span>
                 </td>
               </tr>
@@ -970,7 +971,7 @@
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Nombre *</label>
-          <input type="text" class="form-input" [(ngModel)]="petForm.name" placeholder="Ej: Rocky">
+          <input type="text" class="form-input" [(ngModel)]="petForm.name" placeholder="Ej: Rocky" maxlength="50">
         </div>
         <div class="form-group">
           <label class="form-label">Especie *</label>
@@ -984,7 +985,7 @@
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Raza *</label>
-          <input type="text" class="form-input" [(ngModel)]="petForm.breed" placeholder="Ej: Labrador">
+          <input type="text" class="form-input" [(ngModel)]="petForm.breed" placeholder="Ej: Labrador" maxlength="50">
         </div>
         <div class="form-group">
           <label class="form-label">Sexo *</label>

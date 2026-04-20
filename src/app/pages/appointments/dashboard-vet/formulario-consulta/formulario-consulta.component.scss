@@ -247,7 +247,7 @@ label {
     }
   }
 }
-.form-textarea { resize: vertical; min-height: 80px; max-width: 100%; }
+.form-textarea { resize: none; min-height: 80px; max-width: 100%; overflow: hidden; }
 
 /* Medicamentos */
 .medicamentos-list { display: flex; flex-direction: column; gap: 12px; }
@@ -270,7 +270,7 @@ label {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr 1.5fr;
   gap: 10px;
-  align-items: end;
+  align-items: start;
   @media (max-width: 700px) { grid-template-columns: 1fr 1fr; }
 }
 
@@ -294,7 +294,7 @@ label {
   background: #FEECEC; border: 1px solid #FFCDD2; color: #b03030;
   width: 34px; height: 34px; border-radius: 8px; cursor: pointer;
   font-size: .8rem; flex-shrink: 0; display: flex; align-items: center;
-  justify-content: center; align-self: flex-end; margin-bottom: 0;
+  justify-content: center; align-self: flex-start; margin-top: 22px;
   &:hover { background: #FFCDD2; }
 }
 

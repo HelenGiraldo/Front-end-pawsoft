@@ -1499,3 +1499,28 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   margin-top: 4px;
   font-weight: 500;
 }
+
+/* ── Mascota hospitalizada en selección de cita ── */
+.pet-select-card.pet-hospitalized {
+  opacity: 0.55;
+  cursor: not-allowed;
+  pointer-events: none;
+  border: 1.5px dashed #e07b00 !important;
+  background: rgba(224, 123, 0, 0.06) !important;
+
+  &:hover {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+}
+
+.pet-hospitalized-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #e07b00;
+  background: rgba(224, 123, 0, 0.12);
+  border-radius: 6px;
+  padding: 2px 7px;
+  margin-top: 2px;
+  letter-spacing: 0.2px;
+}

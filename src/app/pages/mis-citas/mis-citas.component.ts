@@ -17,6 +17,7 @@ interface CitaView {
   petPhotoUrl?: string;
   date: string;
   rawDate: string;
+  rawTime: string;
   time: string;
   reason: string;
   vetName: string;
@@ -109,6 +110,7 @@ export class MisCitasComponent implements OnInit {
             petPhotoUrl: a.petPhotoUrl ?? undefined,
             date:        this.formatDate(rawDateStr),
             rawDate:     rawDateStr,
+            rawTime:     rawTimeStr,
             time:        this.formatTime(rawTimeStr),
             reason:      a.reason ?? '',
             vetName:     a.vetName ?? 'Veterinario',
@@ -268,6 +270,14 @@ export class MisCitasComponent implements OnInit {
     this.citaToCancel = cita;
     this.cancelReason = '';
     this.showCancelModal = true;
+  }
+
+  /** Retorna true si la cita puede cancelarse (más de 24h de anticipación) */
+  puedeCancel(cita: CitaView): boolean {
+    if (cita.status !== 'upcoming' && cita.status !== 'confirmed') return false;
+    const citaDateTime = new Date(`${cita.rawDate}T${cita.rawTime}`);
+    const horasRestantes = (citaDateTime.getTime() - Date.now()) / (1000 * 60 * 60);
+    return horasRestantes > 24;
   }
 
   closeCancelModal(): void {

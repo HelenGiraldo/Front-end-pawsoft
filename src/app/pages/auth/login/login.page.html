@@ -1,4 +1,4 @@
-<ion-content class="login-content" [fullscreen]="true" [scrollY]="false">
+<ion-content class="login-content" [fullscreen]="true">
   <div class="center-container">
     <div class="login-wrapper">
 
@@ -20,22 +20,24 @@
 
         <!-- Email -->
         <ion-item lines="none" class="input-item">
-          <ion-label position="stacked">Correo electrónico</ion-label>
+          <ion-label position="stacked">Correo electrónico <span style="color:#c0392b">*</span></ion-label>
           <ion-input
             type="email"
             placeholder="ejemplo@correo.com"
             [(ngModel)]="email"
+            [maxlength]="100"
             [disabled]="cargando">
           </ion-input>
         </ion-item>
 
         <!-- Contraseña con ojito -->
         <ion-item lines="none" class="input-item password-item">
-          <ion-label position="stacked">Contraseña</ion-label>
+          <ion-label position="stacked">Contraseña <span style="color:#c0392b">*</span></ion-label>
           <ion-input
             [type]="mostrarPass ? 'text' : 'password'"
             placeholder="••••••••"
             [(ngModel)]="password"
+            [maxlength]="50"
             [disabled]="cargando">
           </ion-input>
           <ion-icon
@@ -127,3 +129,5 @@
   </app-otp-modal>
 
 </ion-content>
+
+<!-- Chatbot de autenticación — manejado desde app.component -->

@@ -6,6 +6,8 @@ import { Subscription } from 'rxjs';
 import { InactivityService } from './services/inactivity.service';
 import { AccessibilityWidgetComponent } from './share/components/accessibility-widget/accessibility-widget.component';
 import { ChatbotFabComponent } from './component/chatbot-fab/chatbot-fab.component';
+import { AuthChatbotComponent } from './component/auth-chatbot/auth-chatbot.component';
+import { CommonModule } from '@angular/common';
 
 /**
  * Componente raíz de la aplicación Pawsoft.
@@ -23,7 +25,7 @@ import { ChatbotFabComponent } from './component/chatbot-fab/chatbot-fab.compone
   selector: 'app-root',
   templateUrl: 'app.component.html',
   standalone: true,
-  imports: [IonApp, IonRouterOutlet, AccessibilityWidgetComponent, ChatbotFabComponent],
+  imports: [IonApp, IonRouterOutlet, AccessibilityWidgetComponent, ChatbotFabComponent, AuthChatbotComponent, CommonModule],
 })
 export class AppComponent implements OnInit, OnDestroy {
 
@@ -35,6 +37,9 @@ export class AppComponent implements OnInit, OnDestroy {
     '/verify-email',
     '/auth',
   ];
+
+  currentAuthContext: 'login' | 'register' | 'forgot-password' = 'login';
+  isAuthRoute = false;
 
   private routerSub!: Subscription;
 
@@ -76,8 +81,7 @@ export class AppComponent implements OnInit, OnDestroy {
       .pipe(filter(e => e instanceof NavigationEnd))
       .subscribe((e: any) => {
         this.evaluarRuta(e.urlAfterRedirects);
-      });
-  }
+      });  }
 
   ngOnDestroy(): void {
     window.removeEventListener('popstate', this.onPopState);
@@ -87,6 +91,12 @@ export class AppComponent implements OnInit, OnDestroy {
 
   private evaluarRuta(url: string): void {
     const isPublic = this.PUBLIC_ROUTES.some(r => url.startsWith(r));
+
+    // Determinar contexto del chatbot de autenticación
+    this.isAuthRoute = url.startsWith('/login') || url.startsWith('/register') || url.startsWith('/forgot-password');
+    if (url.startsWith('/register'))        this.currentAuthContext = 'register';
+    else if (url.startsWith('/forgot-password')) this.currentAuthContext = 'forgot-password';
+    else                                    this.currentAuthContext = 'login';
 
     if (isPublic) {
       this.inactivityService.stopWatching();

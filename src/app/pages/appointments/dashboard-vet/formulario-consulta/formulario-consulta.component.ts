@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Observable } from 'rxjs';
 import { AppSidebarComponent } from 'src/app/share/components/app-sidebar/app-sidebar.component';
+import { AutoResizeDirective } from 'src/app/directives/auto-resize.directive';
 import {
   MedicalRecordService,
   AtencionActiva,
@@ -52,7 +53,7 @@ type EstadoGuardado = 'sin_cambios' | 'guardando' | 'guardado' | 'error';
 @Component({
   selector: 'app-formulario-consulta',
   standalone: true,
-  imports: [CommonModule, CurrencyPipe, FormsModule, AppSidebarComponent],
+  imports: [CommonModule, CurrencyPipe, FormsModule, AppSidebarComponent, AutoResizeDirective],
   templateUrl: './formulario-consulta.component.html',
   styleUrls: ['./formulario-consulta.component.scss']
 })
@@ -989,7 +990,34 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
       this.errores.medicamentosRecetados.some(e => e);
 
     if (hayErrores) {
-      this.errorMsg = 'Por favor completa todos los campos obligatorios y verifica los medicamentos';
+      // Construir lista de campos faltantes
+      const faltantes: string[] = [];
+      if (this.errores.diagnosticoPrincipal)   faltantes.push('Diagnóstico principal');
+      if (this.estadoPaciente === 'estable') {
+        if (this.errores.diagnosticoCliente)   faltantes.push('Diagnóstico para el cliente');
+        if (this.errores.indicacionesCliente)  faltantes.push('Indicaciones de cuidado en casa');
+        if (this.errores.proximoControlFecha)  faltantes.push('Fecha del próximo control');
+        if (this.errores.proximoControlMotivo) faltantes.push('Motivo del próximo control');
+      }
+      if (this.estadoPaciente === 'hospitalizacion') {
+        if (this.errores.hospitalizacionMotivo) faltantes.push('Motivo de hospitalización');
+        if (this.errores.hospitalizacionTarifa) faltantes.push('Tarifa por hora');
+      }
+      if (this.estadoPaciente === 'fallecido') {
+        if (this.errores.causaMuerteAtencion)  faltantes.push('Causa de defunción');
+      }
+      if (this.errores.medicamentos.some(e => e))          faltantes.push('Medicamentos del procedimiento (campos incompletos)');
+      if (this.errores.medicamentosRecetados.some(e => e)) faltantes.push('Medicamentos recetados (campos incompletos)');
+
+      this.errorMsg = faltantes.length > 0
+        ? `Campos obligatorios incompletos:\n• ${faltantes.join('\n• ')}`
+        : 'Por favor completa todos los campos obligatorios';
+
+      // Scroll al primer error visible
+      setTimeout(() => {
+        const firstError = document.querySelector('.field-error, .input-error');
+        if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 100);
       return;
     }
 
@@ -1307,28 +1335,38 @@ export class FormularioConsultaComponent implements OnInit, OnDestroy {
 
   aplicarMedicamentosSugeridos(): void {
     if (!this.sugerenciasMedicas?.medications) return;
-    
-    // Agregar medicamentos sugeridos a la lista actual
+
+    let agregados = 0;
+
     this.sugerenciasMedicas.medications.forEach(medText => {
-      // Parsear el texto del medicamento (ej: "Amoxicilina 10mg/kg BID")
-      const parts = medText.split(' ');
-      const nombre = parts[0];
-      const dosisText = parts.slice(1).join(' ');
-      
+      // Buscar en el catálogo real un medicamento cuyo nombre coincida
+      // (comparación case-insensitive, buscando si el nombre del catálogo
+      //  aparece dentro del texto sugerido por la IA)
+      const catalogItem = this.catalogoMedicamentos.find(c =>
+        medText.toLowerCase().includes(c.name.toLowerCase())
+      );
+
+      if (!catalogItem) return; // Ignorar medicamentos que no están en el catálogo
+
+      // Evitar duplicados
+      const yaExiste = this.medicamentos.some(m => m.nombre === catalogItem.name);
+      if (yaExiste) return;
+
       const nuevoMed: Medicamento = {
-        nombre: nombre,
+        nombre: catalogItem.name,
         dosisValor: '',
         dosisUnidad: 'mg/kg',
         via: 'Oral',
-        frecuencia: dosisText, // Usar frecuencia para almacenar la información adicional
+        frecuencia: '',
         duracion: ''
       };
-      
+
       this.medicamentos.push(nuevoMed);
       this.errores.medicamentos.push('');
+      agregados++;
     });
-    
-    this.onFormChange();
+
+    if (agregados > 0) this.onFormChange();
   }
 
   aplicarExamenesSugeridos(): void {

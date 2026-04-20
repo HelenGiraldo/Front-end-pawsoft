@@ -76,7 +76,7 @@
         <!-- Nombre completo -->
         <div class="field-wrap" [class.field-error]="tocado.nombre && errores.nombre">
           <ion-item lines="none" class="input-item">
-            <ion-label position="stacked">Nombre completo</ion-label>
+            <ion-label position="stacked">Nombre completo <span style="color:#c0392b">*</span></ion-label>
             <ion-input
               type="text"
               placeholder="Ej: Juan Pérez"
@@ -103,6 +103,7 @@
               type="email"
               placeholder="ejemplo@correo.com"
               [(ngModel)]="correo"
+              maxlength="100"
               (ionInput)="validarCorreo()"
               (ionBlur)="validarCorreo()">
             </ion-input>
@@ -143,6 +144,7 @@
               [type]="mostrarPass ? 'text' : 'password'"
               placeholder="••••••••"
               [(ngModel)]="contrasena"
+              maxlength="50"
               autocomplete="new-password"
               (ionInput)="validarContrasena()"
               (ionBlur)="validarContrasena()">
@@ -221,3 +223,5 @@
   </app-politica-modal>
 
 </ion-content>
+
+<!-- Chatbot de autenticación — manejado desde app.component -->

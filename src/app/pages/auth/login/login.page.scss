@@ -1,11 +1,7 @@
 .login-content {
   --background: linear-gradient(135deg, rgb(47, 60, 54), rgb(47, 57, 53));
   position: relative;
-  --overflow: hidden;
-
-  @media (max-width: 768px) {
-    --overflow: auto;
-  }
+  --overflow: auto;
 }
 
 .login-content::before {
@@ -29,10 +25,8 @@
   padding: 24px;
   position: relative;
   z-index: 1;
-  overflow: hidden;
 
   @media (max-width: 768px) {
-    overflow-y: auto;
     align-items: flex-start;
     padding: 32px 16px 48px;
   }

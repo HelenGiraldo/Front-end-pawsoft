@@ -1,6 +1,8 @@
 <ion-app>
   <ion-router-outlet [animated]="false"></ion-router-outlet>
   <app-accessibility-widget></app-accessibility-widget>
-  <!-- FAB Chatbot global -->
+  <!-- FAB Chatbot global (solo rutas autenticadas) -->
   <app-chatbot-fab></app-chatbot-fab>
+  <!-- FAB Chatbot de autenticación (solo login, register, forgot-password) -->
+  <app-auth-chatbot *ngIf="isAuthRoute" [context]="currentAuthContext"></app-auth-chatbot>
 </ion-app>

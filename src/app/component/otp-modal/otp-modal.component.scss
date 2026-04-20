@@ -220,11 +220,13 @@
   --background-activated: #2a4a3f;
   --border-radius: 12px;
   --box-shadow: 0 4px 14px rgba(53, 92, 79, 0.35);
+  --color: #ffffff;
   font-weight: 600;
   font-size: 0.95rem;
 
   &[disabled] {
     --background: rgba(74, 99, 88, 0.3);
+    --color: rgba(255, 255, 255, 0.5);
     --box-shadow: none;
   }
 }

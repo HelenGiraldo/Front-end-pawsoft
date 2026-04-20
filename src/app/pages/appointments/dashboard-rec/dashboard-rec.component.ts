@@ -466,7 +466,24 @@ export class DashboardRecComponent implements OnInit {
       concept: this.paymentApt.reason, baseAmount: this.paymentBaseAmount,
       amount: montoFinal, notes: this.paymentNotes
     }).subscribe({
-      next: () => { this.savingPayment = false; this.closePaymentModal(); this.loadPayments(); this.showToast('Pago registrado correctamente', 'success'); },
+      next: (created) => {
+        // Marcar inmediatamente como PAID tras crear el registro
+        this.paymentService.markAsPaid(created.id).subscribe({
+          next: () => {
+            this.savingPayment = false;
+            this.closePaymentModal();
+            this.loadPayments();
+            this.showToast('Pago registrado y cobrado ✓', 'success');
+          },
+          error: () => {
+            // Si falla el markAsPaid igual recargamos para mostrar estado real
+            this.savingPayment = false;
+            this.closePaymentModal();
+            this.loadPayments();
+            this.showToast('Pago registrado correctamente', 'success');
+          }
+        });
+      },
       error: () => { this.savingPayment = false; this.showToast('Error al registrar el pago', 'error'); }
     });
   }
@@ -474,7 +491,15 @@ export class DashboardRecComponent implements OnInit {
   confirmPaymentCash(pay: PaymentResponse): void {
     if (!confirm(`¿Confirmar cobro de $${pay.amount?.toLocaleString()} a ${pay.clientName}?`)) return;
     this.paymentService.markAsPaid(pay.id).subscribe({
-      next: () => { pay.status = 'PAID'; this.calcPaymentStats(); this.showToast('Pago confirmado ✓', 'success'); },
+      next: () => {
+        // Actualizar en ambos arrays para que los filtros reflejen el cambio
+        pay.status = 'PAID';
+        const inSource = this.payments.find(p => p.id === pay.id);
+        if (inSource) inSource.status = 'PAID';
+        this.calcPaymentStats();
+        this.filterPayments();
+        this.showToast('Pago confirmado ✓', 'success');
+      },
       error: () => this.showToast('Error al confirmar el pago', 'error')
     });
   }
@@ -1078,6 +1103,14 @@ export class DashboardRecComponent implements OnInit {
   }
 
   openCancelModal(apt: Appointment): void { this.aptToCancel = apt; this.cancelReason = ''; this.showCancelModal = true; }
+
+  /** Retorna true si la cita puede cancelarse (más de 24h de anticipación) */
+  puedeCancel(apt: Appointment): boolean {
+    if (apt.status !== 'UPCOMING' && apt.status !== 'CONFIRMED') return false;
+    const citaDateTime = new Date(`${apt.date}T${apt.time}`);
+    const horasRestantes = (citaDateTime.getTime() - Date.now()) / (1000 * 60 * 60);
+    return horasRestantes > 24;
+  }
   closeCancelModal(): void { this.showCancelModal = false; this.aptToCancel = null; }
 
   cancelAppointment(): void {
@@ -1161,7 +1194,10 @@ export class DashboardRecComponent implements OnInit {
     this.petMode = (this.clientMode === 'existing' && (this.selectedExistingClient?.pets.length ?? 0) > 0) ? 'existing' : 'new';
   }
 
-  selectPet(pet: ClientPet): void { this.selectedPet = pet; }
+  selectPet(pet: ClientPet): void {
+    if (pet.isHospitalized) return;
+    this.selectedPet = pet;
+  }
 
   onPetPhotoChange(event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0];
